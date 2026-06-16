@@ -1,23 +1,22 @@
 package lightOrgan.spectrum
 
-import dsp.bins.FrequencyBins
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 
 data class SpectrumManagerFixture(
     val mock: SpectrumManager,
-    val frequencyBins: MutableStateFlow<FrequencyBins>
+    val spectralAnalysis: MutableStateFlow<SpectralAnalysis>
 ) {
 
     companion object {
         fun create(): SpectrumManagerFixture {
             val fixture = SpectrumManagerFixture(
                 mock = mockk<SpectrumManager>(),
-                frequencyBins = MutableStateFlow(emptyList())
+                spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
             )
 
-            every { fixture.mock.spectralAnalysis } returns fixture.frequencyBins
+            every { fixture.mock.spectralAnalysis } returns fixture.spectralAnalysis
 
             return fixture
         }

@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -67,34 +65,33 @@ private fun HighlightedFrequency(bin: FrequencyBin?) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Spectrum(viewModel: SpectrumTileViewModel) {
-    val bins = viewModel.displayedBins.collectAsState()
-    val peaks = viewModel.displayedPeaks.collectAsState()
-    val binCount = remember { derivedStateOf { bins.value.size } } // optimization
-    val hoveredIndex = viewModel.highlightedIndex
-    val spectrumColor = MaterialTheme.colors.secondary
-    val peakColor = Color.White
+    val spectralAnalysis = viewModel.spectralAnalysis.collectAsState().value
+    val bins = spectralAnalysis.spectrum
+    val peaks = spectralAnalysis.peaks
 
-    val lowestFrequency = bins.value.minOfOrNull { it.frequency } ?: 0f
-    val highestFrequency = bins.value.maxOfOrNull { it.frequency } ?: 0f
-
-    if (bins.value.count() == 0) {
+    if (bins.isEmpty()) {
         return
     }
+
+    val hoveredIndex = viewModel.highlightedIndex
+    val spectrumColor = MaterialTheme.colors.secondary
+    val lowestFrequency = bins.minOfOrNull { it.frequency } ?: 0f
+    val highestFrequency = bins.maxOfOrNull { it.frequency } ?: 0f
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
             .onBinHover(
-                binCount = binCount.value,
+                binCount = bins.size,
                 onHover = { viewModel.highlightedIndex = it },
                 onExit = { viewModel.highlightedIndex = null }
             )
     ) {
-        val barWidth = size.width / bins.value.size
+        val barWidth = size.width / bins.size
 
-        drawSpectrum(bins.value, spectrumColor, barWidth)
-        drawPeaks(peaks.value, lowestFrequency, highestFrequency, peakColor)
+        drawSpectrum(bins, spectrumColor, barWidth)
+        drawPeaks(peaks, lowestFrequency, highestFrequency)
         drawHoverHighlight(hoveredIndex, barWidth)
     }
 }
@@ -119,7 +116,8 @@ private fun DrawScope.drawSpectrum(bins: FrequencyBins, color: Color, barWidth: 
     }
 }
 
-private fun DrawScope.drawPeaks(peaks: SpectralPeaks, lowestFrequency: Float, highestFrequency: Float, color: Color) {
+private fun DrawScope.drawPeaks(peaks: SpectralPeaks, lowestFrequency: Float, highestFrequency: Float) {
+    val color = Color.White
     val peakStrokeWidth = 1f
     val glowStrokeWidth = peakStrokeWidth + 2f
     val halfStroke = peakStrokeWidth / 2f

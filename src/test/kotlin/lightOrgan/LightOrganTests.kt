@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import toolkit.monkeyTest.nextAudioFrame
-import toolkit.monkeyTest.nextFrequencyBins
+import toolkit.monkeyTest.nextSpectralAnalysis
 import toolkit.monkeyTest.nextStandardRgbColor
 import utilities.coroutines.asLazySequence
 
@@ -28,7 +28,7 @@ class LightOrganTests {
     private lateinit var fakeGatewayManager: FakeGatewayManager
 
     private val audioFrame = nextAudioFrame()
-    private val frequencyBins = nextFrequencyBins()
+    private val spectralAnalysis = nextSpectralAnalysis()
     private val newColor = nextStandardRgbColor()
 
     @BeforeEach
@@ -38,8 +38,8 @@ class LightOrganTests {
         colorManager = ColorManagerFixture.create()
         fakeGatewayManager = FakeGatewayManager()
 
-        every { spectrumManager.mock.calculate(audioFrame) } returns frequencyBins
-        every { colorManager.mock.calculate(frequencyBins) } returns newColor
+        every { spectrumManager.mock.calculate(audioFrame) } returns spectralAnalysis
+        every { colorManager.mock.calculate(spectralAnalysis.peaks) } returns newColor
     }
 
     @AfterEach
