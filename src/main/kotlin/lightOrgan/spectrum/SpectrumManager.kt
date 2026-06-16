@@ -56,11 +56,6 @@ class SpectrumManager(
 
         val psf = calculatePsf(preparedFrame)
         val peaks = peakExtractor.extract(relevantBins, psf) // TODO:
-
-        if (peaks.size > 1 && peaks.minOf { it.magnitude } > 0.01f) {
-            println("ADSF")
-        }
-
         val spectralAnalysis = SpectralAnalysis(relevantBins, peaks)
         _spectralAnalysis.value = spectralAnalysis
         return spectralAnalysis
