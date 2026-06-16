@@ -39,7 +39,7 @@ class LightOrganTests {
         fakeGatewayManager = FakeGatewayManager()
 
         every { spectrumManager.mock.calculate(audioFrame) } returns spectralAnalysis
-        every { colorManager.mock.calculate(spectralAnalysis.peaks) } returns newColor
+        every { colorManager.mock.calculate(spectralAnalysis) } returns newColor
     }
 
     @AfterEach

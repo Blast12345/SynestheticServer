@@ -33,7 +33,7 @@ class LightOrgan(
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
             .mapSequenced("Spectral analysis") { spectrumManager.calculate(it) }
             .conflate()
-            .mapSequenced("Color generation") { colorManager.calculate(it.peaks) }
+            .mapSequenced("Color generation") { colorManager.calculate(it) }
             .conflate()
             .onEachSequenced("Gateway broadcast") { gatewayManager.gateway?.broadcastColor(it) }
             .onEach { timeBetweenColors.logTimeSinceLast() }
