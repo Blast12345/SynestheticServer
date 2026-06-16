@@ -11,17 +11,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 
 @Composable
 fun Grid(content: @Composable () -> Unit) {
     val lineColor = MaterialTheme.colors.primary
 
     Box(modifier = Modifier.border(1.dp, lineColor)) {
+        Canvas(modifier = Modifier.fillMaxSize()) { drawGrid(this, lineColor) }
         content()
-        Canvas(modifier = Modifier.fillMaxSize().zIndex(1f)) {
-            drawGrid(this, lineColor)
-        }
     }
 }
 

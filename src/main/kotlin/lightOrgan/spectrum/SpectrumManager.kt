@@ -11,6 +11,8 @@ import dsp.ZeroPaddingInterpolator
 import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
+import dsp.peakExtraction.ParabolicSpectralPeakExtractor
+import dsp.peakExtraction.SpectralPeakExtractor
 import dsp.windowing.Window
 import extensions.inSeconds
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,19 +39,23 @@ class SpectrumManager(
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
     private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
+    private var peakExtractor: SpectralPeakExtractor = ParabolicSpectralPeakExtractor()
 
-    private val _frequencyBins = MutableStateFlow<FrequencyBins>(emptyList())
-    val frequencyBins: StateFlow<FrequencyBins> = _frequencyBins.asStateFlow()
+    private val _spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
+    val spectralAnalysis: StateFlow<SpectralAnalysis> = _spectralAnalysis.asStateFlow()
 
     // WARNING: Discontinuous data will cause spectral artifacts
-    fun calculate(audio: AudioFrame): FrequencyBins {
+    fun calculate(audio: AudioFrame): SpectralAnalysis {
         val conditionedAudio = conditionAudio(audio)
         val preparedFrame = prepareFrame(conditionedAudio)
         val allBins = calculateBins(preparedFrame)
         val relevantBins = filterBins(allBins, preparedFrame.audio.format)
+        val peaks = peakExtractor.extract(relevantBins) // TODO:
 
-        _frequencyBins.value = relevantBins
-        return relevantBins
+        val spectralAnalysis = SpectralAnalysis(relevantBins, peaks)
+
+        _spectralAnalysis.value = spectralAnalysis
+        return spectralAnalysis
     }
 
     // Conditioning

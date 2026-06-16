@@ -15,6 +15,7 @@ import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
 import lightOrgan.spectrum.SpectrumManager
 
+// ENHANCEMENT: Global hotkey for certain operations (e.g. gain adjustment)
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.
 // ENHANCEMENT: Explore higher baud rates
 // ENHANCEMENT: Introduce Frequency type

@@ -14,12 +14,20 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.font.FontWeight
 import dsp.bins.FrequencyBin
+import dsp.bins.FrequencyBins
+import dsp.peakExtraction.SpectralPeaks
 import gui.basicComponents.*
+import org.jetbrains.skia.FilterBlurMode
+import org.jetbrains.skia.MaskFilter
+import kotlin.math.round
 
 @Preview
 @Composable
@@ -30,9 +38,12 @@ fun SpectrumTile(
     Tile(modifier) {
         Title()
         SimpleSpacer(dpSize = 12)
-        HighlightedFrequency(bin = viewModel.highlightedBin)
+        HighlightedFrequency(bin = viewModel.highlightedBin) // TODO: Make follow cursor
         SimpleSpacer(dpSize = 12)
-        GridSpectrum(viewModel)
+
+        Grid {
+            Spectrum(viewModel)
+        }
     }
 }
 
@@ -53,20 +64,22 @@ private fun HighlightedFrequency(bin: FrequencyBin?) {
     )
 }
 
-@Composable
-private fun GridSpectrum(viewModel: SpectrumTileViewModel) {
-    Grid {
-        Spectrum(viewModel)
-    }
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Spectrum(viewModel: SpectrumTileViewModel) {
     val bins = viewModel.displayedBins.collectAsState()
+    val peaks = viewModel.displayedPeaks.collectAsState()
     val binCount = remember { derivedStateOf { bins.value.size } } // optimization
     val hoveredIndex = viewModel.highlightedIndex
-    val barColor = MaterialTheme.colors.secondary
+    val spectrumColor = MaterialTheme.colors.secondary
+    val peakColor = Color.White
+
+    val lowestFrequency = bins.value.minOfOrNull { it.frequency } ?: 0f
+    val highestFrequency = bins.value.maxOfOrNull { it.frequency } ?: 0f
+
+    if (bins.value.count() == 0) {
+        return
+    }
 
     Canvas(
         modifier = Modifier
@@ -79,15 +92,87 @@ private fun Spectrum(viewModel: SpectrumTileViewModel) {
             )
     ) {
         val barWidth = size.width / bins.value.size
-        val renderWidth = barWidth + 1f
 
-        bins.value.forEachIndexed { index, bin ->
-            drawBar(index, bin, barWidth, renderWidth, barColor)
+        drawSpectrum(bins.value, spectrumColor, barWidth)
+        drawPeaks(peaks.value, lowestFrequency, highestFrequency, peakColor)
+        drawHoverHighlight(hoveredIndex, barWidth)
+    }
+}
 
-            if (index == hoveredIndex) {
-                drawHoverHighlight(index, barWidth, renderWidth)
+// ENHANCEMENT: Add option for parabolic interpolation
+private fun DrawScope.drawSpectrum(bins: FrequencyBins, color: Color, barWidth: Float) {
+    bins.forEachIndexed { index, bin ->
+        val xLeft = index * barWidth
+        val xRight = (index + 1) * barWidth
+        val height = bin.magnitude * size.height
+
+        val snappedLeft = round(xLeft)
+        val snappedRight = round(xRight)
+        val snappedHeight = round(height)
+        val snappedWidth = snappedRight - snappedLeft
+
+        drawRect(
+            color = color,
+            topLeft = Cartesian(snappedLeft, snappedHeight).to(this),
+            size = Size(snappedWidth, snappedHeight)
+        )
+    }
+}
+
+private fun DrawScope.drawPeaks(peaks: SpectralPeaks, lowestFrequency: Float, highestFrequency: Float, color: Color) {
+    val peakStrokeWidth = 1f
+    val glowStrokeWidth = peakStrokeWidth + 2f
+    val halfStroke = peakStrokeWidth / 2f
+
+    peaks.forEach { peak ->
+        val positionInRange = (peak.frequency - lowestFrequency) / (highestFrequency - lowestFrequency)
+
+        val centerX = positionInRange * size.width
+        val lineHeight = peak.magnitude * size.height
+
+        val snappedCenterX = round(centerX - halfStroke) + halfStroke
+        val snappedLineHeight = round(lineHeight)
+
+        // Glow
+        drawIntoCanvas { canvas ->
+            val paint = Paint().apply {
+                this.color = color
+                strokeWidth = glowStrokeWidth
+                style = PaintingStyle.Stroke
+                asFrameworkPaint().maskFilter = MaskFilter.makeBlur(FilterBlurMode.NORMAL, 4f)
             }
+
+            canvas.drawLine(
+                Cartesian(snappedCenterX, 0f).to(this),
+                Cartesian(snappedCenterX, snappedLineHeight).to(this),
+                paint
+            )
         }
+
+        // Defined line
+        drawLine(
+            color,
+            Cartesian(snappedCenterX, 0f).to(this),
+            Cartesian(snappedCenterX, snappedLineHeight).to(this),
+            peakStrokeWidth
+        )
+    }
+}
+
+private fun DrawScope.drawHoverHighlight(hoveredIndex: Int?, barWidth: Float) {
+    hoveredIndex?.let { index ->
+        val xLeft = index * barWidth
+        val xRight = (index + 1) * barWidth
+
+        val snappedLeft = round(xLeft)
+        val snappedRight = round(xRight)
+        val snappedWidth = snappedRight - snappedLeft
+
+        drawRect(
+            color = Color.White.copy(alpha = 0.5f),
+            topLeft = Cartesian(snappedLeft, size.height).to(this),
+            size = Size(snappedWidth, size.height)
+        )
     }
 }
 
@@ -105,30 +190,8 @@ private fun Modifier.onBinHover(
         .onPointerEvent(PointerEventType.Exit) { onExit() }
 }
 
-private fun DrawScope.drawBar(
-    index: Int,
-    bin: FrequencyBin,
-    barWidth: Float,
-    renderWidth: Float,
-    color: Color
-) {
-    val barHeight = bin.magnitude * size.height
 
-    drawRect(
-        color = color,
-        topLeft = Offset(index * barWidth, size.height - barHeight),
-        size = Size(renderWidth, barHeight)
-    )
-}
+// TODO: Move me
+data class Cartesian(val x: Float, val y: Float)
 
-private fun DrawScope.drawHoverHighlight(
-    index: Int,
-    barWidth: Float,
-    renderWidth: Float
-) {
-    drawRect(
-        color = Color.White.copy(alpha = 0.5f),
-        topLeft = Offset(index * barWidth, 0f),
-        size = Size(renderWidth, size.height)
-    )
-}
+fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)

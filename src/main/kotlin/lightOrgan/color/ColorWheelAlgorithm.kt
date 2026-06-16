@@ -11,6 +11,7 @@ import music.TuningSystem
 import music.WesternTuningSystem
 import kotlin.time.Duration.Companion.milliseconds
 
+// ENHANCEMENT: Use the non-smoothed chroma for the spectrum frame
 class ColorWheelAlgorithm(
     private val tuning: TuningSystem = WesternTuningSystem(),
     private val lightSmoother: Smoother<Light> = Smoothers.lightExponentialMovingAverage(75.milliseconds),

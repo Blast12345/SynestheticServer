@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import config.ConfigSingleton
 import dsp.bins.FrequencyBin
 import dsp.bins.FrequencyBins
+import dsp.peakExtraction.SpectralPeaks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +28,13 @@ class SpectrumTileViewModel(
     var lowestFrequency: Float by mutableStateOf(config.lowestFrequency)
     var highestFrequency: Float by mutableStateOf(config.highestFrequency)
 
-    val displayedBins: StateFlow<FrequencyBins> = spectrumManager.frequencyBins
+    val displayedBins: StateFlow<FrequencyBins> = spectrumManager.spectralAnalysis
+        .map { it.spectrum }
+        .map { it.filter { bin -> bin.frequency in lowestFrequency..highestFrequency } }
+        .stateIn(scope, sharingPolicy, emptyList())
+
+    val displayedPeaks: StateFlow<SpectralPeaks> = spectrumManager.spectralAnalysis
+        .map { it.peaks }
         .map { it.filter { bin -> bin.frequency in lowestFrequency..highestFrequency } }
         .stateIn(scope, sharingPolicy, emptyList())
 
