@@ -26,6 +26,11 @@ import org.jetbrains.skia.FilterBlurMode
 import org.jetbrains.skia.MaskFilter
 import kotlin.math.round
 
+// TODO: Move me
+data class Cartesian(val x: Float, val y: Float)
+
+fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)
+
 // ENHANCEMENT: Make the frequency follow the cursor
 @Composable
 fun SpectrumTile(
@@ -186,9 +191,3 @@ private fun Modifier.onBinHover(
         }
         .onPointerEvent(PointerEventType.Exit) { onExit() }
 }
-
-
-// TODO: Move me
-data class Cartesian(val x: Float, val y: Float)
-
-fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)
