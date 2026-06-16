@@ -1,6 +1,5 @@
 package gui.dashboard.tiles.spectrum
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -27,7 +26,7 @@ import org.jetbrains.skia.FilterBlurMode
 import org.jetbrains.skia.MaskFilter
 import kotlin.math.round
 
-@Preview
+// ENHANCEMENT: Make the frequency follow the cursor
 @Composable
 fun SpectrumTile(
     viewModel: SpectrumTileViewModel,
@@ -36,7 +35,7 @@ fun SpectrumTile(
     Tile(modifier) {
         Title()
         SimpleSpacer(dpSize = 12)
-        HighlightedFrequency(bin = viewModel.highlightedBin) // TODO: Make follow cursor
+        HighlightedFrequency(bin = viewModel.highlightedBin)
         SimpleSpacer(dpSize = 12)
 
         Grid {
