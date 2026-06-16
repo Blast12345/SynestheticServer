@@ -7,7 +7,7 @@ import kotlin.math.sin
 
 data class FrequencyBin(
     val frequency: Float,
-    val value: Complex
+    val value: Complex // TODO: Extension for magnitude?
 ) {
 
     // I'm using the term "magnitude" instead of "amplitude" because the value is inherently non-negative.
@@ -18,6 +18,8 @@ data class FrequencyBin(
         frequency = frequency,
         value = Complex(magnitude * cos(phase), magnitude * sin(phase))
     )
+
+    override fun toString(): String = "FrequencyBin(frequency=$frequency, magnitude=$magnitude)"
 
 }
 

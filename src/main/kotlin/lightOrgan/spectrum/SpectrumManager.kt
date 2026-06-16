@@ -11,8 +11,9 @@ import dsp.ZeroPaddingInterpolator
 import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
-import dsp.peakExtraction.ParabolicSpectralPeakExtractor
-import dsp.peakExtraction.SpectralPeakExtractor
+import dsp.peakExtraction.CleanPeakExtractor
+import dsp.peakExtraction.PointSpreadFunction
+import dsp.peakExtraction.PsfCalculator
 import dsp.windowing.Window
 import extensions.inSeconds
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +40,8 @@ class SpectrumManager(
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
     private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
-    private var peakExtractor: SpectralPeakExtractor = ParabolicSpectralPeakExtractor()
+    //    private var peakExtractor: SpectralPeakExtractor = ParabolicSpectralPeakExtractor()
+    private var peakExtractor = CleanPeakExtractor()
 
     private val _spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
     val spectralAnalysis: StateFlow<SpectralAnalysis> = _spectralAnalysis.asStateFlow()
@@ -48,14 +50,28 @@ class SpectrumManager(
     fun calculate(audio: AudioFrame): SpectralAnalysis {
         val conditionedAudio = conditionAudio(audio)
         val preparedFrame = prepareFrame(conditionedAudio)
+
         val allBins = calculateBins(preparedFrame)
         val relevantBins = filterBins(allBins, preparedFrame.audio.format)
-        val peaks = peakExtractor.extract(relevantBins) // TODO:
+
+        val psf = calculatePsf(preparedFrame)
+        val peaks = peakExtractor.extract(relevantBins, psf) // TODO:
+
+        if (peaks.size > 1 && peaks.minOf { it.magnitude } > 0.01f) {
+            println("ADSF")
+        }
 
         val spectralAnalysis = SpectralAnalysis(relevantBins, peaks)
-
         _spectralAnalysis.value = spectralAnalysis
         return spectralAnalysis
+    }
+
+    val psfCalc = PsfCalculator()
+
+    private fun calculatePsf(preparedFrame: PreparedFrame): PointSpreadFunction {
+        val coefficients = window.coefficients(preparedFrame.sampleSize)
+        val zeroPadded = interpolator.interpolate(coefficients, preparedFrame.fftLength)
+        return psfCalc.calculate(zeroPadded)
     }
 
     // Conditioning
@@ -88,6 +104,13 @@ class SpectrumManager(
     }
 
     // Frame Prep
+    private data class PreparedFrame(
+        val audio: AudioFrame,
+        val magnitudeCorrectionFactor: Float,
+        val sampleSize: Int,
+        val fftLength: Int
+    )
+
     private fun prepareFrame(audio: AudioFrame): PreparedFrame {
         val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
         val samplesSizeForDesiredSpacing = audio.format.sampleRate / config.approximateBinSpacing
@@ -100,7 +123,9 @@ class SpectrumManager(
 
         return PreparedFrame(
             audio = preparedAudio,
-            magnitudeCorrectionFactor = window.magnitudeCorrectionFactor(sampleSize)
+            magnitudeCorrectionFactor = window.magnitudeCorrectionFactor(sampleSize),
+            sampleSize = sampleSize,
+            fftLength = optimalFftLength
         )
     }
 
@@ -123,10 +148,6 @@ class SpectrumManager(
         )
     }
 
-    private data class PreparedFrame(
-        val audio: AudioFrame,
-        val magnitudeCorrectionFactor: Float
-    )
 
     // Bin calculation
     private fun calculateBins(preparedFrame: PreparedFrame): FrequencyBins {

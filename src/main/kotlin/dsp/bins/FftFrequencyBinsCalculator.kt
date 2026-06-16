@@ -16,11 +16,21 @@ class FftFrequencyBinsCalculator : FrequencyBinsCalculator {
         val scalingFactor = 2.0 / monoSamples.size
 
         return fftResult.mapIndexed { index, complex ->
+            val isUnmirrored = index == 0 || index == fftResult.size - 1
+            val mirrorFactor = if (isUnmirrored) 1.0 else 2.0
+            val scalingFactor = mirrorFactor / monoSamples.size
+
             FrequencyBin(
                 frequency = index * binSpacing,
                 value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
             )
         }
+//        return fftResult.mapIndexed { index, complex ->
+//            FrequencyBin(
+//                frequency = index * binSpacing,
+//                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
+//            )
+//        }
     }
 
     private fun performFft(samples: FloatArray): List<Complex> {
