@@ -11,59 +11,61 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import kotlin.math.round
 
 @Composable
 fun Grid(content: @Composable () -> Unit) {
     val lineColor = MaterialTheme.colors.primary
 
     Box(modifier = Modifier.border(1.dp, lineColor)) {
-        Canvas(modifier = Modifier.fillMaxSize()) { drawGrid(this, lineColor) }
+        Canvas(modifier = Modifier.fillMaxSize()) { drawGrid(lineColor) }
         content()
     }
 }
 
-private fun drawGrid(
-    scope: DrawScope,
+private fun DrawScope.drawGrid(
     lineColor: Color,
     horizontalLineCount: Int = 10,
     verticalLineCount: Int = 10,
 ) {
-    drawHorizontalLines(scope, lineColor, horizontalLineCount)
-    drawVerticalLines(scope, lineColor, verticalLineCount)
+    drawHorizontalLines(lineColor, horizontalLineCount)
+    drawVerticalLines(lineColor, verticalLineCount)
 }
 
-private fun drawHorizontalLines(
-    scope: DrawScope,
-    lineColor: Color,
-    lineCount: Int
-) {
-    val lineInterval = scope.size.height / lineCount
+private fun DrawScope.drawHorizontalLines(lineColor: Color, lineCount: Int) {
+    val lineInterval = size.height / lineCount
+    val strokeWidth = 1f
+    val halfStroke = strokeWidth / 2f
 
     repeat(lineCount) { index ->
         val y = index * lineInterval
+        
+        val snappedY = round(y - halfStroke) + halfStroke
 
-        scope.drawLine(
+        drawLine(
             color = lineColor,
-            start = Offset(0f, y),
-            end = Offset(scope.size.width, y)
+            start = Offset(0f, snappedY),
+            end = Offset(size.width, snappedY),
+            strokeWidth = strokeWidth
         )
     }
 }
 
-private fun drawVerticalLines(
-    scope: DrawScope,
-    lineColor: Color,
-    lineCount: Int
-) {
-    val lineInterval = scope.size.width / lineCount
+private fun DrawScope.drawVerticalLines(lineColor: Color, lineCount: Int) {
+    val lineInterval = size.width / lineCount
+    val strokeWidth = 1f
+    val halfStroke = strokeWidth / 2f
 
     repeat(lineCount) { index ->
         val x = index * lineInterval
 
-        scope.drawLine(
+        val snappedX = round(x - halfStroke) + halfStroke
+
+        drawLine(
             color = lineColor,
-            start = Offset(x, 0f),
-            end = Offset(x, scope.size.height)
+            start = Offset(snappedX, 0f),
+            end = Offset(snappedX, size.height),
+            strokeWidth = strokeWidth
         )
     }
 }
