@@ -1,5 +1,7 @@
-package color
+package toolkit.assertions
 
+import color.RgbColor
+import color.RgbColorSpace
 import org.junit.jupiter.api.Assertions.assertEquals
 
 fun <S : RgbColorSpace> assertRgbEquals(

@@ -3,6 +3,7 @@ package color
 import math.normalization.UnitInterval
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import toolkit.assertions.assertRgbEquals
 
 class LinearRgbColorTests {
 
