@@ -31,9 +31,9 @@ class RealGateway(
     // ENHANCEMENT: StandardRgbColor could be values of 0-255
     override suspend fun broadcastColor(color: StandardRgbColor) {
         val params = BroadcastColor(
-            r = (color.red.value * 255).roundToInt(),
-            g = (color.green.value * 255).roundToInt(),
-            b = (color.blue.value * 255).roundToInt(),
+            r = (color.red.value * 255).roundToInt().coerceAtLeast(1),
+            g = (color.green.value * 255).roundToInt().coerceAtLeast(1),
+            b = (color.blue.value * 255).roundToInt().coerceAtLeast(1),
         )
 
         connection.sendNotification("broadcast-color", params, 50.milliseconds)
