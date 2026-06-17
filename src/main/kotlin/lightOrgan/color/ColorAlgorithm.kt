@@ -1,6 +1,6 @@
 package lightOrgan.color
 
-import color.StandardRgbColor
+import color.rgb.StandardRgbColor
 import dsp.peakExtraction.SpectralPeaks
 
 interface ColorAlgorithm {

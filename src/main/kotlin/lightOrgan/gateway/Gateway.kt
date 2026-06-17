@@ -1,7 +1,7 @@
 package lightOrgan.gateway
 
 import annotations.SkipCoverage
-import color.StandardRgbColor
+import color.rgb.StandardRgbColor
 import jsonrpc.JsonRpcConnection
 import kotlinx.coroutines.flow.StateFlow
 import lightOrgan.gateway.models.BroadcastColor

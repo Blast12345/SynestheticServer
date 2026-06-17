@@ -1,6 +1,6 @@
 package toolkit.monkeyTest
 
-import color.StandardRgbColor
+import color.rgb.StandardRgbColor
 
 fun nextStandardRgbColor(): StandardRgbColor {
     return StandardRgbColor(

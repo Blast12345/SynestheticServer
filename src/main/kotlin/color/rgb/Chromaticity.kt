@@ -1,4 +1,4 @@
-package color
+package color.rgb
 
 import math.geometry.Angle
 import math.normalization.UnitInterval

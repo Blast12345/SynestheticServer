@@ -1,7 +1,7 @@
 package lightOrgan.color
 
-import color.StandardRgbColor
-import color.StandardRgbColors
+import color.rgb.StandardRgbColor
+import color.rgb.StandardRgbColors
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.ParabolicSpectralPeakExtractor
 import dsp.peakExtraction.SpectralPeakExtractor

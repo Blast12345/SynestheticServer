@@ -1,7 +1,7 @@
 package lightOrgan.color
 
-import color.StandardRgbColor
-import color.StandardRgbColors
+import color.rgb.StandardRgbColor
+import color.rgb.StandardRgbColors
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,6 @@
 package lightOrgan.gateway
 
-import color.StandardRgbColor
+import color.rgb.StandardRgbColor
 import jsonrpc.FakeJsonRpcConnection
 import kotlinx.coroutines.test.runTest
 import lightOrgan.gateway.models.BroadcastColor

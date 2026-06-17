@@ -1,5 +1,6 @@
-package color
+package color.rgb
 
+import color.RgbColorSpace
 import math.geometry.Angle
 import math.normalization.UnitInterval
 import kotlin.math.abs
