@@ -42,7 +42,7 @@ class ColorWheelAlgorithmIntegrationTests {
         )
     }
 
-    // Basic colors
+    // Silence
     @Test
     fun `given no peaks, then black is returned`() {
         val sut = createSUT()
@@ -54,6 +54,127 @@ class ColorWheelAlgorithmIntegrationTests {
         assertEquals(0.0, actual.blue.value, 0.001)
     }
 
+
+    // Full loudness tones
+    // Reference: https://en.wikipedia.org/wiki/Color_wheel#/media/File:RGB_color_wheel_with_hue_and_hex.svg
+    @Test
+    fun `given a C note at full loudness, then red is returned`() {
+        val sut = createSUT()
+        val actual = sut.calculate(listOf(SpectralPeak(cFrequency, fullLoudness)))
+        assertEquals(1.0, actual.red.value, 0.001)
+        assertEquals(0.0, actual.green.value, 0.001)
+        assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a C# note at full loudness, then orange is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.C_SHARP, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(1.0, actual.red.value, 0.001)
+        assertEquals(0.5, actual.green.value, 0.001)
+        assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a D note at full loudness, then yellow is returned`() {
+        val sut = createSUT()
+        val actual = sut.calculate(listOf(SpectralPeak(dFrequency, fullLoudness)))
+        assertEquals(1.0, actual.red.value, 0.001)
+        assertEquals(1.0, actual.green.value, 0.001)
+        assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a D# note at full loudness, then chartreuse is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.D_SHARP, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.5, actual.red.value, 0.001)
+        assertEquals(1.0, actual.green.value, 0.001)
+        assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given an E note at full loudness, then green is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.E, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.0, actual.red.value, 0.001)
+        assertEquals(1.0, actual.green.value, 0.001)
+        assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given an F note at full loudness, then spring green is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.F, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.0, actual.red.value, 0.001)
+        assertEquals(1.0, actual.green.value, 0.001)
+        assertEquals(0.5, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given an F# note at full loudness, then cyan is returned`() {
+        val sut = createSUT()
+        val actual = sut.calculate(listOf(SpectralPeak(fSharpFrequency, fullLoudness)))
+        assertEquals(0.0, actual.red.value, 0.001)
+        assertEquals(1.0, actual.green.value, 0.001)
+        assertEquals(1.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a G note at full loudness, then azure is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.G, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.0, actual.red.value, 0.001)
+        assertEquals(0.5, actual.green.value, 0.001)
+        assertEquals(1.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a G# note at full loudness, then blue is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.G_SHARP, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.0, actual.red.value, 0.001)
+        assertEquals(0.0, actual.green.value, 0.001)
+        assertEquals(1.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given an A note at full loudness, then violet is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.A, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(0.5, actual.red.value, 0.001)
+        assertEquals(0.0, actual.green.value, 0.001)
+        assertEquals(1.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given an A# note at full loudness, then magenta is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.A_SHARP, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(1.0, actual.red.value, 0.001)
+        assertEquals(0.0, actual.green.value, 0.001)
+        assertEquals(1.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given a B note at full loudness, then rose is returned`() {
+        val sut = createSUT()
+        val frequency = westernTuning.getFrequency(westernTuning.B, octave = 4)
+        val actual = sut.calculate(listOf(SpectralPeak(frequency, fullLoudness)))
+        assertEquals(1.0, actual.red.value, 0.001)
+        assertEquals(0.0, actual.green.value, 0.001)
+        assertEquals(0.5, actual.blue.value, 0.001)
+    }
+
+    // Half loudness tones
     @Test
     fun `given a C note at half loudness, then red at half brightness is returned`() {
         val sut = createSUT()
@@ -78,21 +199,7 @@ class ColorWheelAlgorithmIntegrationTests {
         assertEquals(0.5, actual.blue.value, 0.001)
     }
 
-    // Mixed colors
-    @Test
-    fun `given C and F# notes each at half loudness, then white at slightly greater than half brightness is returned`() {
-        val sut = createSUT()
-        val peak1 = SpectralPeak(cFrequency, halfLoudness)
-        val peak2 = SpectralPeak(fSharpFrequency, halfLoudness)
-
-        val actual = sut.calculate(listOf(peak1, peak2))
-
-        // analogous to a ~3 dB gain
-        assertEquals(0.630, actual.red.value, 0.001)
-        assertEquals(0.630, actual.green.value, 0.001)
-        assertEquals(0.630, actual.blue.value, 0.001)
-    }
-
+    // Mixed tones
     @Test
     fun `given C and F# notes each at full loudness, then white at full brightness is returned`() {
         val sut = createSUT()
@@ -116,8 +223,22 @@ class ColorWheelAlgorithmIntegrationTests {
         val actual = sut.calculate(listOf(peak1, peak2)) // They should arrive at orange
 
         assertEquals(1.0, actual.red.value, 0.001)
-        assertEquals(0.5, actual.green.value, 0.001)
+        assertEquals(0.735, actual.green.value, 0.001)
         assertEquals(0.0, actual.blue.value, 0.001)
+    }
+
+    @Test
+    fun `given C and F# notes each at half loudness, then white at slightly greater than half brightness is returned`() {
+        val sut = createSUT()
+        val peak1 = SpectralPeak(cFrequency, halfLoudness)
+        val peak2 = SpectralPeak(fSharpFrequency, halfLoudness)
+
+        val actual = sut.calculate(listOf(peak1, peak2))
+
+        // analogous to a ~3 dB gain
+        assertEquals(0.630, actual.red.value, 0.001)
+        assertEquals(0.630, actual.green.value, 0.001)
+        assertEquals(0.630, actual.blue.value, 0.001)
     }
 
     // Smoothing
