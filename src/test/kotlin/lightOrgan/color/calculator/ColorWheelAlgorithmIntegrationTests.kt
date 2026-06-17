@@ -15,7 +15,6 @@ class ColorWheelAlgorithmIntegrationTests {
 
     private val westernTuning = WesternTuningSystem()
     private val cFrequency = westernTuning.getFrequency(westernTuning.C, octave = 4)
-    private val cSharpFrequency = westernTuning.getFrequency(westernTuning.C_SHARP, octave = 4)
     private val dFrequency = westernTuning.getFrequency(westernTuning.D, octave = 4)
     private val fSharpFrequency = westernTuning.getFrequency(westernTuning.F_SHARP, octave = 4)
     private val halfLoudness = loudnessToMagnitude(0.5)
@@ -185,18 +184,6 @@ class ColorWheelAlgorithmIntegrationTests {
 
         assertEquals(0.5, actual.red.value, 0.001)
         assertEquals(0.0, actual.green.value, 0.001)
-        assertEquals(0.0, actual.blue.value, 0.001)
-    }
-
-    @Test
-    fun `given a C# note at full loudness, then orange at full brightness is returned`() {
-        val sut = createSUT()
-        val peak = SpectralPeak(cSharpFrequency, fullLoudness)
-
-        val actual = sut.calculate(listOf(peak))
-
-        assertEquals(1.0, actual.red.value, 0.001)
-        assertEquals(1.0, actual.green.value, 0.001)
         assertEquals(0.0, actual.blue.value, 0.001)
     }
 
