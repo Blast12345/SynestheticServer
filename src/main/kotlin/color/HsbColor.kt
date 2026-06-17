@@ -11,7 +11,6 @@ data class HsbColor<S : RgbColorSpace>(
     val brightness: UnitInterval
 ) {
 
-    // TODO: Test
     val chromaticity: Chromaticity
         get() = if (saturation == UnitInterval.zero) Chromaticity.Achromatic
         else Chromaticity.Chromatic(hue, saturation)

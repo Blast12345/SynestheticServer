@@ -9,6 +9,38 @@ import org.junit.jupiter.api.Test
 class HsbColorTests {
 
     @Nested
+    inner class ChromaticityAccessor {
+
+        @Test
+        fun `zero saturation is achromatic`() {
+            val white = HsbColor<StandardRGB>(Angle.fromDegrees(0.0), UnitInterval.zero, UnitInterval.one)
+
+            val actual = white.chromaticity
+
+            assertEquals(Chromaticity.Achromatic, actual)
+        }
+
+        @Test
+        fun `nonzero saturation is chromatic with matching hue and saturation`() {
+            val red = HsbColor<StandardRGB>(Angle.fromDegrees(0.0), UnitInterval.one, UnitInterval.one)
+
+            val actual = red.chromaticity as Chromaticity.Chromatic
+
+            assertEquals(0.0, actual.hue.degrees, 0.001)
+            assertEquals(1.0, actual.saturation.value, 0.001)
+        }
+
+        @Test
+        fun `brightness does not affect chromaticity`() {
+            val bright = HsbColor<StandardRGB>(Angle.fromDegrees(120.0), UnitInterval(0.8), UnitInterval.one)
+            val dark = HsbColor<StandardRGB>(Angle.fromDegrees(120.0), UnitInterval(0.8), UnitInterval(0.2))
+
+            assertEquals(bright.chromaticity, dark.chromaticity)
+        }
+
+    }
+
+    @Nested
     inner class ToRgb {
 
         @Test
@@ -94,7 +126,7 @@ class HsbColorTests {
             assertEquals(original.saturation.value, roundTripped.saturation.value, 0.001)
             assertEquals(original.brightness.value, roundTripped.brightness.value, 0.001)
         }
-    }
 
+    }
 
 }
