@@ -1,71 +1,88 @@
 package color
 
-class ChromaticityFactoryTests {
-// Chromaticity - the color of light, independent of brightness
-//@Test
-//fun `chromaticity of red light`() {
-//    val chromaticity = red.chromaticity as Chromaticity.Chromatic
-//
-//    assertEquals(0.0, chromaticity.hue.degrees, 0.01)
-//    assertEquals(1.0, chromaticity.saturation.value, 0.01)
-//}
-//
-//@Test
-//fun `chromaticity of green light`() {
-//    val chromaticity = green.chromaticity as Chromaticity.Chromatic
-//
-//    assertEquals(120.0, chromaticity.hue.degrees, 0.01)
-//    assertEquals(1.0, chromaticity.saturation.value, 0.01)
-//}
-//
-//@Test
-//fun `chromaticity of blue light`() {
-//    val chromaticity = blue.chromaticity as Chromaticity.Chromatic
-//
-//    assertEquals(240.0, chromaticity.hue.degrees, 0.01)
-//    assertEquals(1.0, chromaticity.saturation.value, 0.01)
-//}
-//
-//@Test
-//fun `chromaticity of desaturated red light`() {
-//    val light = Light(2.0, 1.0, 1.0)
-//
-//    val chromaticity = light.chromaticity as Chromaticity.Chromatic
-//
-//    assertEquals(0.0, chromaticity.hue.degrees, 0.01)
-//    assertEquals(0.5, chromaticity.saturation.value, 0.01)
-//}
-//
-//@Test
-//fun `white light is achromatic`() {
-//    assertEquals(Chromaticity.Achromatic, white.chromaticity)
-//}
-//
-//@Test
-//fun `chromaticity is null if there is no light`() {
-//    assertNull(black.chromaticity)
-//}
-//
-//@Test
-//fun `chromaticity is independent of brightness`() {
-//    val dim = Light(1.0, 0.0, 0.0)
-//    val bright = Light(5.0, 0.0, 0.0)
-//
-//    assertEquals(dim.chromaticity, bright.chromaticity)
-//}
+import math.physics.Light
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-//@Test
-//fun `chromaticity of red and yellow mixes to orange`() {
-//    val combined = red + yellow
-//
-//    val chromaticity = combined.chromaticity as Chromaticity.Chromatic
-//    assertEquals(30.0, chromaticity.hue.degrees, 0.5)
-//}
-//
-//@Test
-//fun `chromaticity of red and cyan mixes to white`() {
-//    val combined = red + cyan
-//
-//    assertEquals(Chromaticity.Achromatic, combined.chromaticity)
-//}
+class ChromaticityFactoryTest {
+
+    private fun createSUT(): ChromaticityFactory = ChromaticityFactory()
+
+    @Test
+    fun `no light returns null`() {
+        val sut = createSUT()
+        val noLight = Light(0.0, 0.0, 0.0)
+
+        val actual = sut.fromLight(noLight)
+
+        assertNull(actual)
+    }
+
+    @Test
+    fun `white light is achromatic`() {
+        val sut = createSUT()
+        val white = Light(1.0, 1.0, 1.0)
+
+        val actual = sut.fromLight(white)
+
+        assertEquals(Chromaticity.Achromatic, actual)
+    }
+
+    @Test
+    fun `red light has 0 degree hue at full saturation`() {
+        val sut = createSUT()
+        val red = Light(1.0, 0.0, 0.0)
+
+        val actual = sut.fromLight(red) as Chromaticity.Chromatic
+
+        assertEquals(0.0, actual.hue.degrees, 0.01)
+        assertEquals(1.0, actual.saturation.value, 0.01)
+    }
+
+    @Test
+    fun `green light has 120 degree hue at full saturation`() {
+        val sut = createSUT()
+        val green = Light(0.0, 1.0, 0.0)
+
+        val actual = sut.fromLight(green) as Chromaticity.Chromatic
+
+        assertEquals(120.0, actual.hue.degrees, 0.01)
+        assertEquals(1.0, actual.saturation.value, 0.01)
+    }
+
+    @Test
+    fun `blue light has 240 degree hue at full saturation`() {
+        val sut = createSUT()
+        val blue = Light(0.0, 0.0, 1.0)
+
+        val actual = sut.fromLight(blue) as Chromaticity.Chromatic
+
+        assertEquals(240.0, actual.hue.degrees, 0.01)
+        assertEquals(1.0, actual.saturation.value, 0.01)
+    }
+
+    @Test
+    fun `chromaticity is independent of intensity`() {
+        val sut = createSUT()
+        val dim = Light(1.0, 0.0, 0.0)
+        val bright = Light(5.0, 0.0, 0.0)
+
+        val dimChromaticity = sut.fromLight(dim)
+        val brightChromaticity = sut.fromLight(bright)
+
+        assertEquals(dimChromaticity, brightChromaticity)
+    }
+
+    @Test
+    fun `complementary lights produce achromatic`() {
+        val sut = createSUT()
+        val red = Light(1.0, 0.0, 0.0)
+        val cyan = Light(0.0, 1.0, 1.0)
+
+        val actual = sut.fromLight(red + cyan)
+
+        assertEquals(Chromaticity.Achromatic, actual)
+    }
+    
 }

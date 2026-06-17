@@ -4,6 +4,7 @@ import math.geometry.Angle
 import math.normalization.UnitInterval
 import math.physics.Light
 
+// Reference: https://en.wikipedia.org/wiki/Chromaticity
 class ChromaticityFactory {
 
     fun fromLight(light: Light): Chromaticity? {

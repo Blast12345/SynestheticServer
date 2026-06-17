@@ -4,16 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class LightTests {
-
-    private val red = Light(1.0, 0.0, 0.0)
-    private val green = Light(0.0, 1.0, 0.0)
-    private val blue = Light(0.0, 0.0, 1.0)
-    private val yellow = Light(1.0, 1.0, 0.0)
-    private val cyan = Light(0.0, 1.0, 1.0)
-    private val white = Light(1.0, 1.0, 1.0)
-    private val black = Light(0.0, 0.0, 0.0)
-
-    // Init
+    
     @Test
     fun `the levels are zero by default`() {
         val light = Light()
@@ -34,6 +25,9 @@ class LightTests {
     // Summation
     @Test
     fun `combine two lights`() {
+        val red = Light(1.0, 0.0, 0.0)
+        val green = Light(0.0, 1.0, 0.0)
+
         val combined = red + green
 
         assertEquals(1.0, combined.red)
