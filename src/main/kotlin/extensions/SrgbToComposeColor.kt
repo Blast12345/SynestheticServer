@@ -3,7 +3,7 @@ package extensions
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import annotations.SkipCoverage
-import color.rgb.StandardRgbColor
+import color.StandardRgbColor
 
 @SkipCoverage
 fun StandardRgbColor.toComposeColor(): Color = Color(

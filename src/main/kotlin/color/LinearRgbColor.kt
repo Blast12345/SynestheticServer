@@ -1,6 +1,5 @@
-package color.rgb
+package color
 
-import color.LinearRGB
 import math.normalization.UnitInterval
 import kotlin.math.pow
 

@@ -1,4 +1,4 @@
-package color.rgb
+package color
 
 import math.normalization.UnitInterval
 import math.physics.Light

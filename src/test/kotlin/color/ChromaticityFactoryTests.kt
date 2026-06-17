@@ -1,7 +1,5 @@
 package color
 
-import color.rgb.Chromaticity
-import color.rgb.ChromaticityFactory
 import math.physics.Light
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

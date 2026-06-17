@@ -1,6 +1,6 @@
 package lightOrgan.gateway
 
-import color.rgb.StandardRgbColor
+import color.StandardRgbColor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import toolkit.monkeyTest.nextGatewayDetails

@@ -1,6 +1,5 @@
-package color.rgb
+package color
 
-import color.RgbColorSpace
 import math.normalization.UnitInterval
 
 data class RgbColor<S : RgbColorSpace>(

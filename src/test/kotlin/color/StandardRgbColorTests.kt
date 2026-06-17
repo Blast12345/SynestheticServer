@@ -1,6 +1,5 @@
 package color
 
-import color.rgb.*
 import math.normalization.UnitInterval
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
