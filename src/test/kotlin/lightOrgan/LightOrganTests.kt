@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import lightOrgan.color.ColorManagerFixture
 import lightOrgan.gateway.FakeGatewayManager
 import lightOrgan.input.AudioInputManagerFixture
-import lightOrgan.spectrum.SpectrumManagerFixture
+import lightOrgan.spectralAnalyzer.SpectralAnalyzerFixture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +23,7 @@ import utilities.coroutines.asLazySequence
 class LightOrganTests {
 
     private lateinit var inputManager: AudioInputManagerFixture
-    private lateinit var spectrumManager: SpectrumManagerFixture
+    private lateinit var spectralAnalyzer: SpectralAnalyzerFixture
     private lateinit var colorManager: ColorManagerFixture
     private lateinit var fakeGatewayManager: FakeGatewayManager
 
@@ -34,11 +34,11 @@ class LightOrganTests {
     @BeforeEach
     fun setupHappyPath() {
         inputManager = AudioInputManagerFixture.create()
-        spectrumManager = SpectrumManagerFixture.create()
+        spectralAnalyzer = SpectralAnalyzerFixture.create()
         colorManager = ColorManagerFixture.create()
         fakeGatewayManager = FakeGatewayManager()
 
-        every { spectrumManager.mock.calculate(audioFrame) } returns spectralAnalysis
+        every { spectralAnalyzer.mock.analyze(audioFrame) } returns spectralAnalysis
         every { colorManager.mock.calculate(spectralAnalysis) } returns newColor
     }
 
@@ -50,7 +50,7 @@ class LightOrganTests {
     private fun createSUT(scope: CoroutineScope): LightOrgan {
         return LightOrgan(
             inputManager = inputManager.mock,
-            spectrumCalculator = spectrumManager.mock,
+            spectralAnalyzer = spectralAnalyzer.mock,
             colorManager = colorManager.mock,
             gatewayManager = fakeGatewayManager,
             scope = scope,

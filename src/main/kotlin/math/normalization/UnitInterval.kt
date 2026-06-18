@@ -5,9 +5,7 @@ package math.normalization
 value class UnitInterval(val value: Double) {
 
     init {
-        require(value in 0.0..1.0) {
-            "Unit interval must be in [0.0, 1.0], got $value"
-        }
+        require(value in 0.0..1.0) { "Unit interval must be in [0.0, 1.0], got $value" }
     }
 
     companion object {
