@@ -2,8 +2,31 @@ package math.geometry
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class AngleTests {
+
+    // Init
+    @Test
+    fun `must not be NaN`() {
+        assertThrows<IllegalArgumentException> { Angle.fromRadians(Double.NaN) }
+        assertThrows<IllegalArgumentException> { Angle.fromDegrees(Double.NaN) }
+        assertThrows<IllegalArgumentException> { Angle.fromTurns(Double.NaN) }
+    }
+
+    @Test
+    fun `must be finite`() {
+        assertThrows<IllegalArgumentException> { Angle.fromRadians(Double.POSITIVE_INFINITY) }
+        assertThrows<IllegalArgumentException> { Angle.fromDegrees(Double.POSITIVE_INFINITY) }
+        assertThrows<IllegalArgumentException> { Angle.fromTurns(Double.POSITIVE_INFINITY) }
+    }
+
+    @Test
+    fun `must not be negative infinity`() {
+        assertThrows<IllegalArgumentException> { Angle.fromRadians(Double.NEGATIVE_INFINITY) }
+        assertThrows<IllegalArgumentException> { Angle.fromDegrees(Double.NEGATIVE_INFINITY) }
+        assertThrows<IllegalArgumentException> { Angle.fromTurns(Double.NEGATIVE_INFINITY) }
+    }
 
     // Degrees -> X
     @Test
