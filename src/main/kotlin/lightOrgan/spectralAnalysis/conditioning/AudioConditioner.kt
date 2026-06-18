@@ -32,8 +32,8 @@ class AudioConditioner(
     // low-pass  removes highs → its rolloff is the UPPER edge
     val passband: Passband
         get() = Passband(
-            lowerBound = filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold),
-            upperBound = filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold),
+            lowerBound = 16f,//filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold),
+            upperBound = 160f,//filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold),
         )
 
     fun condition(audio: AudioFrame): AudioFrame {

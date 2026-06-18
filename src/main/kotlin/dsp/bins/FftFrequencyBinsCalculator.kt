@@ -28,6 +28,27 @@ class RealFFT {
 
 }
 
+class ComplexFFT {
+
+    fun forward(samples: FloatArray): List<Complex> {
+        val packed = FloatArray(samples.size * 2)
+        for (i in samples.indices) {
+            packed[2 * i] = samples[i]
+            // imaginary parts remain 0
+        }
+        FloatFFT_1D(samples.size.toLong()).complexForward(packed)
+        return unpack(packed)
+    }
+
+    private fun unpack(packed: FloatArray): List<Complex> {
+        val binCount = packed.size / 2
+        return (0 until binCount).map { index ->
+            Complex(packed[2 * index].toDouble(), packed[2 * index + 1].toDouble())
+        }
+    }
+
+}
+
 class FrequencyBinsFactory {
 
     fun create(

@@ -10,7 +10,6 @@ import dsp.bins.FrequencyBinsFactory
 import dsp.bins.RealFFT
 import dsp.windowing.Window
 import extensions.inSeconds
-import math.magnitude
 import math.nextPowerOfTwo
 import org.apache.commons.math3.complex.Complex
 
@@ -34,49 +33,32 @@ class SpectrumCalculator(
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
-    private val realFFT: RealFFT = RealFFT(),
+    private val fft: RealFFT = RealFFT(),
     private val frequencyBinsFactory: FrequencyBinsFactory = FrequencyBinsFactory(),
 ) {
 
     private val frequencyResolution = 1 / config.frameDuration.inSeconds
 
     // TODO: Maybe we have a separate bin factory? Decouple FFT from data type?
-    data class Result(val bins: FrequencyBins, val pointSpreadFunction: PointSpreadFunction)
 
-    fun calculate(audio: AudioFrame): Result {
+    fun calculate(audio: AudioFrame): FrequencyBins {
         val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
         val samplesSizeForDesiredSpacing = (audio.format.sampleRate / config.approximateBinSpacing).toInt()
         val fftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing)
 
-        // Spectrum
         val bufferedAudio = updateBuffer(audio, sampleSize)
-        val windowedSamples = window.appliedTo(bufferedAudio.samples)
-        val audioSpectrum = transformToSpectrum(windowedSamples, fftLength)
+        val windowedSamples = window.appliedTo(bufferedAudio.samples) // TODO: Apply correction factor automatically?
+        val audioSpectrum = transformToSpectrum(windowedSamples, sampleSize, fftLength)
         val bins = frequencyBinsFactory.create(audioSpectrum, audio.format.sampleRate, fftLength) //, window.magnitudeCorrectionFactor(sampleSize)
         val validBins = filterBins(bins, audio.format)
 
-        // PSF
-        val windowCoefficients = window.coefficients(sampleSize)
-        val psfSpectrum = transformToSpectrum(windowCoefficients, fftLength)
-        val psf = calculatePSF(psfSpectrum)
-
-        return Result(validBins, psf)
+        return validBins
     }
 
-    private fun transformToSpectrum(signal: FloatArray, fftLength: Int): List<Complex> {
+    private fun transformToSpectrum(signal: FloatArray, sampleSize: Int, fftLength: Int): List<Complex> {
         val interpolated = interpolator.interpolate(signal, fftLength)
-        val normalizationFactor = 2.0 / fftLength * window.magnitudeCorrectionFactor(fftLength)
-        return realFFT.forward(interpolated).map { it.multiply(normalizationFactor) }
-    }
-
-    private fun calculatePSF(complex: List<Complex>): PointSpreadFunction {
-        val peakMagnitude = complex.maxOf { it.magnitude }
-        val normalized = complex.map { it.multiply(1.0 / peakMagnitude) }
-
-        val negativeOffsets = normalized.drop(1).reversed().map { it.conjugate() }
-        val fullPsf = negativeOffsets + normalized
-
-        return PointSpreadFunction(values = fullPsf, centerIndex = negativeOffsets.size)
+        val normalizationFactor = 2.0 / fftLength * window.magnitudeCorrectionFactor(sampleSize)
+        return fft.forward(interpolated).map { it.multiply(normalizationFactor) }
     }
 
     private fun updateBuffer(frame: AudioFrame, requiredSize: Int): AudioFrame {

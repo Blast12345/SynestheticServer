@@ -22,8 +22,8 @@ class SpectralAnalyzer(
     fun analyze(audio: AudioFrame): SpectralAnalysis {
         val conditionedAudio = audioConditioner.condition(audio)
         val spectrum = spectrumCalculator.calculate(conditionedAudio)
-        val relevantBins = spectrum.bins.filter { it.frequency in audioConditioner.passband }
-        val peaks = peakExtractor.extract(relevantBins, spectrum.pointSpreadFunction)
+        val relevantBins = spectrum.filter { it.frequency in audioConditioner.passband }
+        val peaks = peakExtractor.extract(relevantBins)
 
         val result = SpectralAnalysis(relevantBins, peaks)
         _analysis.value = result
