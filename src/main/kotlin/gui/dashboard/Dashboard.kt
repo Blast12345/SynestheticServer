@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import gui.dashboard.tiles.color.ColorTile
-import gui.dashboard.tiles.spectralAnalyzer.SpectrumAnalysisTile
+import gui.dashboard.tiles.spectralAnalyzer.SpectralAnalysisTile
 import gui.tiles.audioInput.AudioInputTile
 import gui.tiles.gateway.GatewayTile
 
@@ -49,7 +49,7 @@ private fun MainRow(
             modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
-        SpectrumAnalysisTile(
+        SpectralAnalysisTile(
             viewModel = viewModel.spectralAnalysisTileViewModel,
             modifier = Modifier.weight(1f).fillMaxSize()
         )

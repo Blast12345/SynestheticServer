@@ -33,7 +33,7 @@ fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)
 
 // ENHANCEMENT: Make the frequency follow the cursor
 @Composable
-fun SpectrumAnalysisTile(
+fun SpectralAnalysisTile(
     viewModel: SpectralAnalysisTileViewModel,
     modifier: Modifier = Modifier
 ) {
