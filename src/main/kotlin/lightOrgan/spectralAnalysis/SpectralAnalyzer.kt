@@ -18,6 +18,7 @@ class SpectralAnalyzer(
     private val _analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
     val analysis: StateFlow<SpectralAnalysis> = _analysis.asStateFlow()
 
+    // WARNING: Discontinuous data will cause spectral artifacts
     fun analyze(audio: AudioFrame): SpectralAnalysis {
         val conditionedAudio = audioConditioner.condition(audio)
         val spectrum = spectrumCalculator.calculate(conditionedAudio)

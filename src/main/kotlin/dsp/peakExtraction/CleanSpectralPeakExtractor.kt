@@ -4,8 +4,8 @@ import dsp.bins.FrequencyBins
 import dsp.clean.InterpolatedCleanAlgorithm1D
 import dsp.clean.InterpolatedCleanComponent1D
 import extensions.plus
+import lightOrgan.spectralAnalysis.spectrum.PointSpreadFunction
 import org.apache.commons.math3.complex.Complex
-import org.jtransforms.fft.FloatFFT_1D
 import kotlin.math.floor
 
 class CleanPeakExtractor(
@@ -77,69 +77,3 @@ class CleanPeakExtractor(
     }
 
 }
-
-data class PointSpreadFunction(
-    val values: List<Complex>,
-    val centerIndex: Int,
-)
-
-// realForward
-class PsfCalculator {
-
-    fun calculate(window: FloatArray): PointSpreadFunction {
-        val positiveSpectrum = realForwardFft(window)
-        val peakMagnitude = positiveSpectrum.maxOf { it.abs() }
-        val normalized = positiveSpectrum.map { it.multiply(1.0 / peakMagnitude) }
-
-        val negativeOffsets = normalized.drop(1).reversed().map { it.conjugate() }
-        val fullPsf = negativeOffsets + normalized
-
-        return PointSpreadFunction(values = fullPsf, centerIndex = negativeOffsets.size)
-    }
-
-    private fun realForwardFft(samples: FloatArray): List<Complex> {
-        val packed = samples.copyOf()
-        FloatFFT_1D(packed.size.toLong()).realForward(packed)
-        return unpack(packed)
-    }
-
-    private fun unpack(packed: FloatArray): List<Complex> {
-        val binCount = packed.size / 2
-        return (0..binCount).map { index ->
-            when (index) {
-                0 -> Complex(packed[0].toDouble(), 0.0)
-                binCount -> Complex(packed[1].toDouble(), 0.0)
-                else -> Complex(
-                    packed[2 * index].toDouble(),
-                    packed[2 * index + 1].toDouble()
-                )
-            }
-        }
-    }
-}
-// complexForward
-//class PsfCalculator {
-//
-//    fun calculate(window: FloatArray): PointSpreadFunction {
-//        val spectrum = fullComplexFft(window)
-//        val shifted = fftShift(spectrum)
-//        val peakMagnitude = shifted.maxOf { it.abs() }
-//        val normalized = shifted.map { it.multiply(1.0 / peakMagnitude) }
-//        return PointSpreadFunction(values = normalized, centerIndex = window.size / 2)
-//    }
-//
-//
-//    private fun fullComplexFft(window: FloatArray): List<Complex> {
-//        val interleaved = FloatArray(window.size * 2)
-//        window.forEachIndexed { index, sample -> interleaved[2 * index] = sample }
-//        FloatFFT_1D(window.size.toLong()).complexForward(interleaved)
-//        return window.indices.map { index ->
-//            Complex(interleaved[2 * index].toDouble(), interleaved[2 * index + 1].toDouble())
-//        }
-//    }
-//
-//    private fun fftShift(spectrum: List<Complex>): List<Complex> {
-//        val splitPoint = (spectrum.size + 1) / 2
-//        return spectrum.subList(splitPoint, spectrum.size) + spectrum.subList(0, splitPoint)
-//    }
-//}

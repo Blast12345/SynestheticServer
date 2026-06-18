@@ -5,14 +5,21 @@ import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
 import config.ConfigSingleton
 import dsp.ZeroPaddingInterpolator
-import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
-import dsp.bins.FrequencyBinsCalculator
-import dsp.peakExtraction.PointSpreadFunction
-import dsp.peakExtraction.PsfCalculator
+import dsp.bins.FrequencyBinsFactory
+import dsp.bins.RealFFT
 import dsp.windowing.Window
 import extensions.inSeconds
+import math.magnitude
 import math.nextPowerOfTwo
+import org.apache.commons.math3.complex.Complex
+
+
+data class PointSpreadFunction(
+    val values: List<Complex>,
+    val centerIndex: Int,
+)
+
 
 // ENHANCEMENT: Multi-resolution bin generations
 // ENHANCEMENT: Implement equal-loudness contours (ISO 226:2003). Manual SPL number with future plans of external meter?
@@ -27,7 +34,8 @@ class SpectrumCalculator(
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
-    private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
+    private val realFFT: RealFFT = RealFFT(),
+    private val frequencyBinsFactory: FrequencyBinsFactory = FrequencyBinsFactory(),
 ) {
 
     private val frequencyResolution = 1 / config.frameDuration.inSeconds
@@ -35,80 +43,45 @@ class SpectrumCalculator(
     // TODO: Maybe we have a separate bin factory? Decouple FFT from data type?
     data class Result(val bins: FrequencyBins, val pointSpreadFunction: PointSpreadFunction)
 
-    // WARNING: Discontinuous data will cause spectral artifacts
     fun calculate(audio: AudioFrame): Result {
-        val preparedFrame = prepareFrame(audio)
+        val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
+        val samplesSizeForDesiredSpacing = (audio.format.sampleRate / config.approximateBinSpacing).toInt()
+        val fftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing)
 
-        val psf = calculatePsf(preparedFrame)
+        // Spectrum
+        val bufferedAudio = updateBuffer(audio, sampleSize)
+        val windowedSamples = window.appliedTo(bufferedAudio.samples)
+        val audioSpectrum = transformToSpectrum(windowedSamples, fftLength)
+        val bins = frequencyBinsFactory.create(audioSpectrum, audio.format.sampleRate, fftLength) //, window.magnitudeCorrectionFactor(sampleSize)
+        val validBins = filterBins(bins, audio.format)
 
-        val allBins = calculateBins(preparedFrame)
-        val validBins = filterBins(allBins, audio.format)
-
+        // PSF
+        val windowCoefficients = window.coefficients(sampleSize)
+        val psfSpectrum = transformToSpectrum(windowCoefficients, fftLength)
+        val psf = calculatePSF(psfSpectrum)
 
         return Result(validBins, psf)
     }
 
-    val psfCalc = PsfCalculator()
-
-    private fun calculatePsf(preparedFrame: PreparedFrame): PointSpreadFunction {
-        val coefficients = window.coefficients(preparedFrame.sampleSize)
-        val zeroPadded = interpolator.interpolate(coefficients, preparedFrame.fftLength)
-        return psfCalc.calculate(zeroPadded)
+    private fun transformToSpectrum(signal: FloatArray, fftLength: Int): List<Complex> {
+        val interpolated = interpolator.interpolate(signal, fftLength)
+        val normalizationFactor = 2.0 / fftLength * window.magnitudeCorrectionFactor(fftLength)
+        return realFFT.forward(interpolated).map { it.multiply(normalizationFactor) }
     }
 
-    // Frame Prep
-    private data class PreparedFrame(
-        val audio: AudioFrame,
-        val magnitudeCorrectionFactor: Float,
-        val sampleSize: Int,
-        val fftLength: Int
-    )
+    private fun calculatePSF(complex: List<Complex>): PointSpreadFunction {
+        val peakMagnitude = complex.maxOf { it.magnitude }
+        val normalized = complex.map { it.multiply(1.0 / peakMagnitude) }
 
-    private fun prepareFrame(audio: AudioFrame): PreparedFrame {
-        val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
-        val samplesSizeForDesiredSpacing = audio.format.sampleRate / config.approximateBinSpacing
-        val optimalFftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing.toInt())
+        val negativeOffsets = normalized.drop(1).reversed().map { it.conjugate() }
+        val fullPsf = negativeOffsets + normalized
 
-        val preparedAudio = audio
-            .let { updateBuffer(it, sampleSize) }
-            .let { applyWindowFunction(it) }
-            .let { interpolate(it, optimalFftLength) }
-
-        return PreparedFrame(
-            audio = preparedAudio,
-            magnitudeCorrectionFactor = window.magnitudeCorrectionFactor(sampleSize),
-            sampleSize = sampleSize,
-            fftLength = optimalFftLength
-        )
+        return PointSpreadFunction(values = fullPsf, centerIndex = negativeOffsets.size)
     }
 
     private fun updateBuffer(frame: AudioFrame, requiredSize: Int): AudioFrame {
         audioBuffer.size = requiredSize
         return audioBuffer.append(frame)
-    }
-
-    private fun applyWindowFunction(audio: AudioFrame): AudioFrame {
-        return AudioFrame(
-            samples = window.appliedTo(audio.samples),
-            format = audio.format
-        )
-    }
-
-    private fun interpolate(audio: AudioFrame, targetSize: Int): AudioFrame {
-        return AudioFrame(
-            samples = interpolator.interpolate(audio.samples, targetSize),
-            format = audio.format
-        )
-    }
-
-
-    // Bin calculation
-    private fun calculateBins(preparedFrame: PreparedFrame): FrequencyBins {
-        return frequencyBinsCalculator.calculate(
-            preparedFrame.audio.samples,
-            preparedFrame.audio.format.sampleRate,
-            preparedFrame.magnitudeCorrectionFactor
-        )
     }
 
     private fun filterBins(bins: FrequencyBins, format: AudioFormat): FrequencyBins {

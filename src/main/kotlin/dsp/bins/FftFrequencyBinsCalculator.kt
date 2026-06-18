@@ -3,37 +3,9 @@ package dsp.bins
 import org.apache.commons.math3.complex.Complex
 import org.jtransforms.fft.FloatFFT_1D
 
-class FftFrequencyBinsCalculator : FrequencyBinsCalculator {
+class RealFFT {
 
-    override fun calculate(
-        monoSamples: FloatArray,
-        sampleRate: Float,
-        magnitudeCorrectionFactor: Float
-    ): FrequencyBins {
-        val fftResult = performFft(monoSamples)
-
-        val binSpacing = sampleRate / monoSamples.size
-        val scalingFactor = 2.0 / monoSamples.size
-
-        return fftResult.mapIndexed { index, complex ->
-            val isUnmirrored = index == 0 || index == fftResult.size - 1
-            val mirrorFactor = if (isUnmirrored) 1.0 else 2.0
-            val scalingFactor = mirrorFactor / monoSamples.size
-
-            FrequencyBin(
-                frequency = index * binSpacing,
-                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
-            )
-        }
-//        return fftResult.mapIndexed { index, complex ->
-//            FrequencyBin(
-//                frequency = index * binSpacing,
-//                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
-//            )
-//        }
-    }
-
-    private fun performFft(samples: FloatArray): List<Complex> {
+    fun forward(samples: FloatArray): List<Complex> {
         val packed = samples.copyOf()
         FloatFFT_1D(packed.size.toLong()).realForward(packed)
         return unpack(packed)
@@ -55,3 +27,54 @@ class FftFrequencyBinsCalculator : FrequencyBinsCalculator {
     }
 
 }
+
+class FrequencyBinsFactory {
+
+    fun create(
+        fftResult: List<Complex>,
+        sampleRate: Float,
+        fftLength: Int
+    ): FrequencyBins {
+        val frequencySpacing = sampleRate / fftLength
+        val nyquistIndex = fftLength / 2
+
+        val bins = (0..nyquistIndex).map { index ->
+            FrequencyBin(
+                frequency = index * frequencySpacing,
+                value = fftResult[index]
+            )
+        }
+
+        return bins
+    }
+}
+//
+//class FrequencyBinsFactory {
+//
+//    fun create(
+//        fftResult: List<Complex>,
+//        sampleRate: Float,
+//        magnitudeCorrectionFactor: Float
+//    ): FrequencyBins {
+//        val binSpacing = sampleRate / monoSamples.size
+//        val scalingFactor = 2.0 / monoSamples.size
+//
+//        return fftResult.mapIndexed { index, complex ->
+//            val isUnmirrored = index == 0 || index == fftResult.size - 1
+//            val mirrorFactor = if (isUnmirrored) 1.0 else 2.0
+//            val scalingFactor = mirrorFactor / monoSamples.size
+//
+//            FrequencyBin(
+//                frequency = index * binSpacing,
+//                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
+//            )
+//        }
+////        return fftResult.mapIndexed { index, complex ->
+////            FrequencyBin(
+////                frequency = index * binSpacing,
+////                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
+////            )
+////        }
+//    }
+//
+//}

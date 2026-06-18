@@ -1,7 +1,11 @@
 package lightOrgan.spectralAnalysis.peaks
 
 import dsp.bins.FrequencyBins
-import dsp.peakExtraction.*
+import dsp.peakExtraction.CleanPeakExtractor
+import dsp.peakExtraction.ParabolicSpectralPeakExtractor
+import dsp.peakExtraction.SpectralPeakExtractor
+import dsp.peakExtraction.SpectralPeaks
+import lightOrgan.spectralAnalysis.spectrum.PointSpreadFunction
 
 // TODO: Test me
 class PeakExtractor(
