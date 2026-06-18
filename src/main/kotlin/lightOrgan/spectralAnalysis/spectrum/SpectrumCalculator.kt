@@ -23,7 +23,7 @@ import math.nextPowerOfTwo
 // ENHANCEMENT: Improve handling of discontinuities (though I have doubt it is possible)
 // ENHANCEMENT: Allow decimator frequency to be overridden; include use case like pre-filtered inputs and warn about aliasing if improperly configured
 class SpectrumCalculator(
-    private val config: SpectrumConfig = ConfigSingleton.spectrum,
+    private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),

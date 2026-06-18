@@ -4,7 +4,7 @@ import dsp.filtering.FilterConfig
 import dsp.windowing.WindowType
 import kotlin.time.Duration
 
-data class SpectrumConfig(
+data class SpectralAnalysisConfig(
     val gainDb: Float,  // e.g. 12 dBFS
     val frameDuration: Duration,
     val approximateBinSpacing: Float,

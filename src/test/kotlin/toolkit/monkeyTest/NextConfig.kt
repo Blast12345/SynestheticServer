@@ -5,7 +5,7 @@ import config.children.Client
 import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.spectrum.SpectrumConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalysisConfig
 import kotlin.random.Random
 
 fun nextConfig(
@@ -14,7 +14,7 @@ fun nextConfig(
     return Config(
         startAutomatically = MutableStateFlow(Random.nextBoolean()),
         clients = clients,
-        spectrum = SpectrumConfig(
+        spectralAnalysis = SpectralAnalysisConfig(
             gainDb = nextPositiveFloat(),
             frameDuration = nextDuration(),
             approximateBinSpacing = nextPositiveFloat(),
