@@ -8,7 +8,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectrum.SpectrumManager
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.Logger
 import utilities.TimestampUtility
 import utilities.coroutines.Sequenced
@@ -18,7 +18,7 @@ import utilities.coroutines.onEachSequenced
 // ENHANCEMENT: Gracefully handle crashed coroutines
 class LightOrgan(
     private val inputManager: AudioInputManager,
-    private val spectrumManager: SpectrumManager,
+    private val spectralAnalyzer: SpectralAnalyzer,
     private val colorManager: ColorManager,
     private val gatewayManager: GatewayManager,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
@@ -31,7 +31,7 @@ class LightOrgan(
 
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-            .mapSequenced("Spectral analysis") { spectrumManager.calculate(it) }
+            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
             .conflate()
             .mapSequenced("Color generation") { colorManager.calculate(it) }
             .conflate()

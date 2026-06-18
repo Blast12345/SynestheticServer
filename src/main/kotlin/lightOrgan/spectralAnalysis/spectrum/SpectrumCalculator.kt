@@ -1,24 +1,17 @@
-package lightOrgan.spectrum
+package lightOrgan.spectralAnalysis.spectrum
 
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
 import config.ConfigSingleton
-import dsp.Decimator
-import dsp.Gain
-import dsp.MonoMixer
 import dsp.ZeroPaddingInterpolator
 import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
-import dsp.peakExtraction.CleanPeakExtractor
 import dsp.peakExtraction.PointSpreadFunction
 import dsp.peakExtraction.PsfCalculator
 import dsp.windowing.Window
 import extensions.inSeconds
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import math.nextPowerOfTwo
 
 // ENHANCEMENT: Multi-resolution bin generations
@@ -29,36 +22,30 @@ import math.nextPowerOfTwo
 // ENHANCEMENT: Decimation - reduce the effective sample rate to increase performance.
 // ENHANCEMENT: Improve handling of discontinuities (though I have doubt it is possible)
 // ENHANCEMENT: Allow decimator frequency to be overridden; include use case like pre-filtered inputs and warn about aliasing if improperly configured
-class SpectrumManager(
+class SpectrumCalculator(
     private val config: SpectrumConfig = ConfigSingleton.spectrum,
-    private val monoMixer: MonoMixer = MonoMixer(),
-    private val gain: Gain = Gain(),
-    private val filterManager: FilterManager = FilterManager(config.highPassFilter, config.lowPassFilter),
-    private val decimator: Decimator = Decimator(),
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
     private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
-    //    private var peakExtractor: SpectralPeakExtractor = ParabolicSpectralPeakExtractor()
-    private var peakExtractor = CleanPeakExtractor()
 
-    private val _spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
-    val spectralAnalysis: StateFlow<SpectralAnalysis> = _spectralAnalysis.asStateFlow()
+    private val frequencyResolution = 1 / config.frameDuration.inSeconds
+
+    // TODO: Maybe we have a separate bin factory? Decouple FFT from data type?
+    data class Result(val bins: FrequencyBins, val pointSpreadFunction: PointSpreadFunction)
 
     // WARNING: Discontinuous data will cause spectral artifacts
-    fun calculate(audio: AudioFrame): SpectralAnalysis {
-        val conditionedAudio = conditionAudio(audio)
-        val preparedFrame = prepareFrame(conditionedAudio)
-
-        val allBins = calculateBins(preparedFrame)
-        val relevantBins = filterBins(allBins, preparedFrame.audio.format)
+    fun calculate(audio: AudioFrame): Result {
+        val preparedFrame = prepareFrame(audio)
 
         val psf = calculatePsf(preparedFrame)
-        val peaks = peakExtractor.extract(relevantBins, psf) // TODO:
-        val spectralAnalysis = SpectralAnalysis(relevantBins, peaks)
-        _spectralAnalysis.value = spectralAnalysis
-        return spectralAnalysis
+
+        val allBins = calculateBins(preparedFrame)
+        val validBins = filterBins(allBins, audio.format)
+
+
+        return Result(validBins, psf)
     }
 
     val psfCalc = PsfCalculator()
@@ -67,35 +54,6 @@ class SpectrumManager(
         val coefficients = window.coefficients(preparedFrame.sampleSize)
         val zeroPadded = interpolator.interpolate(coefficients, preparedFrame.fftLength)
         return psfCalc.calculate(zeroPadded)
-    }
-
-    // Conditioning
-    private fun conditionAudio(audio: AudioFrame): AudioFrame {
-        val highStopbandFrequency = filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold)
-        val targetNyquist = highStopbandFrequency ?: audio.format.nyquistFrequency
-
-        return audio
-            .let { monoMixer.mix(it) }
-            .let { applyGain(it, config.gainDb) }
-            .let { filterManager.filter(it) }
-            .let { decimateIfNeeded(it, targetNyquist) }
-    }
-
-    private fun applyGain(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
-        val adjustedSamples = gain.apply(audioFrame.samples, gainDb)
-        return audioFrame.copy(samples = adjustedSamples)
-    }
-
-    private fun decimateIfNeeded(audio: AudioFrame, targetNyquist: Float): AudioFrame {
-        val factor = decimator.decimationFactor(audio.format.sampleRate, targetNyquist)
-        val effectiveSampleRate = audio.format.sampleRate / factor
-
-        if (factor <= 1) return audio
-
-        return AudioFrame(
-            samples = decimator.decimate(audio.samples, factor, audio.format.sampleRate, audio.format.channels),
-            format = audio.format.copy(sampleRate = effectiveSampleRate)
-        )
     }
 
     // Frame Prep
@@ -153,17 +111,12 @@ class SpectrumManager(
         )
     }
 
-    // Filtering
     private fun filterBins(bins: FrequencyBins, format: AudioFormat): FrequencyBins {
-        val frequencyResolution = 1 / config.frameDuration.inSeconds
-        val nyquist = format.nyquistFrequency
-        val lowStopbandFrequency = filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold)
-        val highStopbandFrequency = filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold)
-
-        val lowestFrequency = maxOf(frequencyResolution, lowStopbandFrequency ?: frequencyResolution)
-        val highestFrequency = minOf(nyquist, highStopbandFrequency ?: nyquist)
+        val lowestFrequency = frequencyResolution
+        val highestFrequency = format.nyquistFrequency
 
         return bins.filter { it.frequency in lowestFrequency..highestFrequency }
     }
+
 
 }

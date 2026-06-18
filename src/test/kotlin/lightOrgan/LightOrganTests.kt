@@ -50,7 +50,7 @@ class LightOrganTests {
     private fun createSUT(scope: CoroutineScope): LightOrgan {
         return LightOrgan(
             inputManager = inputManager.mock,
-            spectrumManager = spectrumManager.mock,
+            spectrumCalculator = spectrumManager.mock,
             colorManager = colorManager.mock,
             gatewayManager = fakeGatewayManager,
             scope = scope,

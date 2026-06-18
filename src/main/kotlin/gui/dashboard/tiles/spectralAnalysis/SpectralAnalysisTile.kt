@@ -1,4 +1,4 @@
-package gui.dashboard.tiles.spectrum
+package gui.dashboard.tiles.spectralAnalysis
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,8 +33,8 @@ fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)
 
 // ENHANCEMENT: Make the frequency follow the cursor
 @Composable
-fun SpectrumTile(
-    viewModel: SpectrumTileViewModel,
+fun SpectrumAnalysisTile(
+    viewModel: SpectralAnalysisTileViewModel,
     modifier: Modifier = Modifier
 ) {
     Tile(modifier) {
@@ -52,7 +52,7 @@ fun SpectrumTile(
 @Composable
 private fun Title() {
     SimpleText(
-        text = "Spectrum",
+        text = "Spectral Analysis",
         fontSize = 24,
         fontWeight = FontWeight.SemiBold
     )
@@ -68,8 +68,8 @@ private fun HighlightedFrequency(bin: FrequencyBin?) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun Spectrum(viewModel: SpectrumTileViewModel) {
-    val spectralAnalysis = viewModel.spectralAnalysis.collectAsState().value
+private fun Spectrum(viewModel: SpectralAnalysisTileViewModel) {
+    val spectralAnalysis = viewModel.analysis.collectAsState().value
     val bins = spectralAnalysis.spectrum
     val peaks = spectralAnalysis.peaks
 

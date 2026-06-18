@@ -3,7 +3,7 @@ package config
 import config.children.Client
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectrum.SpectrumConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectrumConfig
 
 @Suppress("LongParameterList")
 class Config(

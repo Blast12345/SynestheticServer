@@ -5,6 +5,16 @@ value class Angle private constructor(
     val radians: Double
 ) {
 
+    // TODO: Test
+    init {
+        require(!radians.isNaN()) {
+            "Angle radians must not be NaN"
+        }
+        require(radians.isFinite()) {
+            "Angle radians must be finite, was $radians"
+        }
+    }
+
     val degrees: Double get() = Math.toDegrees(radians)
     val turns: Double get() = radians / (2 * Math.PI)
     val normalized: Angle get() = fromTurns(turns.mod(1.0))
