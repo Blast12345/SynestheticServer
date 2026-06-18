@@ -8,17 +8,17 @@ import lightOrgan.spectralAnalysis.SpectralAnalyzer
 
 data class SpectralAnalyzerFixture(
     val mock: SpectralAnalyzer,
-    val spectralAnalysis: MutableStateFlow<SpectralAnalysis>
+    val analysis: MutableStateFlow<SpectralAnalysis>
 ) {
 
     companion object {
         fun create(): SpectralAnalyzerFixture {
             val fixture = SpectralAnalyzerFixture(
                 mock = mockk(),
-                spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
+                analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
             )
 
-            every { fixture.mock.analysis } returns fixture.spectralAnalysis
+            every { fixture.mock.analysis } returns fixture.analysis
 
             return fixture
         }
