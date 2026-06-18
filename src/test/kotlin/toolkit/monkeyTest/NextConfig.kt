@@ -1,7 +1,6 @@
 package toolkit.monkeyTest
 
 import config.Config
-import config.children.Client
 import dsp.windowing.WindowType
 import gui.dashboard.tiles.spectrum.SpectrumGuiConfig
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,12 +8,9 @@ import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectrum.SpectrumConfig
 import kotlin.random.Random
 
-fun nextConfig(
-    clients: Set<Client> = nextClients()
-): Config {
+fun nextConfig(): Config {
     return Config(
         startAutomatically = MutableStateFlow(Random.nextBoolean()),
-        clients = clients,
         spectrum = SpectrumConfig(
             gainDb = nextPositiveFloat(),
             frameDuration = nextDuration(),

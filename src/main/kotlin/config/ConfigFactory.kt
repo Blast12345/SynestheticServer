@@ -1,6 +1,5 @@
 package config
 
-import config.children.Client
 import dsp.filtering.FilterConfig
 import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
@@ -23,7 +22,6 @@ class ConfigFactory(
 
         return Config(
             startAutomatically = MutableStateFlow(persistedConfig.startAutomatically),
-            clients = setOf(Client("192.168.1.55")),
             spectrum = SpectrumConfig(
                 gainDb = 12f,
                 frameDuration = 63.milliseconds,
