@@ -9,13 +9,9 @@ class FilterConfigTests {
     private val dbPerOctave = -12
     private val family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(dbPerOctave))
 
-    // Filter types (just verifying general direction)
     @Test
     fun `low pass frequency at magnitude attenuates from cutoff`() {
-        val config = FilterConfig(
-            type = FilterType.LowPass(frequency = 1000f),
-            family = family
-        )
+        val config = FilterConfig.LowPass(cutoffFrequency, family)
 
         val result = config.frequencyAt(dbPerOctave.toFloat())
 
@@ -24,10 +20,7 @@ class FilterConfigTests {
 
     @Test
     fun `high pass frequency at magnitude attenuates from cutoff`() {
-        val config = FilterConfig(
-            type = FilterType.HighPass(frequency = 1000f),
-            family = family
-        )
+        val config = FilterConfig.HighPass(cutoffFrequency, family)
 
         val result = config.frequencyAt(dbPerOctave.toFloat())
 

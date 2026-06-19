@@ -10,8 +10,8 @@ data class SpectralAnalysisConfig(
     val frameDuration: Duration,
     val approximateBinSpacing: Float,
     val rolloffThreshold: Float, // e.g. -48 dBFS
-    val highPassFilter: FilterConfig?, // TODO: Enforce high pass
-    val lowPassFilter: FilterConfig?, // TODO: Enforce low pass
+    val highPassFilter: FilterConfig.HighPass?,
+    val lowPassFilter: FilterConfig.LowPass?,
     val window: WindowType,
     val peakExtractor: PeakExtractorConfig,
     val decimate: Boolean

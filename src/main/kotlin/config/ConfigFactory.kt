@@ -3,7 +3,6 @@ package config
 import dsp.filtering.FilterConfig
 import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
-import dsp.filtering.FilterType
 import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
@@ -27,12 +26,12 @@ class ConfigFactory(
                 frameDuration = 63.milliseconds,
                 approximateBinSpacing = 1f,
                 rolloffThreshold = -48f,
-                highPassFilter = FilterConfig(
-                    type = FilterType.HighPass(tuning.getFrequency(tuning.A, octave = 0)),
+                highPassFilter = FilterConfig.HighPass(
+                    frequency = tuning.getFrequency(tuning.A, octave = 0),
                     family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
                 ),
-                lowPassFilter = FilterConfig(
-                    type = FilterType.LowPass(tuning.getFrequency(tuning.A, octave = 2)),
+                lowPassFilter = FilterConfig.LowPass(
+                    frequency = tuning.getFrequency(tuning.A, octave = 2),
                     family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
                 ),
                 window = WindowType.BlackmanHarris3Term,
