@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import lightOrgan.color.ColorManagerFixture
 import lightOrgan.gateway.FakeGatewayManager
 import lightOrgan.input.AudioInputManagerFixture
-import lightOrgan.spectralAnalyzer.SpectralAnalyzerFixture
+import lightOrgan.spectralAnalysis.SpectralAnalyzerFixture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

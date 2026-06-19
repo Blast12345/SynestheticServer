@@ -1,4 +1,4 @@
-package lightOrgan.spectralAnalyzer.spectrum
+package lightOrgan.spectralAnalysis.spectrum
 
 import audio.samples.AudioFrame
 import dsp.filtering.Filter

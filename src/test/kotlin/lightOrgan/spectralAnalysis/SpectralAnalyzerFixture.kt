@@ -1,4 +1,4 @@
-package lightOrgan.spectralAnalyzer
+package lightOrgan.spectralAnalysis
 
 import io.mockk.every
 import io.mockk.mockk

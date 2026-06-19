@@ -7,7 +7,7 @@ import dsp.filtering.FilterType
 import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds

@@ -4,7 +4,7 @@ import config.Config
 import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import kotlin.random.Random
 
 fun nextConfig(): Config {

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import gui.dashboard.tiles.color.ColorTile
-import gui.dashboard.tiles.spectralAnalyzer.SpectralAnalysisTile
+import gui.dashboard.tiles.spectralAnalysis.SpectralAnalysisTile
 import gui.tiles.audioInput.AudioInputTile
 import gui.tiles.gateway.GatewayTile
 

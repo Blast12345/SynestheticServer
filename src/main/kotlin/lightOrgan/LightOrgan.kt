@@ -8,7 +8,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectralAnalyzer.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.Logger
 import utilities.TimestampUtility
 import utilities.coroutines.Sequenced

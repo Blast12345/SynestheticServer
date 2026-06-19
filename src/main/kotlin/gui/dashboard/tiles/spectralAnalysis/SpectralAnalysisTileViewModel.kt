@@ -1,10 +1,10 @@
-package gui.dashboard.tiles.spectralAnalyzer
+package gui.dashboard.tiles.spectralAnalysis
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dsp.bins.FrequencyBin
-import lightOrgan.spectralAnalyzer.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
 
 // ENHANCEMENT: Show latency
 class SpectralAnalysisTileViewModel(

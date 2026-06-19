@@ -1,11 +1,11 @@
-package lightOrgan.spectralAnalyzer.conditioning
+package lightOrgan.spectralAnalysis.conditioning
 
 import audio.samples.AudioFrame
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
-import lightOrgan.spectralAnalyzer.spectrum.FilterManager
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.spectrum.FilterManager
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 
 data class Passband(
     val lowerFrequency: Float?,

@@ -3,8 +3,8 @@ package lightOrgan.spectrum
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import dsp.windowing.WindowType
-import lightOrgan.spectralAnalyzer.SpectralAnalyzer
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves

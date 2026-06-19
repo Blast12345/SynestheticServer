@@ -1,4 +1,4 @@
-package lightOrgan.spectralAnalyzer.spectrum
+package lightOrgan.spectralAnalysis.spectrum
 
 import dsp.filtering.FilterConfig
 import dsp.windowing.WindowType

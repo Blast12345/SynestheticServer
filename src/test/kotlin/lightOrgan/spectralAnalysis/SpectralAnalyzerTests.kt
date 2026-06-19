@@ -1,13 +1,13 @@
-package lightOrgan.spectralAnalyzer
+package lightOrgan.spectralAnalysis
 
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import lightOrgan.spectralAnalyzer.conditioning.AudioConditioner
-import lightOrgan.spectralAnalyzer.conditioning.Passband
-import lightOrgan.spectralAnalyzer.peaks.PeakExtractor
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
-import lightOrgan.spectralAnalyzer.spectrum.SpectrumCalculator
+import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
+import lightOrgan.spectralAnalysis.conditioning.Passband
+import lightOrgan.spectralAnalysis.peaks.PeakExtractor
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

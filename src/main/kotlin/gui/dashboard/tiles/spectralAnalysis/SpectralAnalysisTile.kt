@@ -1,4 +1,4 @@
-package gui.dashboard.tiles.spectralAnalyzer
+package gui.dashboard.tiles.spectralAnalysis
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize

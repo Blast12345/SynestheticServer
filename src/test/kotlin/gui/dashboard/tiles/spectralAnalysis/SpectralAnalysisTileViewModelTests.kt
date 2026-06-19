@@ -1,9 +1,8 @@
 package gui.dashboard.tiles.spectralAnalysis
 
-import gui.dashboard.tiles.spectralAnalyzer.SpectralAnalysisTileViewModel
 import io.mockk.clearAllMocks
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lightOrgan.spectralAnalyzer.SpectralAnalyzerFixture
+import lightOrgan.spectralAnalysis.SpectralAnalyzerFixture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

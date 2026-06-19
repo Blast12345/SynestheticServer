@@ -1,14 +1,14 @@
-package lightOrgan.spectralAnalyzer
+package lightOrgan.spectralAnalysis
 
 import audio.samples.AudioFrame
 import config.ConfigSingleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import lightOrgan.spectralAnalyzer.conditioning.AudioConditioner
-import lightOrgan.spectralAnalyzer.peaks.PeakExtractor
-import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
-import lightOrgan.spectralAnalyzer.spectrum.SpectrumCalculator
+import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
+import lightOrgan.spectralAnalysis.peaks.PeakExtractor
+import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
 class SpectralAnalyzer(
     private val config: SpectralAnalyzerConfig = ConfigSingleton.spectralAnalyzer,
