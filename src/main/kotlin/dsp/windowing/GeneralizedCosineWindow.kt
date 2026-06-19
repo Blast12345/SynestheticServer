@@ -5,9 +5,9 @@ import kotlin.math.cos
 
 class GeneralizedCosineWindow(
     private val cosineCoefficients: FloatArray
-) : Window {
+) : Window() {
 
-    override fun coefficients(size: Int): FloatArray {
+    override fun computeCoefficients(size: Int): FloatArray {
         val lastIndex = size - 1
         return FloatArray(size) { index ->
             val phase = 2f * PI.toFloat() * index / lastIndex

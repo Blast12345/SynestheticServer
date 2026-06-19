@@ -38,17 +38,13 @@ class SpectrumCalculator(
 
     private val frequencyResolution = 1 / config.frameDuration.inSeconds
 
-    // TODO: Maybe we have a separate bin factory? Decouple FFT from data type?
-
     fun calculate(audio: AudioFrame): FrequencyBins {
         val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
         val samplesSizeForDesiredSpacing = (audio.format.sampleRate / config.approximateBinSpacing).toInt()
         val fftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing)
 
         val bufferedAudio = updateBuffer(audio, sampleSize)
-        val windowedSamples = window.appliedTo(bufferedAudio.samples) // TODO: Apply correction factor automatically?
-        // TODO: Apply window correction factor directly to samples
-        //, window.magnitudeCorrectionFactor(sampleSize)
+        val windowedSamples = window.appliedTo(bufferedAudio.samples, Window.CorrectionType.MAGNITUDE)
         val interpolated = interpolator.interpolate(windowedSamples, fftLength)
         val bins = frequencyBinsCalculator.calculate(interpolated, audio.format.sampleRate)
         val validBins = filterBins(bins, audio.format)
@@ -63,10 +59,9 @@ class SpectrumCalculator(
 
     private fun filterBins(bins: FrequencyBins, format: AudioFormat): FrequencyBins {
         val lowestFrequency = frequencyResolution
-        val highestFrequency = format.nyquistFrequency
+        val highestFrequency = format.nyquistFrequency // TODO: Omit nyquist????
 
         return bins.filter { it.frequency in lowestFrequency..highestFrequency }
     }
-
 
 }
