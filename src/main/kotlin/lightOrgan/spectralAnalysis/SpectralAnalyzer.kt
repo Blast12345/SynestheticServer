@@ -9,6 +9,7 @@ import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
+// ENHANCEMENT: Split between short duration FFT (for brightness) and long duration FFT (for hue).
 class SpectralAnalyzer(
     private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
     private val audioConditioner: AudioConditioner = AudioConditioner(config),

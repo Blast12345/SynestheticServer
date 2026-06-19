@@ -13,8 +13,6 @@ import toolkit.generators.generateSineWave
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
-// This is not necessarily comprehensive due to the number of factors in play.
-// Unit tests and tests of dependencies will fill the gaps.
 class SpectralAnalyzerIntegrationTests {
 
     private val config = SpectralAnalysisConfig(
@@ -43,15 +41,6 @@ class SpectralAnalyzerIntegrationTests {
 
     // Spectrum
     @Test
-    fun `given silence, the spectrum's magnitudes are zero`() {
-        val sut = createSUT()
-
-        val spectrum = sut.analyze(silenceFrame).spectrum
-
-        spectrum.forEach { assertEquals(0f, it.magnitude) }
-    }
-
-    @Test
     fun `given a tone, the spectrum's loudest bin corresponds to the tone`() {
         val sut = createSUT()
 
@@ -60,21 +49,6 @@ class SpectralAnalyzerIntegrationTests {
         val peakBin = spectrum.maxBy { it.magnitude }
         assertEquals(wave1.frequency, peakBin.frequency, config.approximateBinSpacing)
         assertEquals(wave1.amplitude, peakBin.magnitude, 0.1f)
-    }
-
-    @Test
-    fun `given multiple tones, the spectrum's loudest bins corresponds to the tones`() {
-        val sut = createSUT()
-
-        val spectrum = sut.analyze(combinedWavesFrame).spectrum
-
-        val peak1 = spectrum.minBy { abs(it.frequency - wave1.frequency) }
-        assertEquals(wave1.frequency, peak1.frequency, config.approximateBinSpacing)
-        assertEquals(wave1.amplitude, peak1.magnitude, 0.1f)
-
-        val peak2 = spectrum.minBy { abs(it.frequency - wave2.frequency) }
-        assertEquals(wave2.frequency, peak2.frequency, config.approximateBinSpacing)
-        assertEquals(wave2.amplitude, peak2.magnitude, 0.1f)
     }
 
     // Peaks

@@ -1,24 +1,14 @@
 package toolkit.monkeyTest
 
 import config.Config
-import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import kotlin.random.Random
 
 fun nextConfig(): Config {
     return Config(
         startAutomatically = MutableStateFlow(Random.nextBoolean()),
-        spectralAnalysis = SpectralAnalysisConfig(
-            gainDb = nextPositiveFloat(),
-            frameDuration = nextDuration(),
-            approximateBinSpacing = nextPositiveFloat(),
-            rolloffThreshold = nextPositiveFloat(),
-            highPassFilter = nextHighPassConfig(),
-            lowPassFilter = nextLowPassConfig(),
-            window = nextEnum<WindowType>()
-        ),
+        spectralAnalysis = nextSpectralAnalysisConfig(),
         gateway = GatewayConfig(
             baudRate = nextInt(),
             frameFormat = nextSerialFrameFormat()

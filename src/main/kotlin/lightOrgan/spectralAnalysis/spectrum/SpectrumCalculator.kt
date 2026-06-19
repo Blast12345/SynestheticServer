@@ -46,9 +46,9 @@ class SpectrumCalculator(
 
     private fun filterBins(bins: FrequencyBins, format: AudioFormat): FrequencyBins {
         val lowestFrequency = frequencyResolution
-        val highestFrequency = format.nyquistFrequency // TODO: Omit nyquist????
+        val highestFrequency = format.nyquistFrequency
 
-        return bins.filter { it.frequency in lowestFrequency..highestFrequency }
+        return bins.filter { it.frequency in lowestFrequency..<highestFrequency }
     }
 
 }
