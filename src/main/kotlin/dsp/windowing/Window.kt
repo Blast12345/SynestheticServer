@@ -2,10 +2,17 @@ package dsp.windowing
 
 import kotlin.math.sqrt
 
-interface Window {
+abstract class Window {
 
-    // coefficients are the scale for each given position in the window, producing the window shape
-    fun coefficients(size: Int): FloatArray
+    enum class CorrectionType { MAGNITUDE, ENERGY, NONE }
+
+    private val cache = mutableMapOf<Int, FloatArray>()
+
+    protected abstract fun computeCoefficients(size: Int): FloatArray
+
+    fun coefficients(size: Int): FloatArray {
+        return cache.getOrPut(size) { computeCoefficients(size) }
+    }
 
     fun magnitudeCorrectionFactor(sampleSize: Int): Float {
         val coefficients = coefficients(sampleSize)
@@ -14,12 +21,19 @@ interface Window {
 
     fun energyCorrectionFactor(sampleSize: Int): Float {
         val coefficients = coefficients(sampleSize)
-        return sqrt(coefficients.size / coefficients.map { coefficient -> coefficient * coefficient }.sum())
+        return sqrt(coefficients.size / coefficients.map { it * it }.sum())
     }
 
-    fun appliedTo(frame: FloatArray): FloatArray {
+    fun appliedTo(frame: FloatArray, correction: CorrectionType = CorrectionType.NONE): FloatArray {
         val coefficients = coefficients(frame.size)
-        return FloatArray(frame.size) { index -> coefficients[index] * frame[index] }
+
+        val correctionFactor = when (correction) {
+            CorrectionType.MAGNITUDE -> magnitudeCorrectionFactor(frame.size)
+            CorrectionType.ENERGY -> energyCorrectionFactor(frame.size)
+            CorrectionType.NONE -> 1f
+        }
+
+        return FloatArray(frame.size) { index -> coefficients[index] * frame[index] * correctionFactor }
     }
 
 }
