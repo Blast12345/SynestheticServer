@@ -1,17 +1,15 @@
 package dsp.filtering
 
-data class FilterConfig(
-    val type: FilterType,
-    val family: FilterFamily,
-) {
+sealed class FilterConfig(val frequency: Float, val family: FilterFamily) {
 
-    fun frequencyAt(dBFS: Float): Float {
-        val ratio = family.rolloffRatio(dBFS)
-
-        return when (type) {
-            is FilterType.LowPass -> type.frequency * ratio
-            is FilterType.HighPass -> type.frequency / ratio
-        }
+    class HighPass(frequency: Float, family: FilterFamily) : FilterConfig(frequency, family) {
+        override fun frequencyAt(dBFS: Float): Float = frequency / family.rolloffRatio(dBFS)
     }
 
+    class LowPass(frequency: Float, family: FilterFamily) : FilterConfig(frequency, family) {
+        override fun frequencyAt(dBFS: Float): Float = frequency * family.rolloffRatio(dBFS)
+    }
+
+    abstract fun frequencyAt(dBFS: Float): Float
+    
 }

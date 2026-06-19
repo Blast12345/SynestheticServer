@@ -7,19 +7,19 @@ class FilterBuilder {
 
     fun build(config: FilterConfig, sampleRate: Float): Filter {
         return when (config.family) {
-            is FilterFamily.Butterworth -> buildButterworth(config.type, config.family, sampleRate)
+            is FilterFamily.Butterworth -> buildButterworth(config, config.family, sampleRate)
         }
     }
 
     private fun buildButterworth(
-        type: FilterType,
+        config: FilterConfig,
         family: FilterFamily.Butterworth,
         sampleRate: Float
     ): Filter {
         val order = family.order.value
-        return when (type) {
-            is FilterType.LowPass -> ButterworthLowPass(type.frequency, order, sampleRate)
-            is FilterType.HighPass -> ButterworthHighPass(type.frequency, order, sampleRate)
+        return when (config) {
+            is FilterConfig.LowPass -> ButterworthLowPass(config.frequency, order, sampleRate)
+            is FilterConfig.HighPass -> ButterworthHighPass(config.frequency, order, sampleRate)
         }
     }
 
