@@ -9,68 +9,68 @@ class SequenceGapDetectorTests {
         return SequenceGapDetector()
     }
 
-    // No gap
+    // Ok
     @Test
-    fun `first check has no gap`() {
+    fun `first check is ok`() {
         val sut = createSUT()
 
         val result = sut.check(5L)
 
-        assertEquals(0L, result)
+        assertEquals(SequenceCheck.Ok, result)
     }
 
     @Test
-    fun `sequential numbers have no gap`() {
+    fun `sequential numbers are ok`() {
         val sut = createSUT()
         sut.check(5L)
 
         val result = sut.check(6L)
 
-        assertEquals(0L, result)
+        assertEquals(SequenceCheck.Ok, result)
     }
 
-    // Forward gap
+    // Gap
     @Test
-    fun `a forward gap is reported`() {
+    fun `when there is a gap in the ascending sequence, report the gap`() {
         val sut = createSUT()
         sut.check(0L)
 
         val result = sut.check(5L)
 
-        assertEquals(4L, result)
+        assertEquals(SequenceCheck.Gap(4L), result)
     }
 
     @Test
-    fun `after a forward gap, sequential numbers resume normally`() {
+    fun `after a gap, sequential numbers resume normally`() {
         val sut = createSUT()
         sut.check(0L)
         sut.check(5L)
 
         val result = sut.check(6L)
 
-        assertEquals(0L, result)
+        assertEquals(SequenceCheck.Ok, result)
     }
 
-    // Backward gap
+    // Reset
     @Test
-    fun `a backwards gap is reported`() {
+    fun `when there is a decrease in the sequence, report a reset`() {
         val sut = createSUT()
         sut.check(5L)
 
-        val result = sut.check(0L)
+        val result = sut.check(1L)
 
-        assertEquals(-6L, result)
+        assertEquals(SequenceCheck.Reset, result)
     }
 
     @Test
-    fun `after a backwards gap, sequential numbers resume normally`() {
+    fun `after a reset, sequential numbers resume normally`() {
         val sut = createSUT()
         sut.check(5L)
         sut.check(0L)
 
-        val result = sut.check(6L)
+        val result = sut.check(1L)
 
-        assertEquals(0L, result)
+        assertEquals(SequenceCheck.Ok, result)
     }
-    
+
 }
