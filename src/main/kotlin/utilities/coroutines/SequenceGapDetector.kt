@@ -1,18 +1,28 @@
 package utilities.coroutines
 
+sealed class SequenceCheck {
+    data object Ok : SequenceCheck()
+    data class Gap(val size: Long) : SequenceCheck()
+    data object Reset : SequenceCheck()
+}
+
 class SequenceGapDetector {
 
-    private var expected: Long? = null
+    private var expectedSequenceNumber: Long? = null
 
-    fun check(sequenceNumber: Long): Long {
-        val expected = this.expected ?: sequenceNumber
-        val delta = sequenceNumber - expected
+    fun check(sequenceNumber: Long): SequenceCheck {
+        val expected = expectedSequenceNumber
 
-        if (delta >= 0) {
-            this.expected = sequenceNumber + 1
+        val result = when {
+            expected == null -> SequenceCheck.Ok
+            sequenceNumber < expected -> SequenceCheck.Reset
+            sequenceNumber > expected -> SequenceCheck.Gap(sequenceNumber - expected)
+            else -> SequenceCheck.Ok
         }
 
-        return delta
+        expectedSequenceNumber = sequenceNumber + 1
+
+        return result
     }
 
 }
