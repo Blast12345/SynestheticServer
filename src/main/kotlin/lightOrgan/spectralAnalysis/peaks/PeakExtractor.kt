@@ -6,17 +6,19 @@ import dsp.peakExtraction.SpectralPeakExtractor
 import dsp.peakExtraction.SpectralPeaks
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 
-// TODO: Test me
-// ENHANCEMENT: Reject peaks below the sidelobe dB? E.g. a peak of 0.5 yields sidelobes of X - then anything at X and below is removed
 class PeakExtractor(
     private val config: SpectralAnalysisConfig,
-    private val extractor: SpectralPeakExtractor = ParabolicSpectralPeakExtractor()
+    private val extractor: SpectralPeakExtractor = createExtractor(config.peakExtractor)
 ) {
 
     fun extract(
-        bins: FrequencyBins
+        spectrum: FrequencyBins
     ): SpectralPeaks = when (extractor) {
-        is ParabolicSpectralPeakExtractor -> extractor.extract(bins)
+        is ParabolicSpectralPeakExtractor -> extractor.extract(spectrum)
     }
 
+}
+
+private fun createExtractor(type: PeakExtractorConfig) = when (type) {
+    is PeakExtractorConfig.Parabolic -> ParabolicSpectralPeakExtractor()
 }

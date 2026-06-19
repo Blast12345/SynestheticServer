@@ -5,6 +5,7 @@ import audio.samples.AudioFrame
 import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves
@@ -22,7 +23,8 @@ class SpectralAnalyzerIntegrationTests {
         rolloffThreshold = -48f,
         highPassFilter = null,
         lowPassFilter = null,
-        window = WindowType.Hann
+        window = WindowType.Hann,
+        peakExtractor = PeakExtractorConfig.Parabolic
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)

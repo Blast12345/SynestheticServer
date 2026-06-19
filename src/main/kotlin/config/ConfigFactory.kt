@@ -8,6 +8,7 @@ import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds
@@ -35,6 +36,7 @@ class ConfigFactory(
                     family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
                 ),
                 window = WindowType.BlackmanHarris3Term,
+                peakExtractor = PeakExtractorConfig.Parabolic
             ),
             gateway = GatewayConfig(
                 baudRate = 921600,

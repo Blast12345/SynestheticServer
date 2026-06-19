@@ -11,6 +11,7 @@ fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
         rolloffThreshold = nextPositiveFloat(),
         highPassFilter = nextHighPassConfig(),
         lowPassFilter = nextLowPassConfig(),
-        window = nextEnum<WindowType>()
+        window = nextEnum<WindowType>(),
+        peakExtractor = nextPeakExtractorConfig()
     )
 }
