@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -22,14 +21,10 @@ import dsp.bins.FrequencyBin
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.SpectralPeaks
 import gui.basicComponents.*
+import gui.extensions.cartesian
 import org.jetbrains.skia.FilterBlurMode
 import org.jetbrains.skia.MaskFilter
 import kotlin.math.round
-
-// TODO: Move me
-data class Cartesian(val x: Float, val y: Float)
-
-fun Cartesian.to(scope: DrawScope) = Offset(x, scope.size.height - y)
 
 // ENHANCEMENT: Make the frequency follow the cursor
 @Composable
@@ -114,7 +109,7 @@ private fun DrawScope.drawSpectrum(bins: FrequencyBins, color: Color, barWidth: 
 
         drawRect(
             color = color,
-            topLeft = Cartesian(snappedLeft, snappedHeight).to(this),
+            topLeft = cartesian(snappedLeft, snappedHeight),
             size = Size(snappedWidth, snappedHeight)
         )
     }
@@ -145,8 +140,8 @@ private fun DrawScope.drawPeaks(peaks: SpectralPeaks, lowestFrequency: Float, hi
             }
 
             canvas.drawLine(
-                Cartesian(snappedCenterX, 0f).to(this),
-                Cartesian(snappedCenterX, snappedLineHeight).to(this),
+                cartesian(snappedCenterX, 0f),
+                cartesian(snappedCenterX, snappedLineHeight),
                 paint
             )
         }
@@ -154,8 +149,8 @@ private fun DrawScope.drawPeaks(peaks: SpectralPeaks, lowestFrequency: Float, hi
         // Defined line
         drawLine(
             color,
-            Cartesian(snappedCenterX, 0f).to(this),
-            Cartesian(snappedCenterX, snappedLineHeight).to(this),
+            cartesian(snappedCenterX, 0f),
+            cartesian(snappedCenterX, snappedLineHeight),
             peakStrokeWidth
         )
     }
@@ -172,7 +167,7 @@ private fun DrawScope.drawHoverHighlight(hoveredIndex: Int?, barWidth: Float) {
 
         drawRect(
             color = Color.White.copy(alpha = 0.5f),
-            topLeft = Cartesian(snappedLeft, size.height).to(this),
+            topLeft = cartesian(snappedLeft, size.height),
             size = Size(snappedWidth, size.height)
         )
     }
