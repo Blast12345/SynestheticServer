@@ -16,7 +16,7 @@ import toolkit.monkeyTest.nextConfig
 import toolkit.monkeyTest.nextFrequencyBin
 import toolkit.monkeyTest.nextSpectralPeak
 
-class SpectralAnalyzerTests {
+class SpectralAnalyzerUnitTests {
 
     private val config: SpectralAnalysisConfig = nextConfig().spectralAnalysis
     private val audioConditioner: AudioConditioner = mockk()
