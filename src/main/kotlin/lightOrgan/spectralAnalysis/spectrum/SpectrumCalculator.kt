@@ -47,8 +47,10 @@ class SpectrumCalculator(
 
         val bufferedAudio = updateBuffer(audio, sampleSize)
         val windowedSamples = window.appliedTo(bufferedAudio.samples) // TODO: Apply correction factor automatically?
+        // TODO: Apply window correction factor directly to samples
+        //, window.magnitudeCorrectionFactor(sampleSize)
         val interpolated = interpolator.interpolate(windowedSamples, fftLength)
-        val bins = frequencyBinsCalculator.calculate(interpolated, audio.format.sampleRate, window.magnitudeCorrectionFactor(sampleSize))
+        val bins = frequencyBinsCalculator.calculate(interpolated, audio.format.sampleRate)
         val validBins = filterBins(bins, audio.format)
 
         return validBins
