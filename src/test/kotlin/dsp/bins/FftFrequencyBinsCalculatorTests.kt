@@ -23,7 +23,7 @@ class FftFrequencyBinsCalculatorTests {
     fun `peak bin corresponds to the input frequency`() {
         val sut = createSUT()
 
-        val bins = sut.calculate(tone.samples, sampleRate, 1f)
+        val bins = sut.calculate(tone.waveForm.samples, sampleRate, 1f)
 
         val peakBin = bins.maxBy { it.magnitude }
         assertEquals(frequency, peakBin.frequency)
@@ -33,7 +33,7 @@ class FftFrequencyBinsCalculatorTests {
     fun `bin frequencies are spaced by the frequency resolution`() {
         val sut = createSUT()
 
-        val bins = sut.calculate(tone.samples, sampleRate, 1f)
+        val bins = sut.calculate(tone.waveForm.samples, sampleRate, 1f)
 
         val expectedSpacing = sampleRate / 2 / bins.size
         bins.zipWithNext().forEach { (current, next) ->
@@ -46,7 +46,7 @@ class FftFrequencyBinsCalculatorTests {
     fun `magnitudes are non-negative`() {
         val sut = createSUT()
 
-        val bins = sut.calculate(tone.samples, sampleRate, 1f)
+        val bins = sut.calculate(tone.waveForm.samples, sampleRate, 1f)
 
         bins.forEach { assertTrue(it.magnitude >= 0f) }
     }
@@ -65,8 +65,8 @@ class FftFrequencyBinsCalculatorTests {
         val sut = createSUT()
         val correctionFactor = 2f
 
-        val uncorrected = sut.calculate(tone.samples, sampleRate, 1f)
-        val corrected = sut.calculate(tone.samples, sampleRate, correctionFactor)
+        val uncorrected = sut.calculate(tone.waveForm.samples, sampleRate, 1f)
+        val corrected = sut.calculate(tone.waveForm.samples, sampleRate, correctionFactor)
 
         uncorrected.zip(corrected).forEach { (base, scaled) ->
             assertEquals(base.magnitude * correctionFactor, scaled.magnitude, 0.001f)
