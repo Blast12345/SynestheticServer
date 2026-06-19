@@ -4,8 +4,8 @@ import audio.samples.AudioFrame
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.spectrum.FilterManager
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 
 data class Passband(
     val lowerFrequency: Float?,
@@ -20,7 +20,7 @@ data class Passband(
 
 // TODO: Test me
 class AudioConditioner(
-    private val config: SpectralAnalyzerConfig,
+    private val config: SpectralAnalysisConfig,
     private val monoMixer: MonoMixer = MonoMixer(),
     private val gain: Gain = Gain(),
     private val filterManager: FilterManager = FilterManager(config.highPassFilter, config.lowPassFilter),

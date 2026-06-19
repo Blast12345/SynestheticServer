@@ -3,8 +3,8 @@ package lightOrgan.spectrum
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import dsp.windowing.WindowType
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 // Unit tests and tests of dependencies will fill the gaps.
 class SpectralAnalyzerIntegrationTests {
 
-    private val config = SpectralAnalyzerConfig(
+    private val config = SpectralAnalysisConfig(
         gainDb = 0f,
         frameDuration = 50.milliseconds, // 20 Hz spacing
         approximateBinSpacing = 1f,
@@ -37,7 +37,7 @@ class SpectralAnalyzerIntegrationTests {
     private val wave1Frame = AudioFrame(wave1.waveForm.samples, audioFormat)
     private val combinedWavesFrame = AudioFrame(combinedWaves.samples, audioFormat)
 
-    private fun createSUT(config: SpectralAnalyzerConfig = this.config): SpectralAnalyzer {
+    private fun createSUT(config: SpectralAnalysisConfig = this.config): SpectralAnalyzer {
         return SpectralAnalyzer(config)
     }
 

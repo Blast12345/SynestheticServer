@@ -6,7 +6,6 @@ import io.mockk.mockk
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
 import lightOrgan.spectralAnalysis.conditioning.Passband
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,7 +18,7 @@ import toolkit.monkeyTest.nextSpectralPeak
 
 class SpectralAnalyzerTests {
 
-    private val config: SpectralAnalyzerConfig = nextConfig().spectralAnalyzer
+    private val config: SpectralAnalysisConfig = nextConfig().spectralAnalysis
     private val audioConditioner: AudioConditioner = mockk()
     private val spectrumCalculator: SpectrumCalculator = mockk()
     private val peakExtractor: PeakExtractor = mockk()

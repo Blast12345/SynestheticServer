@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
 class SpectralAnalyzer(
-    private val config: SpectralAnalyzerConfig = ConfigSingleton.spectralAnalyzer,
+    private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
     private val audioConditioner: AudioConditioner = AudioConditioner(config),
     private val spectrumCalculator: SpectrumCalculator = SpectrumCalculator(config),
     private val peakExtractor: PeakExtractor = PeakExtractor(config)

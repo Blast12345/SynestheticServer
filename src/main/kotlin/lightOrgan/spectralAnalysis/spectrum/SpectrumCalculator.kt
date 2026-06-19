@@ -9,6 +9,7 @@ import dsp.bins.FrequencyBinsFactory
 import dsp.bins.RealFFT
 import dsp.windowing.Window
 import extensions.inSeconds
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import math.nextPowerOfTwo
 import org.apache.commons.math3.complex.Complex
 
@@ -28,7 +29,7 @@ data class PointSpreadFunction(
 // ENHANCEMENT: Improve handling of discontinuities (though I have doubt it is possible)
 // ENHANCEMENT: Allow decimator frequency to be overridden; include use case like pre-filtered inputs and warn about aliasing if improperly configured
 class SpectrumCalculator(
-    private val config: SpectralAnalyzerConfig,
+    private val config: SpectralAnalysisConfig,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),

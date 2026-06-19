@@ -7,7 +7,7 @@ import dsp.filtering.FilterType
 import dsp.windowing.WindowType
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalyzerConfig
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds
@@ -21,7 +21,7 @@ class ConfigFactory(
 
         return Config(
             startAutomatically = MutableStateFlow(persistedConfig.startAutomatically),
-            spectralAnalyzer = SpectralAnalyzerConfig(
+            spectralAnalysis = SpectralAnalysisConfig(
                 gainDb = 12f,
                 frameDuration = 63.milliseconds,
                 approximateBinSpacing = 1f,
