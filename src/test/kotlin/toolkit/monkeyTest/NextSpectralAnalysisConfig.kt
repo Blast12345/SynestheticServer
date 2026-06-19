@@ -2,6 +2,7 @@ package toolkit.monkeyTest
 
 import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import kotlin.random.Random
 
 fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
     return SpectralAnalysisConfig(
@@ -12,6 +13,7 @@ fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
         highPassFilter = nextHighPassConfig(),
         lowPassFilter = nextLowPassConfig(),
         window = nextEnum<WindowType>(),
-        peakExtractor = nextPeakExtractorConfig()
+        peakExtractor = nextPeakExtractorConfig(),
+        decimate = Random.nextBoolean()
     )
 }

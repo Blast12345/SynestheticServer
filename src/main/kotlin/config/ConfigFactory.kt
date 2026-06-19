@@ -36,7 +36,8 @@ class ConfigFactory(
                     family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
                 ),
                 window = WindowType.BlackmanHarris3Term,
-                peakExtractor = PeakExtractorConfig.Parabolic
+                peakExtractor = PeakExtractorConfig.Parabolic,
+                decimate = true
             ),
             gateway = GatewayConfig(
                 baudRate = 921600,

@@ -5,44 +5,62 @@ import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
-import lightOrgan.spectralAnalysis.spectrum.FilterManager
+import lightOrgan.spectralAnalysis.spectrum.FilterFactory
+import lightOrgan.spectralAnalysis.spectrum.StatefulFilter
 
+// TODO: Move me
 data class Passband(
-    val lowerFrequency: Float?,
-    val higherFrequency: Float?,
+    val lowerFrequency: Float,
+    val higherFrequency: Float,
 ) {
+
     operator fun contains(frequency: Float): Boolean {
-        val aboveLower = lowerFrequency?.let { frequency >= it } ?: true
-        val belowUpper = higherFrequency?.let { frequency <= it } ?: true
-        return aboveLower && belowUpper
+        return frequency in lowerFrequency..higherFrequency
     }
+
 }
 
-// TODO: Test me
 class AudioConditioner(
     private val config: SpectralAnalysisConfig,
     private val monoMixer: MonoMixer = MonoMixer(),
     private val gain: Gain = Gain(),
-    private val filterManager: FilterManager = FilterManager(config.highPassFilter, config.lowPassFilter),
+    private val filterFactory: FilterFactory = FilterFactory(),
     private val decimator: Decimator = Decimator(),
 ) {
 
-    // high-pass removes lows  → its rolloff is the LOWER edge
-    // low-pass  removes highs → its rolloff is the UPPER edge
+    private val highPassFilter: StatefulFilter? = config.highPassFilter?.let { filterFactory.create(it) }
+    private val lowPassFilter: StatefulFilter? = config.lowPassFilter?.let { filterFactory.create(it) }
+
     val passband: Passband
         get() = Passband(
-            lowerFrequency = filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold),
-            higherFrequency = filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold),
+            lowerFrequency = highPassFilter?.frequencyAt(config.rolloffThreshold) ?: 0f,
+            higherFrequency = lowPassFilter?.frequencyAt(config.rolloffThreshold) ?: Float.POSITIVE_INFINITY,
         )
 
     fun condition(audio: AudioFrame): AudioFrame {
-        val targetNyquist = passband.higherFrequency ?: audio.format.nyquistFrequency
+        var conditionedAudio = audio
 
-        return audio
-            .let { monoMixer.mix(it) }
-            .let { applyGain(it, config.gainDb) }
-            .let { filterManager.filter(it) }
-            .let { decimateIfNeeded(it, targetNyquist) }
+        if (conditionedAudio.format.channels > 1) {
+            conditionedAudio = monoMixer.mix(conditionedAudio)
+        }
+
+        if (config.gainDb != 0f) {
+            conditionedAudio = applyGain(conditionedAudio, config.gainDb)
+        }
+
+        if (highPassFilter != null) {
+            conditionedAudio = highPassFilter.filter(conditionedAudio)
+        }
+
+        if (lowPassFilter != null) {
+            conditionedAudio = lowPassFilter.filter(conditionedAudio)
+        }
+
+        if (config.decimate && lowPassFilter != null) {
+            conditionedAudio = decimate(conditionedAudio, passband.higherFrequency)
+        }
+
+        return conditionedAudio
     }
 
     private fun applyGain(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
@@ -50,11 +68,14 @@ class AudioConditioner(
         return audioFrame.copy(samples = adjustedSamples)
     }
 
-    private fun decimateIfNeeded(audio: AudioFrame, targetNyquist: Float): AudioFrame {
-        val factor = decimator.decimationFactor(audio.format.sampleRate, targetNyquist)
-        val effectiveSampleRate = audio.format.sampleRate / factor
+    private fun StatefulFilter.filter(audioFrame: AudioFrame): AudioFrame {
+        val filteredSamples = filter(audioFrame.samples, audioFrame.format.sampleRate)
+        return audioFrame.copy(samples = filteredSamples)
+    }
 
-        if (factor <= 1) return audio
+    private fun decimate(audio: AudioFrame, targetNyquistFrequency: Float): AudioFrame {
+        val factor = decimator.decimationFactor(audio.format.sampleRate, targetNyquistFrequency)
+        val effectiveSampleRate = audio.format.sampleRate / factor
 
         return AudioFrame(
             samples = decimator.decimate(audio.samples, factor, audio.format.sampleRate, audio.format.channels),

@@ -24,7 +24,8 @@ class SpectralAnalyzerIntegrationTests {
         highPassFilter = null,
         lowPassFilter = null,
         window = WindowType.Hann,
-        peakExtractor = PeakExtractorConfig.Parabolic
+        peakExtractor = PeakExtractorConfig.Parabolic,
+        decimate = true
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)

@@ -1,6 +1,5 @@
 package lightOrgan.spectralAnalysis
 
-import audio.samples.AudioFrame
 import dsp.filtering.Filter
 import dsp.filtering.FilterBuilder
 import dsp.filtering.FilterConfig
@@ -14,7 +13,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import toolkit.monkeyTest.*
+import toolkit.monkeyTest.nextFloatArray
+import toolkit.monkeyTest.nextHighPassConfig
+import toolkit.monkeyTest.nextLowPassConfig
+import kotlin.random.Random.Default.nextFloat
 
 class FilterManagerTests {
 
@@ -27,11 +29,10 @@ class FilterManagerTests {
     private val mockLowPass: Filter = mockk()
     private val lowPassedSamples = nextFloatArray()
 
-    private val format1 = nextAudioFormat()
-    private val format2 = nextAudioFormat()
-    private val format1Frame1 = nextAudioFrame(format = format1)
-    private val format1Frame2 = nextAudioFrame(format = format1)
-    private val format2Frame1 = nextAudioFrame(format = format2)
+    private val sampleRate1 = nextFloat()
+    private val sampleRate2 = nextFloat()
+    private val samples1 = nextFloatArray()
+    private val samples2 = nextFloatArray()
 
     @BeforeEach
     fun setupHappyPath() {
@@ -74,40 +75,37 @@ class FilterManagerTests {
     fun `given no filters are defined, then return the audio unchanged`() {
         val sut = createSUT(highPass = null, lowPass = null)
 
-        val result = sut.filter(format1Frame1)
+        val result = sut.filter(samples1, sampleRate1)
 
-        assertEquals(format1Frame1, result)
+        assertEquals(samples1, result)
     }
 
     @Test
     fun `given a high pass filter is defined, audio is high pass filtered`() {
         val sut = createSUT(highPassFilterConfig, null)
 
-        val result = sut.filter(format1Frame1)
+        val result = sut.filter(samples1, sampleRate1)
 
-        val expected = AudioFrame(highPassedSamples, format1)
-        assertEquals(expected, result)
+        assertEquals(highPassedSamples, result)
     }
 
     @Test
     fun `given a low pass filter is defined, audio is low pass filtered`() {
         val sut = createSUT(null, lowPassFilterConfig)
 
-        val result = sut.filter(format1Frame1)
+        val result = sut.filter(samples1, sampleRate1)
 
-        val expected = AudioFrame(lowPassedSamples, format1)
-        assertEquals(expected, result)
+        assertEquals(lowPassedSamples, result)
     }
 
     @Test
     fun `given both filters are defined, audio is filtered by both`() {
         val sut = createSUT(highPassFilterConfig, lowPassFilterConfig)
 
-        sut.filter(format1Frame1)
+        sut.filter(samples1, sampleRate1)
 
         verify { mockHighPass.filter(any()) }
         verify { mockLowPass.filter(any()) }
-        // Ordering doesn't matter, so we cannot reasonably verify the result without implying an order
     }
 
     // Statefulness
@@ -115,24 +113,24 @@ class FilterManagerTests {
     fun `filters are reused when sample rate does not change`() {
         val sut = createSUT(highPassFilterConfig, lowPassFilterConfig)
 
-        sut.filter(format1Frame1)
-        sut.filter(format1Frame2)
+        sut.filter(samples1, sampleRate1)
+        sut.filter(samples2, sampleRate1)
 
-        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, format1.sampleRate) }
-        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, format1.sampleRate) }
+        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, sampleRate1) }
+        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, sampleRate1) }
     }
 
     @Test
     fun `filters are rebuilt when sample rate changes`() {
         val sut = createSUT(highPassFilterConfig, lowPassFilterConfig)
 
-        sut.filter(format1Frame1)
-        sut.filter(format2Frame1)
+        sut.filter(samples1, sampleRate1)
+        sut.filter(samples2, sampleRate2)
 
-        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, format1.sampleRate) }
-        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, format2.sampleRate) }
-        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, format1.sampleRate) }
-        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, format2.sampleRate) }
+        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, sampleRate1) }
+        verify(exactly = 1) { filterBuilder.build(highPassFilterConfig, sampleRate2) }
+        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, sampleRate1) }
+        verify(exactly = 1) { filterBuilder.build(lowPassFilterConfig, sampleRate2) }
     }
 
 }

@@ -1,10 +1,40 @@
 package lightOrgan.spectralAnalysis.spectrum
 
-import audio.samples.AudioFrame
+import annotations.SkipCoverage
 import dsp.filtering.Filter
 import dsp.filtering.FilterBuilder
 import dsp.filtering.FilterConfig
 import dsp.filtering.FilterType
+
+
+class StatefulFilter(
+    private val config: FilterConfig,
+    private val filterBuilder: FilterBuilder = FilterBuilder(),
+) {
+
+    private var filter: Filter? = null
+    private var sampleRate: Float? = null
+
+    fun filter(samples: FloatArray, sampleRate: Float): FloatArray {
+        if (sampleRate != this.sampleRate) {
+            this.sampleRate = sampleRate
+            filter = filterBuilder.build(config, sampleRate)
+        }
+        return filter!!.filter(samples)
+    }
+
+    fun frequencyAt(dBFS: Float): Float = config.frequencyAt(dBFS)
+
+}
+
+@SkipCoverage
+class FilterFactory {
+
+    fun create(config: FilterConfig): StatefulFilter {
+        return StatefulFilter(config)
+    }
+
+}
 
 // ENHANCEMENT: Show the filter response in the UI
 // ENHANCEMENT: Make configs configurable via the UI, then automatically rebuild filters
@@ -27,15 +57,15 @@ class FilterManager(
     private var lowPassFilter: Filter? = null
     private var sampleRate: Float? = null
 
-    fun filter(audio: AudioFrame): AudioFrame {
-        rebuildIfNeeded(audio.format.sampleRate)
+    fun filter(samples: FloatArray, sampleRate: Float): FloatArray {
+        rebuildIfNeeded(sampleRate)
 
-        var samples = audio.samples
+        var filteredSamples = samples
 
-        highPassFilter?.let { samples = it.filter(samples) }
-        lowPassFilter?.let { samples = it.filter(samples) }
+        highPassFilter?.let { filteredSamples = it.filter(filteredSamples) }
+        lowPassFilter?.let { filteredSamples = it.filter(filteredSamples) }
 
-        return AudioFrame(samples, audio.format)
+        return filteredSamples
     }
 
     private fun rebuildIfNeeded(sampleRate: Float) {
