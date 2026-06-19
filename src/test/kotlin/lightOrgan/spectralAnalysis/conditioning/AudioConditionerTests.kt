@@ -3,12 +3,11 @@ package lightOrgan.spectralAnalysis.conditioning
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
+import dsp.filtering.StatefulFilter
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
-import lightOrgan.spectralAnalysis.spectrum.FilterFactory
-import lightOrgan.spectralAnalysis.spectrum.StatefulFilter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

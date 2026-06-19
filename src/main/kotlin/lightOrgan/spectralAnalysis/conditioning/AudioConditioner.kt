@@ -5,9 +5,8 @@ import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
 import dsp.filtering.Passband
+import dsp.filtering.StatefulFilter
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
-import lightOrgan.spectralAnalysis.spectrum.FilterFactory
-import lightOrgan.spectralAnalysis.spectrum.StatefulFilter
 
 class AudioConditioner(
     private val config: SpectralAnalysisConfig,
@@ -66,5 +65,5 @@ class AudioConditioner(
         val factor = decimator.decimationFactor(audio.format.sampleRate, targetNyquistFrequency)
         return decimator.decimate(audio, factor)
     }
-    
+
 }

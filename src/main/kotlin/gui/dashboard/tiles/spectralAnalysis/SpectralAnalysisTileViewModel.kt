@@ -7,6 +7,7 @@ import dsp.bins.FrequencyBin
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 
 // ENHANCEMENT: Show latency
+// ENHANCEMENT: Show the filter response in the UI
 class SpectralAnalysisTileViewModel(
     private val spectralAnalyzer: SpectralAnalyzer
 ) {
