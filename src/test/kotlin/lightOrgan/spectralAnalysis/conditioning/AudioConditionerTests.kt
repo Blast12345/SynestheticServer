@@ -1,6 +1,5 @@
 package lightOrgan.spectralAnalysis.conditioning
 
-import audio.samples.AudioFrame
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
@@ -34,7 +33,7 @@ class AudioConditionerTests {
     private val monoAudio = nextAudioFrame(format = nextAudioFormat(channels = 1))
     private val gainedSamples = nextFloatArray()
     private val decimationFactor = 4
-    private val decimatedSamples = nextFloatArray()
+    private val decimatedAudio = nextAudioFrame()
 
     private val highPassConfig = nextHighPassConfig()
     private val highPassFilter: StatefulFilter = mockk()
@@ -60,7 +59,7 @@ class AudioConditionerTests {
         every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
 
         every { decimator.decimationFactor(monoAudio.format.sampleRate, upperFrequency) } returns decimationFactor
-        every { decimator.decimate(filteredSamples, decimationFactor, monoAudio.format.sampleRate, monoAudio.format.channels) } returns decimatedSamples
+        every { decimator.decimate(monoAudio.copy(samples = filteredSamples), decimationFactor) } returns decimatedAudio
     }
 
     @AfterEach
@@ -144,8 +143,7 @@ class AudioConditionerTests {
 
         val result = sut.condition(monoAudio)
 
-        val expected = AudioFrame(decimatedSamples, monoAudio.format.copy(sampleRate = monoAudio.format.sampleRate / decimationFactor))
-        assertEquals(expected, result)
+        assertEquals(decimatedAudio, result)
     }
 
 }

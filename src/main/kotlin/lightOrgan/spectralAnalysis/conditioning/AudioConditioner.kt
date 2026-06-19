@@ -64,12 +64,7 @@ class AudioConditioner(
 
     private fun decimate(audio: AudioFrame, targetNyquistFrequency: Float): AudioFrame {
         val factor = decimator.decimationFactor(audio.format.sampleRate, targetNyquistFrequency)
-        val effectiveSampleRate = audio.format.sampleRate / factor
-
-        return AudioFrame(
-            samples = decimator.decimate(audio.samples, factor, audio.format.sampleRate, audio.format.channels),
-            format = audio.format.copy(sampleRate = effectiveSampleRate)
-        )
+        return decimator.decimate(audio, factor)
     }
-
+    
 }
