@@ -4,9 +4,9 @@ import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
 import dsp.ZeroPaddingInterpolator
+import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
-import dsp.bins.FrequencyBinsFactory
-import dsp.bins.RealFFT
+import dsp.bins.FrequencyBinsCalculator
 import dsp.windowing.Window
 import extensions.inSeconds
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
@@ -33,8 +33,7 @@ class SpectrumCalculator(
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
-    private val fft: RealFFT = RealFFT(),
-    private val frequencyBinsFactory: FrequencyBinsFactory = FrequencyBinsFactory(),
+    private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
 
     private val frequencyResolution = 1 / config.frameDuration.inSeconds
@@ -48,17 +47,11 @@ class SpectrumCalculator(
 
         val bufferedAudio = updateBuffer(audio, sampleSize)
         val windowedSamples = window.appliedTo(bufferedAudio.samples) // TODO: Apply correction factor automatically?
-        val audioSpectrum = transformToSpectrum(windowedSamples, sampleSize, fftLength)
-        val bins = frequencyBinsFactory.create(audioSpectrum, audio.format.sampleRate, fftLength) //, window.magnitudeCorrectionFactor(sampleSize)
+        val interpolated = interpolator.interpolate(windowedSamples, fftLength)
+        val bins = frequencyBinsCalculator.calculate(interpolated, audio.format.sampleRate, window.magnitudeCorrectionFactor(sampleSize))
         val validBins = filterBins(bins, audio.format)
 
         return validBins
-    }
-
-    private fun transformToSpectrum(signal: FloatArray, sampleSize: Int, fftLength: Int): List<Complex> {
-        val interpolated = interpolator.interpolate(signal, fftLength)
-        val normalizationFactor = 2.0 / fftLength * window.magnitudeCorrectionFactor(sampleSize)
-        return fft.forward(interpolated).map { it.multiply(normalizationFactor) }
     }
 
     private fun updateBuffer(frame: AudioFrame, requiredSize: Int): AudioFrame {
