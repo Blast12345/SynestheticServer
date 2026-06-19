@@ -1,10 +1,10 @@
 package lightOrgan.spectralAnalysis
 
+import dsp.filtering.Passband
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
-import lightOrgan.spectralAnalysis.conditioning.Passband
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 import org.junit.jupiter.api.AfterEach

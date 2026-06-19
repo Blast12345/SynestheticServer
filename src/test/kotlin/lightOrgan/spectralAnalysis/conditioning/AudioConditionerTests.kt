@@ -33,6 +33,7 @@ class AudioConditionerTests {
     private val stereoAudio = nextAudioFrame(format = nextAudioFormat(channels = 2))
     private val monoAudio = nextAudioFrame(format = nextAudioFormat(channels = 1))
     private val gainedSamples = nextFloatArray()
+    private val decimationFactor = 4
     private val decimatedSamples = nextFloatArray()
 
     private val highPassConfig = nextHighPassConfig()
@@ -47,11 +48,19 @@ class AudioConditionerTests {
 
     @BeforeEach
     fun setupHappyPath() {
-        every { filterFactory.create(highPassConfig) } returns highPassFilter
-        every { filterFactory.create(lowPassConfig) } returns lowPassFilter
+        every { monoMixer.mix(stereoAudio) } returns monoAudio
+        every { gain.apply(monoAudio.samples, 3f) } returns gainedSamples
 
+        every { filterFactory.create(highPassConfig) } returns highPassFilter
         every { highPassFilter.frequencyAt(minimalConfig.rolloffThreshold) } returns lowerFrequency
+        every { highPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
+
+        every { filterFactory.create(lowPassConfig) } returns lowPassFilter
         every { lowPassFilter.frequencyAt(minimalConfig.rolloffThreshold) } returns upperFrequency
+        every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
+
+        every { decimator.decimationFactor(monoAudio.format.sampleRate, upperFrequency) } returns decimationFactor
+        every { decimator.decimate(filteredSamples, decimationFactor, monoAudio.format.sampleRate, monoAudio.format.channels) } returns decimatedSamples
     }
 
     @AfterEach
@@ -66,7 +75,6 @@ class AudioConditionerTests {
     @Test
     fun `given multichannel audio, mix to mono`() {
         val sut = createSUT()
-        every { monoMixer.mix(stereoAudio) } returns monoAudio
 
         val result = sut.condition(stereoAudio)
 
@@ -76,7 +84,6 @@ class AudioConditionerTests {
     @Test
     fun `apply gain to audio`() {
         val sut = createSUT(minimalConfig.copy(gainDb = 3f))
-        every { gain.apply(monoAudio.samples, 3f) } returns gainedSamples
 
         val result = sut.condition(monoAudio)
 
@@ -88,7 +95,6 @@ class AudioConditionerTests {
     @Test
     fun `apply high pass filter`() {
         val sut = createSUT(minimalConfig.copy(highPassFilter = highPassConfig))
-        every { highPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
 
         val result = sut.condition(monoAudio)
 
@@ -99,7 +105,6 @@ class AudioConditionerTests {
     @Test
     fun `apply low pass filter`() {
         val sut = createSUT(minimalConfig.copy(lowPassFilter = lowPassConfig))
-        every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
 
         val result = sut.condition(monoAudio)
 
@@ -136,11 +141,6 @@ class AudioConditionerTests {
     @Test
     fun `given a low pass filter, decimate to the the stopband`() {
         val sut = createSUT(minimalConfig.copy(lowPassFilter = lowPassConfig, decimate = true))
-        every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
-
-        val decimationFactor = 4
-        every { decimator.decimationFactor(monoAudio.format.sampleRate, upperFrequency) } returns decimationFactor
-        every { decimator.decimate(filteredSamples, decimationFactor, monoAudio.format.sampleRate, monoAudio.format.channels) } returns decimatedSamples
 
         val result = sut.condition(monoAudio)
 
