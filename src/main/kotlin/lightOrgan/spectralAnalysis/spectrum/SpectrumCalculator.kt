@@ -11,23 +11,10 @@ import dsp.windowing.Window
 import extensions.inSeconds
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import math.nextPowerOfTwo
-import org.apache.commons.math3.complex.Complex
 
-
-data class PointSpreadFunction(
-    val values: List<Complex>,
-    val centerIndex: Int,
-)
-
-
+// ENHANCEMENT: Spectral "reassignment method"
 // ENHANCEMENT: Multi-resolution bin generations
 // ENHANCEMENT: Implement equal-loudness contours (ISO 226:2003). Manual SPL number with future plans of external meter?
-// ENHANCEMENT: If implementing other calculation strategies (e.g., DFT, CZT), then create a bin calculator interface
-// ENHANCEMENT: Explore sub-frame duration frequency calculation. Cool challenge, but probably not necessary for music.
-// ENHANCEMENT: Inaccurate low frequencies — bins below the window duration are unreliable. Dual-FFT?
-// ENHANCEMENT: Decimation - reduce the effective sample rate to increase performance.
-// ENHANCEMENT: Improve handling of discontinuities (though I have doubt it is possible)
-// ENHANCEMENT: Allow decimator frequency to be overridden; include use case like pre-filtered inputs and warn about aliasing if improperly configured
 class SpectrumCalculator(
     private val config: SpectralAnalysisConfig,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
