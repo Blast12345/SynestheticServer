@@ -5,33 +5,26 @@ import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+data class SineWave(
+    val frequency: Float,
+    val amplitude: Float,
+    val waveForm: WaveForm
+)
+
 fun generateSineWave(
     frequency: Float,
     amplitude: Float = 1f,
     sampleRate: Float,
     duration: Duration = 1.seconds,
-): WaveForm {
+): SineWave {
     val sampleSize = (sampleRate * duration.inWholeSeconds).toInt()
 
-    return WaveForm(
-        sampleRate = sampleRate,
-        samples = FloatArray(sampleSize) { i -> amplitude * sin(2.0 * PI * frequency * i / sampleRate).toFloat() }
-    )
-}
-
-fun generateSilence(sampleRate: Float, duration: Duration = 1.seconds): WaveForm {
-    return generateSineWave(frequency = 0f, amplitude = 0f, sampleRate = sampleRate, duration = duration)
-}
-
-fun combineWaves(vararg waves: WaveForm): WaveForm {
-    require(waves.isNotEmpty())
-    require(waves.all { it.sampleRate == waves[0].sampleRate })
-    require(waves.all { it.samples.size == waves[0].samples.size })
-
-    return WaveForm(
-        sampleRate = waves[0].sampleRate,
-        samples = FloatArray(waves[0].samples.size) { i ->
-            waves.sumOf { it.samples[i].toDouble() }.toFloat()
-        }
+    return SineWave(
+        frequency = frequency,
+        amplitude = amplitude,
+        waveForm = WaveForm(
+            sampleRate = sampleRate,
+            samples = FloatArray(sampleSize) { i -> amplitude * sin(2.0 * PI * frequency * i / sampleRate).toFloat() }
+        )
     )
 }

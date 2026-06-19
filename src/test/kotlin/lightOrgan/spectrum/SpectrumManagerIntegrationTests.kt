@@ -41,10 +41,10 @@ class SpectrumManagerIntegrationTests {
     private val middleFrequency = (frequency1 + frequency2) / 2f
     private val wave1 = generateSineWave(frequency1, sampleRate = sampleRate)
     private val wave2 = generateSineWave(frequency2, sampleRate = sampleRate)
-    private val combinedWaves = combineWaves(wave1, wave2)
+    private val combinedWaves = combineWaves(wave1.waveForm, wave2.waveForm)
     private val silence = generateSilence(sampleRate)
 
-    private val wave1Frame = nextAudioFrame(wave1)
+    private val wave1Frame = nextAudioFrame(wave1.waveForm)
     private val combinedWavesFrame = nextAudioFrame(combinedWaves)
     private val silenceFrame = nextAudioFrame(silence)
 
@@ -130,7 +130,7 @@ class SpectrumManagerIntegrationTests {
     @Test
     fun `stereo input produces correct results`() {
         val sut = SpectrumManager(config)
-        val stereoFrame = nextAudioFrame(wave1, silence)
+        val stereoFrame = nextAudioFrame(wave1.waveForm, silence)
 
         val bins = sut.calculate(stereoFrame)
 
