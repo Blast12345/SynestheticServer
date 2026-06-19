@@ -4,21 +4,10 @@ import audio.samples.AudioFrame
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
+import dsp.filtering.Passband
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.spectrum.FilterFactory
 import lightOrgan.spectralAnalysis.spectrum.StatefulFilter
-
-// TODO: Move me
-data class Passband(
-    val lowerFrequency: Float,
-    val higherFrequency: Float,
-) {
-
-    operator fun contains(frequency: Float): Boolean {
-        return frequency in lowerFrequency..higherFrequency
-    }
-
-}
 
 class AudioConditioner(
     private val config: SpectralAnalysisConfig,

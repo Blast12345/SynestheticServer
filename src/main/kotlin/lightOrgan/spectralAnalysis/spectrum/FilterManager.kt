@@ -6,7 +6,7 @@ import dsp.filtering.FilterBuilder
 import dsp.filtering.FilterConfig
 import dsp.filtering.FilterType
 
-
+// TODO: Test me and move me
 class StatefulFilter(
     private val config: FilterConfig,
     private val filterBuilder: FilterBuilder = FilterBuilder(),
