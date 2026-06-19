@@ -1,6 +1,6 @@
 package toolkit.monkeyTest
 
-import lightOrgan.spectralAnalysis.SpectralAnalysis
+import lightOrgan.spectralAnalyzer.SpectralAnalysis
 
 fun nextSpectralAnalysis(): SpectralAnalysis {
     return SpectralAnalysis(

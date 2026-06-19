@@ -8,7 +8,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalyzer.SpectralAnalyzer
 import logging.Logger
 import utilities.TimestampUtility
 import utilities.coroutines.Sequenced
@@ -29,6 +29,7 @@ class LightOrgan(
     fun start() {
         inputManager.selectDefaultInput()
 
+        // TODO: Handle stream resets
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
             .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }

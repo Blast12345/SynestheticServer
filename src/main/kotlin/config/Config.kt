@@ -2,10 +2,10 @@ package config
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalysisConfig
+import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
 
 class Config(
     val startAutomatically: MutableStateFlow<Boolean>,
-    val spectralAnalysis: SpectralAnalysisConfig,
+    val spectralAnalyzer: SpectralAnalyzerConfig,
     val gateway: GatewayConfig
 )

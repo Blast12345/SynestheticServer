@@ -11,7 +11,7 @@ import gui.tiles.gateway.GatewayTileViewModel
 import lightOrgan.color.ColorManager
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalyzer.SpectralAnalyzer
 
 class DashboardViewModel(
     inputManager: AudioInputManager,

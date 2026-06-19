@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dsp.bins.FrequencyBin
-import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalyzer.SpectralAnalyzer
 
 // ENHANCEMENT: Show latency
 class SpectralAnalysisTileViewModel(

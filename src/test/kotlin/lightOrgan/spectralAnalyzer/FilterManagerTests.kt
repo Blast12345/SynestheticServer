@@ -8,7 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import lightOrgan.spectralAnalysis.spectrum.FilterManager
+import lightOrgan.spectralAnalyzer.spectrum.FilterManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

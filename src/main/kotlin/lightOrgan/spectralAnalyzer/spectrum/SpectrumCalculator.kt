@@ -1,9 +1,8 @@
-package lightOrgan.spectralAnalysis.spectrum
+package lightOrgan.spectralAnalyzer.spectrum
 
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
-import config.ConfigSingleton
 import dsp.ZeroPaddingInterpolator
 import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsFactory
@@ -29,7 +28,7 @@ data class PointSpreadFunction(
 // ENHANCEMENT: Improve handling of discontinuities (though I have doubt it is possible)
 // ENHANCEMENT: Allow decimator frequency to be overridden; include use case like pre-filtered inputs and warn about aliasing if improperly configured
 class SpectrumCalculator(
-    private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
+    private val config: SpectralAnalyzerConfig,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),

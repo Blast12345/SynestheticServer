@@ -2,7 +2,6 @@ package dsp.bins
 
 import math.magnitude
 import org.apache.commons.math3.complex.Complex
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -25,7 +24,3 @@ data class FrequencyBin(
 }
 
 typealias FrequencyBins = List<FrequencyBin>
-
-fun FrequencyBins.nearestTo(frequency: Float): FrequencyBin {
-    return minBy { abs(it.frequency - frequency) }
-}

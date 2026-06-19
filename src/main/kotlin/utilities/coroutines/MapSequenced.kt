@@ -15,6 +15,7 @@ fun <T, R> Flow<Sequenced<T>>.mapSequenced(
 
         if (gap != 0L) {
             onGap(gap)
+            // TODO: Should we update the outgoing number to correspond to the next expected number?
         }
 
         Sequenced(outgoingNumber++, transform(incoming.value))

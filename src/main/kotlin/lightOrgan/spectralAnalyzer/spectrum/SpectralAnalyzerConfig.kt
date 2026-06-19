@@ -1,10 +1,10 @@
-package lightOrgan.spectralAnalysis.spectrum
+package lightOrgan.spectralAnalyzer.spectrum
 
 import dsp.filtering.FilterConfig
 import dsp.windowing.WindowType
 import kotlin.time.Duration
 
-data class SpectralAnalysisConfig(
+data class SpectralAnalyzerConfig(
     val gainDb: Float,  // e.g. 12 dBFS
     val frameDuration: Duration,
     val approximateBinSpacing: Float,

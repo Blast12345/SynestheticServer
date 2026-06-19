@@ -13,7 +13,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalyzer.SpectralAnalyzer
 
 // ENHANCEMENT: Global hotkey for certain operations (e.g. gain adjustment)
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.

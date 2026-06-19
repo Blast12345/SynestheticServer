@@ -1,27 +1,26 @@
-package lightOrgan.spectralAnalysis.conditioning
+package lightOrgan.spectralAnalyzer.conditioning
 
 import audio.samples.AudioFrame
-import config.ConfigSingleton
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
-import lightOrgan.spectralAnalysis.spectrum.FilterManager
-import lightOrgan.spectralAnalysis.spectrum.SpectralAnalysisConfig
+import lightOrgan.spectralAnalyzer.spectrum.FilterManager
+import lightOrgan.spectralAnalyzer.spectrum.SpectralAnalyzerConfig
 
 data class Passband(
-    val lowerBound: Float?,   // null = no high-pass, open on the low end
-    val upperBound: Float?,   // null = no low-pass, open on the high end
+    val lowerFrequency: Float?,
+    val higherFrequency: Float?,
 ) {
     operator fun contains(frequency: Float): Boolean {
-        val aboveLower = lowerBound?.let { frequency >= it } ?: true
-        val belowUpper = upperBound?.let { frequency <= it } ?: true
+        val aboveLower = lowerFrequency?.let { frequency >= it } ?: true
+        val belowUpper = higherFrequency?.let { frequency <= it } ?: true
         return aboveLower && belowUpper
     }
 }
 
 // TODO: Test me
 class AudioConditioner(
-    private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
+    private val config: SpectralAnalyzerConfig,
     private val monoMixer: MonoMixer = MonoMixer(),
     private val gain: Gain = Gain(),
     private val filterManager: FilterManager = FilterManager(config.highPassFilter, config.lowPassFilter),
@@ -32,12 +31,12 @@ class AudioConditioner(
     // low-pass  removes highs → its rolloff is the UPPER edge
     val passband: Passband
         get() = Passband(
-            lowerBound = 16f,//filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold),
-            upperBound = 160f,//filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold),
+            lowerFrequency = filterManager.highPassConfig?.frequencyAt(config.rolloffThreshold),
+            higherFrequency = filterManager.lowPassConfig?.frequencyAt(config.rolloffThreshold),
         )
 
     fun condition(audio: AudioFrame): AudioFrame {
-        val targetNyquist = passband.upperBound ?: audio.format.nyquistFrequency
+        val targetNyquist = passband.higherFrequency ?: audio.format.nyquistFrequency
 
         return audio
             .let { monoMixer.mix(it) }

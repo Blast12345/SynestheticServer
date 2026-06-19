@@ -1,4 +1,4 @@
-package lightOrgan.spectralAnalysis
+package lightOrgan.spectralAnalyzer
 
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.SpectralPeaks
