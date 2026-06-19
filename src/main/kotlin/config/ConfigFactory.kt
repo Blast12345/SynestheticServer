@@ -5,10 +5,10 @@ import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.filtering.FilterType
 import dsp.windowing.WindowType
-import gui.dashboard.tiles.spectrum.SpectrumGuiConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectrum.SpectrumConfig
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds
@@ -22,7 +22,7 @@ class ConfigFactory(
 
         return Config(
             startAutomatically = MutableStateFlow(persistedConfig.startAutomatically),
-            spectrum = SpectrumConfig(
+            spectralAnalysis = SpectralAnalysisConfig(
                 gainDb = 12f,
                 frameDuration = 63.milliseconds,
                 approximateBinSpacing = 1f,
@@ -36,10 +36,8 @@ class ConfigFactory(
                     family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
                 ),
                 window = WindowType.BlackmanHarris3Term,
-            ),
-            spectrumGui = SpectrumGuiConfig(
-                lowestFrequency = 0f,
-                highestFrequency = 160F,
+                peakExtractor = PeakExtractorConfig.Parabolic,
+                decimate = true
             ),
             gateway = GatewayConfig(
                 baudRate = 921600,

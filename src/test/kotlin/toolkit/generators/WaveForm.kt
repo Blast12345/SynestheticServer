@@ -1,12 +1,16 @@
 package toolkit.generators
 
+import audio.samples.AudioFormat
+import audio.samples.AudioFrame
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class WaveForm(
     val sampleRate: Float,
     val samples: FloatArray
-)
+) {
+    fun toAudioFrame(): AudioFrame = AudioFrame(samples, AudioFormat(sampleRate, 16, 1))
+}
 
 fun generateSilence(sampleRate: Float, duration: Duration = 1.seconds): WaveForm {
     val sampleSize = (sampleRate * duration.inWholeSeconds).toInt()

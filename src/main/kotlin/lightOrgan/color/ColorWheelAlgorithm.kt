@@ -13,8 +13,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ColorWheelAlgorithm(
     private val tuning: TuningSystem = WesternTuningSystem(),
-    private val lightSmoother: Smoother<Light> = Smoothers.lightExponentialMovingAverage(75.milliseconds),
-    private val brightnessSmoother: Smoother<Double> = Smoothers.envelopeFollower(attackHalfLife = 0.milliseconds, releaseHalfLife = 10.milliseconds),
+    private val lightSmoother: Smoother<Light> = Smoothers.lightExponentialMovingAverage(50.milliseconds),
+    private val brightnessSmoother: Smoother<Double> = Smoothers.envelopeFollower(attackHalfLife = 0.milliseconds, releaseHalfLife = 20.milliseconds),
     private val chromaticityFactory: ChromaticityFactory = ChromaticityFactory(),
 ) : ColorAlgorithm {
 

@@ -6,7 +6,7 @@ import kotlin.math.pow
 
 class ParabolicSpectralPeakExtractor : SpectralPeakExtractor {
 
-    override fun extract(spectrum: FrequencyBins): SpectralPeaks {
+    fun extract(spectrum: FrequencyBins): SpectralPeaks {
         return spectrum
             .map { bin -> LogBin(bin.frequency, safeLog10(bin.magnitude)) }
             .windowed(size = 3, step = 1)

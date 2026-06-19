@@ -13,8 +13,11 @@ sealed class Chromaticity {
         init {
             require(saturation != UnitInterval.zero) { "Chromatic requires nonzero saturation" }
         }
+
+        override fun toString() = "Chromatic(hue=${hue.degrees}°, saturation=$saturation)"
     }
 
     data object Achromatic : Chromaticity()
+
 
 }

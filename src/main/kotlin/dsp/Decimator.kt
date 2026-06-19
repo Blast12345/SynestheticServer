@@ -1,5 +1,7 @@
 package dsp
 
+import audio.samples.AudioFrame
+
 class Decimator {
 
     private var phaseOffset: Int = 0
@@ -13,7 +15,23 @@ class Decimator {
         return factor
     }
 
-    fun decimate(samples: FloatArray, factor: Int, sampleRate: Float, channels: Int): FloatArray {
+    fun decimate(audio: AudioFrame, factor: Int): AudioFrame {
+        val decimatedSamples = decimate(
+            samples = audio.samples,
+            sampleRate = audio.format.sampleRate,
+            channels = audio.format.channels,
+            factor = factor
+        )
+
+        val effectiveSampleRate = audio.format.sampleRate / factor
+        
+        return AudioFrame(
+            decimatedSamples,
+            audio.format.copy(sampleRate = effectiveSampleRate)
+        )
+    }
+
+    private fun decimate(samples: FloatArray, sampleRate: Float, channels: Int, factor: Int): FloatArray {
         require(factor >= 1) { "Decimation factor must be positive, got $factor" }
         require(channels >= 1) { "Channel count must be positive, got $channels" }
         resetIfNeeded(factor, sampleRate, channels)

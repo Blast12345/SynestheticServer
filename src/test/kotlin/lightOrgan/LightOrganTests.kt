@@ -9,13 +9,13 @@ import kotlinx.coroutines.test.runTest
 import lightOrgan.color.ColorManagerFixture
 import lightOrgan.gateway.FakeGatewayManager
 import lightOrgan.input.AudioInputManagerFixture
-import lightOrgan.spectrum.SpectrumManagerFixture
+import lightOrgan.spectralAnalysis.SpectralAnalyzerFixture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import toolkit.monkeyTest.nextAudioFrame
-import toolkit.monkeyTest.nextFrequencyBins
+import toolkit.monkeyTest.nextSpectralAnalysis
 import toolkit.monkeyTest.nextStandardRgbColor
 import utilities.coroutines.asLazySequence
 
@@ -23,23 +23,23 @@ import utilities.coroutines.asLazySequence
 class LightOrganTests {
 
     private lateinit var inputManager: AudioInputManagerFixture
-    private lateinit var spectrumManager: SpectrumManagerFixture
+    private lateinit var spectralAnalyzer: SpectralAnalyzerFixture
     private lateinit var colorManager: ColorManagerFixture
     private lateinit var fakeGatewayManager: FakeGatewayManager
 
     private val audioFrame = nextAudioFrame()
-    private val frequencyBins = nextFrequencyBins()
+    private val spectralAnalysis = nextSpectralAnalysis()
     private val newColor = nextStandardRgbColor()
 
     @BeforeEach
     fun setupHappyPath() {
         inputManager = AudioInputManagerFixture.create()
-        spectrumManager = SpectrumManagerFixture.create()
+        spectralAnalyzer = SpectralAnalyzerFixture.create()
         colorManager = ColorManagerFixture.create()
         fakeGatewayManager = FakeGatewayManager()
 
-        every { spectrumManager.mock.calculate(audioFrame) } returns frequencyBins
-        every { colorManager.mock.calculate(frequencyBins) } returns newColor
+        every { spectralAnalyzer.mock.analyze(audioFrame) } returns spectralAnalysis
+        every { colorManager.mock.calculate(spectralAnalysis) } returns newColor
     }
 
     @AfterEach
@@ -50,7 +50,7 @@ class LightOrganTests {
     private fun createSUT(scope: CoroutineScope): LightOrgan {
         return LightOrgan(
             inputManager = inputManager.mock,
-            spectrumManager = spectrumManager.mock,
+            spectralAnalyzer = spectralAnalyzer.mock,
             colorManager = colorManager.mock,
             gatewayManager = fakeGatewayManager,
             scope = scope,

@@ -1,5 +1,6 @@
 package toolkit.generators
 
+import extensions.inSeconds
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.time.Duration
@@ -17,7 +18,7 @@ fun generateSineWave(
     sampleRate: Float,
     duration: Duration = 1.seconds,
 ): SineWave {
-    val sampleSize = (sampleRate * duration.inWholeSeconds).toInt()
+    val sampleSize = (sampleRate * duration.inSeconds).toInt()
 
     return SineWave(
         frequency = frequency,

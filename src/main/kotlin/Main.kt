@@ -13,8 +13,9 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
-import lightOrgan.spectrum.SpectrumManager
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
 
+// ENHANCEMENT: Global hotkey for certain operations (e.g. gain adjustment)
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.
 // ENHANCEMENT: Explore higher baud rates
 // ENHANCEMENT: Introduce Frequency type
@@ -23,23 +24,23 @@ import lightOrgan.spectrum.SpectrumManager
 // ENHANCEMENT: Bump JVM SDK version to 21
 fun main(args: Array<String>) {
     val inputManager = AudioInputManager()
-    val spectrumManager = SpectrumManager()
+    val spectralAnalyzer = SpectralAnalyzer()
     val colorManager = ColorManager()
     val gatewayManager = RealGatewayManager()
 
-    val lightOrgan = LightOrgan(inputManager, spectrumManager, colorManager, gatewayManager)
+    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorManager, gatewayManager)
     lightOrgan.start()
 
     if (args.contains("--headless")) {
         launchHeadless(lightOrgan)
     } else {
-        launchGUI(inputManager, spectrumManager, colorManager, gatewayManager)
+        launchGUI(inputManager, spectralAnalyzer, colorManager, gatewayManager)
     }
 }
 
 private fun launchGUI(
     inputManager: AudioInputManager,
-    spectrumManager: SpectrumManager,
+    spectralAnalyzer: SpectralAnalyzer,
     colorManager: ColorManager,
     gatewayManager: GatewayManager,
 ) = application {
@@ -65,7 +66,7 @@ private fun launchGUI(
                 val viewModel = remember {
                     DashboardViewModel(
                         inputManager,
-                        spectrumManager,
+                        spectralAnalyzer,
                         colorManager,
                         gatewayManager,
                         snackbar.controller

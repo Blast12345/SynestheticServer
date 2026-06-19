@@ -2,7 +2,6 @@ package toolkit.monkeyTest
 
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
-import toolkit.generators.WaveForm
 
 fun nextAudioFrame(
     samples: FloatArray = nextFloatArray(),
@@ -34,18 +33,5 @@ fun nextAudioFrame(
             bitDepth = bitDepth,
             channels = channels.size
         )
-    )
-}
-
-fun nextAudioFrame(
-    vararg channels: WaveForm
-): AudioFrame {
-    require(channels.isNotEmpty()) { "Must provide at least one channel" }
-    require(channels.all { it.sampleRate == channels[0].sampleRate }) { "Sample rates must match" }
-    require(channels.all { it.samples.size == channels[0].samples.size }) { "Sample counts must match" }
-
-    return nextAudioFrame(
-        channels = channels.map { it.samples },
-        sampleRate = channels[0].sampleRate
     )
 }

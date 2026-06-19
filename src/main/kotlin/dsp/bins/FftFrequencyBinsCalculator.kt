@@ -7,18 +7,27 @@ class FftFrequencyBinsCalculator : FrequencyBinsCalculator {
 
     override fun calculate(
         monoSamples: FloatArray,
-        sampleRate: Float,
-        magnitudeCorrectionFactor: Float
+        sampleRate: Float
     ): FrequencyBins {
         val fftResult = performFft(monoSamples)
 
+        val binCount = monoSamples.size / 2
         val binSpacing = sampleRate / monoSamples.size
-        val scalingFactor = 2.0 / monoSamples.size
 
         return fftResult.mapIndexed { index, complex ->
+            // Energy is split between both sides of the FFT, so single-sided bins are doubled.
+            // DC and Nyquist have no conjugate mirror, so they are not doubled.
+            val hasConjugate = index != 0 && index != binCount
+
+            val scalingFactor = if (hasConjugate) {
+                2.0 / monoSamples.size
+            } else {
+                1.0 / monoSamples.size
+            }
+
             FrequencyBin(
                 frequency = index * binSpacing,
-                value = complex.multiply(scalingFactor * magnitudeCorrectionFactor),
+                value = complex.multiply(scalingFactor),
             )
         }
     }
