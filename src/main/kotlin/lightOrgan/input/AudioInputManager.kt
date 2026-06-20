@@ -28,14 +28,12 @@ class AudioInputManager(
         .flatMapLatest { it?.audioStream ?: emptyFlow() }
         .shareIn(scope, SharingStarted.Eagerly)
 
-    // Input selection
-    fun selectDefaultInput() {
-        currentAudioInput.value?.stop()
-        currentAudioInput.value = audioInputFinder.findDefaultInput()
-    }
-
     // Start-stop
     fun startListening() {
+        if (currentAudioInput.value == null) {
+            currentAudioInput.value = audioInputFinder.findDefaultInput()
+        }
+
         val input = currentAudioInput.value ?: throw IllegalStateException("Cannot start listening. No input selected.")
         input.start()
     }

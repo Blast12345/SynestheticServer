@@ -2,8 +2,6 @@ package audio.audioInput
 
 import audio.audioDevice.AudioDevice
 import audio.audioDevice.AudioDeviceFinder
-import audio.audioInput.AudioInput
-import audio.audioInput.AudioInputFinder
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -11,7 +9,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.assertNull
 
 class AudioInputFinderTests {
 
@@ -77,12 +75,14 @@ class AudioInputFinderTests {
     }
 
     @Test
-    fun `given there are no inputs, when finding default input, then throw an exception`() {
+    fun `given there are no inputs, when finding default input, then return null`() {
         val sut = createSUT()
         every { audioDevice1.inputs } returns emptyList()
         every { audioDevice2.inputs } returns emptyList()
 
-        assertThrows<Exception> { sut.findDefaultInput() }
+        val actual = sut.findDefaultInput()
+
+        assertNull(actual)
     }
 
 }

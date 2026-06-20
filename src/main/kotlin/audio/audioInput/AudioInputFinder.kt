@@ -11,8 +11,8 @@ class AudioInputFinder(
         return allDevices.flatMap { device -> device.inputs }
     }
 
-    fun findDefaultInput(): AudioInput {
-        return findAll().firstOrNull() ?: throw Exception("No audio input found.")
+    fun findDefaultInput(): AudioInput? {
+        return findAll().firstOrNull()
     }
 
 }
