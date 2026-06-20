@@ -19,6 +19,7 @@ dependencies {
     val mockkVersion = "1.14.9"
 
     implementation("com.fazecast:jSerialComm:2.11.4")
+    implementation("com.github.kwhat:jnativehook:2.2.2")
     implementation("com.github.wendykierp:JTransforms:3.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:${coroutinesVersion}")

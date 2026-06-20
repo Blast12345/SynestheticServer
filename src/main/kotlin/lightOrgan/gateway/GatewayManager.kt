@@ -35,7 +35,6 @@ class RealGatewayManager(
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) : GatewayManager {
 
-
     private val _state = MutableStateFlow<State>(State.Disconnected)
     override val state: StateFlow<State> = _state
 

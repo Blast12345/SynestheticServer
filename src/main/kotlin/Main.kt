@@ -4,10 +4,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
+import hotkeys.GainHotkeyListener
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
@@ -19,7 +21,7 @@ import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.LogLevel
 import logging.Logger
 
-// ENHANCEMENT: Global hotkey for certain operations (e.g. gain adjustment)
+// ENHANCEMENT: Persist config between app launches
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.
 // ENHANCEMENT: Explore higher baud rates
 // ENHANCEMENT: Introduce Frequency type
@@ -28,6 +30,7 @@ import logging.Logger
 // ENHANCEMENT: Bump JVM SDK version to 21
 fun main(args: Array<String>) {
     configureLogger(args)
+    addHotkeyListeners()
 
     val inputManager = AudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
@@ -50,6 +53,12 @@ private fun configureLogger(args: Array<String>) {
         args.contains("--quiet") -> LogLevel.ERROR
         else -> LogLevel.SUCCESS
     }
+}
+
+private fun addHotkeyListeners() {
+    GlobalScreen.registerNativeHook()
+
+    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
 }
 
 private fun launchGUI(

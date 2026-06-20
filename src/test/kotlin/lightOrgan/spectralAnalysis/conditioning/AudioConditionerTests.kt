@@ -66,7 +66,7 @@ class AudioConditionerTests {
 
     private fun createSUT(config: AudioConditionerConfig = minimalConfig): AudioConditioner {
         return AudioConditioner(
-            config,
+            { config },
             monoMixer,
             gain,
             filterFactory,
