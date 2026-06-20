@@ -1,7 +1,7 @@
 package lightOrgan.spectralAnalysis
 
 import audio.samples.AudioFrame
-import config.ConfigSingleton
+import config.AppConfigSingleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +11,7 @@ import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
 // ENHANCEMENT: Split between short duration FFT (for brightness) and long duration FFT (for hue).
 class SpectralAnalyzer(
-    private val config: SpectralAnalysisConfig = ConfigSingleton.spectralAnalysis,
+    private val config: SpectralAnalysisConfig = AppConfigSingleton.value.spectralAnalysis,
     private val audioConditioner: AudioConditioner = AudioConditioner(config),
     private val spectrumCalculator: SpectrumCalculator = SpectrumCalculator(config),
     private val peakExtractor: PeakExtractor = PeakExtractor(config)
