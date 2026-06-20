@@ -28,7 +28,6 @@ interface GatewayManager {
     }
 }
 
-// ENHANCEMENT: Auto-reconnect
 @OptIn(ExperimentalCoroutinesApi::class)
 class RealGatewayManager(
     private val config: GatewayConfig = ConfigSingleton.gateway,
