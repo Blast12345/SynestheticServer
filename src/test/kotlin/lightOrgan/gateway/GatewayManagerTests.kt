@@ -13,10 +13,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import toolkit.extensions.collectInto
 import toolkit.monkeyTest.nextException
+import toolkit.monkeyTest.nextGatewayConfig
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GatewayManagerTests {
 
+    private val config = nextGatewayConfig()
     private lateinit var fakeGatewayFinder: FakeGatewayFinder
 
     @BeforeEach
@@ -24,8 +26,9 @@ class GatewayManagerTests {
         fakeGatewayFinder = FakeGatewayFinder()
     }
 
-    private fun createSUT(scope: CoroutineScope): RealGatewayManager {
+    private fun createSUT(scope: CoroutineScope, config: GatewayConfig = this.config): RealGatewayManager {
         return RealGatewayManager(
+            config = config,
             gatewayFinder = fakeGatewayFinder,
             scope = scope
         )
@@ -199,6 +202,51 @@ class GatewayManagerTests {
 
         assertEquals(State.Disconnected, sut.state.value)
         assertEquals(Event.UnexpectedDisconnect, events.first())
+    }
+
+    // Auto-reconnect
+    @Test
+    fun `given auto-reconnect is enabled, when the gateway unexpectedly disconnects, then reconnect`() = runTest {
+        val sut = createSUT(backgroundScope, config.copy(autoReconnect = true))
+        sut.connect()
+
+        fakeGatewayFinder.gateway.isConnected.value = false
+        fakeGatewayFinder.gateway = FakeGateway() // new gateway
+        runCurrent()
+
+        assertEquals(State.Connected(fakeGatewayFinder.gateway), sut.state.value)
+    }
+
+    @Test
+    fun `when auto-reconnect is disabled and the gateway unexpectedly disconnects, then stay disconnected`() = runTest {
+        val sut = createSUT(backgroundScope, config.copy(autoReconnect = false))
+        sut.connect()
+
+        fakeGatewayFinder.gateway.isConnected.value = false
+        runCurrent()
+
+        assertEquals(State.Disconnected, sut.state.value)
+    }
+
+    @Test
+    fun `when auto-reconnect fails, then retry after the interval`() = runTest {
+        val sut = createSUT(backgroundScope, config.copy(autoReconnect = true))
+        sut.connect()
+
+        // Disconnect and return error on next find
+        fakeGatewayFinder.gateway.isConnected.value = false
+        fakeGatewayFinder.error = nextException()
+        runCurrent()
+
+        assertEquals(State.Disconnected, sut.state.value)
+
+        // Fix the error and find a new gateway
+        fakeGatewayFinder.error = null
+        fakeGatewayFinder.gateway = FakeGateway()
+        testScheduler.advanceTimeBy(config.reconnectInterval)
+        runCurrent()
+
+        assertEquals(State.Connected(fakeGatewayFinder.gateway), sut.state.value)
     }
 
 }

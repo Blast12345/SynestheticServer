@@ -11,6 +11,7 @@ import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class ConfigFactory(
     private val persistedConfig: PersistedConfig = PersistedConfig()
@@ -39,6 +40,8 @@ class ConfigFactory(
                 decimate = true
             ),
             gateway = GatewayConfig(
+                autoReconnect = true,
+                reconnectInterval = 1.seconds,
                 baudRate = 921600,
                 frameFormat = SerialFrameFormat.FORMAT_8N1,
             )
