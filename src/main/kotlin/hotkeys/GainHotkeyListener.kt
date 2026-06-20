@@ -6,7 +6,7 @@ import config.AppConfigSingleton
 import kotlinx.coroutines.flow.update
 
 class GainHotkeyListener(
-    private val stepDb: Float = 3f
+    private val stepDb: Float = 1f
 ) : NativeKeyListener {
 
     override fun nativeKeyPressed(event: NativeKeyEvent) {
