@@ -18,7 +18,7 @@ import toolkit.monkeyTest.nextGatewayConfig
 @OptIn(ExperimentalCoroutinesApi::class)
 class GatewayManagerTests {
 
-    private val config = nextGatewayConfig()
+    private val config = nextGatewayConfig().copy(autoReconnect = false)
     private lateinit var fakeGatewayFinder: FakeGatewayFinder
 
     @BeforeEach
