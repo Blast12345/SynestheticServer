@@ -1,8 +1,8 @@
 package lightOrgan.spectrum
 
-import AppConfigSingleton
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
+import config.AppConfigSingleton
 import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig

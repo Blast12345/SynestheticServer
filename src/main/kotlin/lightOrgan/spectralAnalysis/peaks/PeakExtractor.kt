@@ -1,6 +1,6 @@
 package lightOrgan.spectralAnalysis.peaks
 
-import AppConfigSingleton
+import config.AppConfigSingleton
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.ParabolicSpectralPeakExtractor
 import dsp.peakExtraction.SpectralPeakExtractor

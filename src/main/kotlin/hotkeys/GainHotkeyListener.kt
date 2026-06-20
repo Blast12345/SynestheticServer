@@ -1,8 +1,8 @@
 package hotkeys
 
-import AppConfigSingleton
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
+import config.AppConfigSingleton
 import kotlinx.coroutines.flow.update
 
 class GainHotkeyListener(

@@ -1,6 +1,6 @@
 package lightOrgan.gateway
 
-import AppConfigSingleton
+import config.AppConfigSingleton
 import extensions.await
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

@@ -1,6 +1,6 @@
 package wrappers.serial
 
-import AppConfigSingleton
+import config.AppConfigSingleton
 import lightOrgan.gateway.GatewayConfig
 import serial.SerialPort
 import serial.SerialPortFinder

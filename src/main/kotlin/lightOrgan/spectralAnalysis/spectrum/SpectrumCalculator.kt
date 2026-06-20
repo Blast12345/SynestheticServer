@@ -1,9 +1,9 @@
 package lightOrgan.spectralAnalysis.spectrum
 
-import AppConfigSingleton
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
+import config.AppConfigSingleton
 import dsp.ZeroPaddingInterpolator
 import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins

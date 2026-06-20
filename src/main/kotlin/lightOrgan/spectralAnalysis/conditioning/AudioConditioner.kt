@@ -1,7 +1,7 @@
 package lightOrgan.spectralAnalysis.conditioning
 
-import AppConfigSingleton
 import audio.samples.AudioFrame
+import config.AppConfigSingleton
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
