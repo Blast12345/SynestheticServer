@@ -1,32 +1,29 @@
 package logging
 
+enum class LogLevel { ERROR, WARNING, SUCCESS, DEBUG }
+
 object Logger {
 
-    var enabled: Boolean = true
-
-    fun success(message: String) {
-        if (!enabled) return
-        println("${LogColor.Green.code}SUCCESS: $message${LogColor.Default.code}")
-    }
-
-    fun warning(message: String) {
-        if (!enabled) return
-        println("${LogColor.Orange.code}WARNING: $message${LogColor.Default.code}")
-    }
+    var level: LogLevel = LogLevel.ERROR
 
     fun error(message: String) {
-        if (!enabled) return
         println("${LogColor.Red.code}ERROR: $message${LogColor.Default.code}")
     }
 
     fun error(message: String, throwable: Throwable) {
-        if (!enabled) return
-        this.error("$message | Exception: ${throwable.message}")
+        error("$message | Exception: ${throwable.message}")
+    }
+
+    fun warning(message: String) {
+        if (level >= LogLevel.WARNING) println("${LogColor.Orange.code}WARNING: $message${LogColor.Default.code}")
+    }
+
+    fun success(message: String) {
+        if (level >= LogLevel.SUCCESS) println("${LogColor.Green.code}SUCCESS: $message${LogColor.Default.code}")
     }
 
     fun debug(message: String) {
-        if (!enabled) return
-        println("${LogColor.Yellow.code}DEBUG: $message${LogColor.Yellow.code}")
+        if (level >= LogLevel.DEBUG) println("${LogColor.Yellow.code}DEBUG: $message${LogColor.Yellow.code}")
     }
 
 }

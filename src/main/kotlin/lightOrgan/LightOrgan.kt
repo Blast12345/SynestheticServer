@@ -27,9 +27,6 @@ class LightOrgan(
     private val timeBetweenColors = TimestampUtility("Time between colors")
 
     fun start() {
-        inputManager.selectDefaultInput()
-
-        // TODO: Handle stream resets
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
             .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
