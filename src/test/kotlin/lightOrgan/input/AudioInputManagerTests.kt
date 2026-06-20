@@ -87,27 +87,6 @@ class AudioInputManagerTests {
         assertEquals(otherInput.details, sut.inputDetails.value)
     }
 
-    // Input selection
-    @Test
-    fun `select the default input`() = runTest {
-        val sut = createSUT()
-
-        sut.selectDefaultInput()
-        sutScope.advanceUntilIdle()
-
-        assertEquals(defaultInput.details, sut.inputDetails.value)
-    }
-
-    @Test
-    fun `given an input was already selected, then selecting the default stops the previous input`() {
-        val sut = createSUT()
-        currentAudioInputFlow.value = otherInput.mock
-
-        sut.selectDefaultInput()
-
-        verify { otherInput.mock.stop() }
-    }
-
     // Start listening
     @Test
     fun `start listening to the current input`() {
@@ -120,7 +99,17 @@ class AudioInputManagerTests {
     }
 
     @Test
-    fun `given there is no input, then starting throws an error`() {
+    fun `given there is no input, then starting auto-selects the default`() {
+        val sut = createSUT()
+
+        sut.startListening()
+
+        verify { defaultInput.mock.start() }
+    }
+
+    @Test
+    fun `given there is no input and no default is found, then starting throws an error`() {
+        every { audioInputFinder.findDefaultInput() } returns null
         val sut = createSUT()
 
         assertThrows<IllegalStateException> { sut.startListening() }

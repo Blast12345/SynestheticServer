@@ -1,13 +1,13 @@
 package logging
 
-enum class LogLevel { ERROR, WARNING, SUCCESS, DEBUG }
+enum class LogLevel { OFF, ERROR, WARNING, SUCCESS, DEBUG }
 
 object Logger {
 
     var level: LogLevel = LogLevel.ERROR
 
     fun error(message: String) {
-        println("${LogColor.Red.code}ERROR: $message${LogColor.Default.code}")
+        if (level >= LogLevel.ERROR) println("${LogColor.Red.code}ERROR: $message${LogColor.Default.code}")
     }
 
     fun error(message: String, throwable: Throwable) {

@@ -35,7 +35,6 @@ class AudioInputTileViewModelTests {
 
     @BeforeEach
     fun setup() {
-        every { audioInputManager.selectDefaultInput() } returns Unit
         every { audioInputManager.inputDetails } returns audioInputDetailsFlow
         every { audioInputManager.isListening } returns isListeningFlow
 
@@ -55,16 +54,6 @@ class AudioInputTileViewModelTests {
             snackbarController = snackbarController,
             scope = sutScope
         )
-    }
-
-    // Find input
-    @Test
-    fun `attempt to find the default input`() = runTest {
-        val sut = createSUT()
-
-        sut.findInput()
-
-        verify { audioInputManager.selectDefaultInput() }
     }
 
     // Input Details

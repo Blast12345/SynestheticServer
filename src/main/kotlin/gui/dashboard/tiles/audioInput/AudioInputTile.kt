@@ -33,13 +33,7 @@ fun AudioInputTile(
 
         SimpleSpacer(dpSize = 12)
 
-        if (inputDetails == null) {
-            SimpleButton(
-                title = "Find Input",
-                isLoading = false,
-                action = { viewModel.findInput() }
-            )
-        } else if (isListening) {
+        if (isListening) {
             SimpleButton(
                 title = "Stop",
                 isLoading = false,

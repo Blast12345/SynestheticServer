@@ -103,7 +103,6 @@ private fun launchHeadless(
     })
 
     runBlocking {
-        inputManager.selectDefaultInput()
         inputManager.startListening()
         gatewayManager.connect()
         awaitCancellation()
