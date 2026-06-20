@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
     lightOrgan.start()
 
     if (args.contains("--headless")) {
-        runBlocking { launchHeadless(inputManager, spectralAnalyzer, colorManager, gatewayManager) }
+        launchHeadless(inputManager, gatewayManager)
     } else {
         launchGUI(inputManager, spectralAnalyzer, colorManager, gatewayManager)
     }
@@ -93,14 +93,19 @@ private fun launchGUI(
     }
 }
 
-private suspend fun launchHeadless(
+private fun launchHeadless(
     inputManager: AudioInputManager,
-    spectralAnalyzer: SpectralAnalyzer,
-    colorManager: ColorManager,
     gatewayManager: GatewayManager,
 ) {
-    inputManager.selectDefaultInput()
-    inputManager.startListening()
-    gatewayManager.connect()
-    awaitCancellation()
+    Runtime.getRuntime().addShutdownHook(Thread {
+        runBlocking { gatewayManager.disconnect() }
+        inputManager.stopListening()
+    })
+
+    runBlocking {
+        inputManager.selectDefaultInput()
+        inputManager.startListening()
+        gatewayManager.connect()
+        awaitCancellation()
+    }
 }
