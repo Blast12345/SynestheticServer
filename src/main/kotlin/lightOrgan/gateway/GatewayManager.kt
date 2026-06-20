@@ -1,6 +1,6 @@
 package lightOrgan.gateway
 
-import config.ConfigSingleton
+import AppConfigSingleton
 import extensions.await
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -30,11 +30,10 @@ interface GatewayManager {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RealGatewayManager(
-    private val config: GatewayConfig = ConfigSingleton.gateway,
+    private val config: GatewayConfig = AppConfigSingleton.value.gateway,
     private val gatewayFinder: GatewayFinder = SerialGatewayFinder(),
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) : GatewayManager {
-
 
     private val _state = MutableStateFlow<State>(State.Disconnected)
     override val state: StateFlow<State> = _state

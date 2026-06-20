@@ -1,5 +1,6 @@
 package lightOrgan.spectralAnalysis.peaks
 
+import AppConfigSingleton
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.ParabolicSpectralPeakExtractor
 import dsp.peakExtraction.SpectralPeakExtractor
@@ -7,7 +8,7 @@ import dsp.peakExtraction.SpectralPeaks
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 
 class PeakExtractor(
-    private val config: SpectralAnalysisConfig,
+    private val config: SpectralAnalysisConfig = AppConfigSingleton.value.spectralAnalysis,
     private val extractor: SpectralPeakExtractor = createExtractor(config.peakExtractor)
 ) {
 

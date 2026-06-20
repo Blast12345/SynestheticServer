@@ -1,5 +1,6 @@
 package lightOrgan.spectralAnalysis.spectrum
 
+import AppConfigSingleton
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import audio.samples.RollingAudioBuffer
@@ -16,7 +17,7 @@ import math.nextPowerOfTwo
 // ENHANCEMENT: Multi-resolution bin generations
 // ENHANCEMENT: Implement equal-loudness contours (ISO 226:2003). Manual SPL number with future plans of external meter?
 class SpectrumCalculator(
-    private val config: SpectralAnalysisConfig,
+    private val config: SpectralAnalysisConfig = AppConfigSingleton.value.spectralAnalysis,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
