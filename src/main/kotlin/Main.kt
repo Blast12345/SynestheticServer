@@ -58,9 +58,7 @@ private fun configureLogger(args: Array<String>) {
 private fun addHotkeyListeners() {
     GlobalScreen.registerNativeHook()
 
-    GlobalScreen.addNativeKeyListener(
-        GainHotkeyListener()
-    )
+    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
 }
 
 private fun launchGUI(
