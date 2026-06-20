@@ -1,31 +1,37 @@
 package lightOrgan.spectrum
 
+import AppConfigSingleton
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
 import dsp.windowing.WindowType
+import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves
 import toolkit.generators.generateSilence
 import toolkit.generators.generateSineWave
+import toolkit.monkeyTest.nextAppConfig
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
 class SpectralAnalyzerIntegrationTests {
 
     private val config = SpectralAnalysisConfig(
-        gainDb = 0f,
+        audioConditioner = AudioConditionerConfig(
+            gainDb = 0f,
+            highPassFilter = null,
+            lowPassFilter = null,
+            rolloffThreshold = -48f,
+            decimate = true
+        ),
         frameDuration = 50.milliseconds, // 20 Hz spacing
         approximateBinSpacing = 1f,
-        rolloffThreshold = -48f,
-        highPassFilter = null,
-        lowPassFilter = null,
         window = WindowType.Hann,
         peakExtractor = PeakExtractorConfig.Parabolic,
-        decimate = true
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)
@@ -38,9 +44,12 @@ class SpectralAnalyzerIntegrationTests {
     private val wave1Frame = AudioFrame(wave1.waveForm.samples, audioFormat)
     private val combinedWavesFrame = AudioFrame(combinedWaves.samples, audioFormat)
 
-    private fun createSUT(config: SpectralAnalysisConfig = this.config): SpectralAnalyzer {
-        return SpectralAnalyzer(config)
+    @BeforeEach
+    fun setupHappyPath() {
+        AppConfigSingleton.value = nextAppConfig().copy(spectralAnalysis = config)
     }
+
+    private fun createSUT() = SpectralAnalyzer()
 
     // Spectrum
     @Test

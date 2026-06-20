@@ -72,14 +72,4 @@ class StatefulFilterTests {
         assertEquals(filter2Samples, result)
     }
 
-    @Test
-    fun `frequencyAt delegates to config`() {
-        val sut = createSUT()
-        val dBFS = nextPositiveFloat()
-
-        val result = sut.frequencyAt(dBFS)
-
-        assertEquals(config.frequencyAt(dBFS), result)
-    }
-
 }

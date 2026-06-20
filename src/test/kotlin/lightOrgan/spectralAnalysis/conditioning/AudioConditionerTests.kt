@@ -7,7 +7,7 @@ import dsp.filtering.StatefulFilter
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -16,10 +16,11 @@ import toolkit.monkeyTest.*
 
 class AudioConditionerTests {
 
-    private val minimalConfig = nextSpectralAnalysisConfig().copy(
+    private val minimalConfig = AudioConditionerConfig(
         gainDb = 0f,
         highPassFilter = null,
         lowPassFilter = null,
+        rolloffThreshold = -3f,
         decimate = false
     )
 
@@ -36,11 +37,10 @@ class AudioConditionerTests {
 
     private val highPassConfig = nextHighPassConfig()
     private val highPassFilter: StatefulFilter = mockk()
-    private val lowerFrequency = 100f
 
     private val lowPassConfig = nextLowPassConfig()
     private val lowPassFilter: StatefulFilter = mockk()
-    private val upperFrequency = 1000f
+    private val lowPassStopFreq = lowPassConfig.frequencyAt(minimalConfig.rolloffThreshold)
 
     private val filteredSamples = nextFloatArray()
 
@@ -50,14 +50,12 @@ class AudioConditionerTests {
         every { gain.apply(monoAudio.samples, 3f) } returns gainedSamples
 
         every { filterFactory.create(highPassConfig) } returns highPassFilter
-        every { highPassFilter.frequencyAt(minimalConfig.rolloffThreshold) } returns lowerFrequency
         every { highPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
 
         every { filterFactory.create(lowPassConfig) } returns lowPassFilter
-        every { lowPassFilter.frequencyAt(minimalConfig.rolloffThreshold) } returns upperFrequency
         every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
 
-        every { decimator.decimationFactor(monoAudio.format.sampleRate, upperFrequency) } returns decimationFactor
+        every { decimator.decimationFactor(monoAudio.format.sampleRate, lowPassStopFreq) } returns decimationFactor
         every { decimator.decimate(monoAudio.copy(samples = filteredSamples), decimationFactor) } returns decimatedAudio
     }
 
@@ -66,8 +64,14 @@ class AudioConditionerTests {
         clearAllMocks()
     }
 
-    private fun createSUT(config: SpectralAnalysisConfig = minimalConfig): AudioConditioner {
-        return AudioConditioner(config, monoMixer, gain, filterFactory, decimator)
+    private fun createSUT(config: AudioConditionerConfig = minimalConfig): AudioConditioner {
+        return AudioConditioner(
+            { config },
+            monoMixer,
+            gain,
+            filterFactory,
+            decimator
+        )
     }
 
     @Test
@@ -114,7 +118,11 @@ class AudioConditionerTests {
     @Test
     fun `given a high pass filter, passband lower frequency is the rolloff`() {
         val sut = createSUT(minimalConfig.copy(highPassFilter = highPassConfig))
-        assertEquals(lowerFrequency, sut.passband.lowerFrequency)
+
+        assertEquals(
+            highPassConfig.frequencyAt(minimalConfig.rolloffThreshold),
+            sut.passband.lowerFrequency
+        )
     }
 
     @Test
@@ -126,7 +134,11 @@ class AudioConditionerTests {
     @Test
     fun `given a low pass filter, passband upper frequency is the rolloff`() {
         val sut = createSUT(minimalConfig.copy(lowPassFilter = lowPassConfig))
-        assertEquals(upperFrequency, sut.passband.higherFrequency)
+
+        assertEquals(
+            lowPassConfig.frequencyAt(minimalConfig.rolloffThreshold),
+            sut.passband.higherFrequency
+        )
     }
 
     @Test
