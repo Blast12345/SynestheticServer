@@ -11,14 +11,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import toolkit.monkeyTest.nextAppConfig
 import toolkit.monkeyTest.nextAudioFrame
 import toolkit.monkeyTest.nextFrequencyBin
 import toolkit.monkeyTest.nextSpectralPeak
 
 class SpectralAnalyzerUnitTests {
 
-    private val config: SpectralAnalysisConfig = nextAppConfig().spectralAnalysis
     private val audioConditioner: AudioConditioner = mockk()
     private val spectrumCalculator: SpectrumCalculator = mockk()
     private val peakExtractor: PeakExtractor = mockk()
