@@ -8,12 +8,16 @@ import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
 import lightOrgan.color.ColorManager
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import logging.LogLevel
+import logging.Logger
 
 // ENHANCEMENT: Global hotkey for certain operations (e.g. gain adjustment)
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.
@@ -23,6 +27,8 @@ import lightOrgan.spectralAnalysis.SpectralAnalyzer
 // ENHANCEMENT: Introduce Magnitude and DBFS types (which can be converted back and forth)
 // ENHANCEMENT: Bump JVM SDK version to 21
 fun main(args: Array<String>) {
+    configureLogger(args)
+
     val inputManager = AudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
     val colorManager = ColorManager()
@@ -32,9 +38,17 @@ fun main(args: Array<String>) {
     lightOrgan.start()
 
     if (args.contains("--headless")) {
-        launchHeadless(lightOrgan)
+        runBlocking { launchHeadless(inputManager, spectralAnalyzer, colorManager, gatewayManager) }
     } else {
         launchGUI(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+    }
+}
+
+private fun configureLogger(args: Array<String>) {
+    Logger.level = when {
+        args.contains("--verbose") -> LogLevel.DEBUG
+        args.contains("--quiet") -> LogLevel.ERROR
+        else -> LogLevel.SUCCESS
     }
 }
 
@@ -79,7 +93,14 @@ private fun launchGUI(
     }
 }
 
-private fun launchHeadless(lightOrgan: LightOrgan) =
-    application {
-        TODO("Implement headless mode")
-    }
+private suspend fun launchHeadless(
+    inputManager: AudioInputManager,
+    spectralAnalyzer: SpectralAnalyzer,
+    colorManager: ColorManager,
+    gatewayManager: GatewayManager,
+) {
+    inputManager.selectDefaultInput()
+    inputManager.startListening()
+    gatewayManager.connect()
+    awaitCancellation()
+}
