@@ -5,6 +5,7 @@ import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
+import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
@@ -16,21 +17,23 @@ private val tuning = WesternTuningSystem()
 
 val DefaultAppConfig = AppConfig(
     spectralAnalysis = SpectralAnalysisConfig(
-        gainDb = 12f,
+        audioConditioner = AudioConditionerConfig(
+            gainDb = 12f,
+            highPassFilter = FilterConfig.HighPass(
+                frequency = tuning.getFrequency(tuning.A, octave = 0),
+                family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
+            ),
+            lowPassFilter = FilterConfig.LowPass(
+                frequency = tuning.getFrequency(tuning.A, octave = 2),
+                family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
+            ),
+            rolloffThreshold = -48f,
+            decimate = true
+        ),
         frameDuration = 63.milliseconds,
         approximateBinSpacing = 1f,
-        rolloffThreshold = -48f,
-        highPassFilter = FilterConfig.HighPass(
-            frequency = tuning.getFrequency(tuning.A, octave = 0),
-            family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
-        ),
-        lowPassFilter = FilterConfig.LowPass(
-            frequency = tuning.getFrequency(tuning.A, octave = 2),
-            family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
-        ),
         window = WindowType.BlackmanHarris3Term,
         peakExtractor = PeakExtractorConfig.Parabolic,
-        decimate = true
     ),
     gateway = GatewayConfig(
         autoReconnect = true,

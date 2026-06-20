@@ -55,7 +55,6 @@ class SpectralAnalyzerUnitTests {
 
     private fun createSUT(): SpectralAnalyzer {
         return SpectralAnalyzer(
-            config,
             audioConditioner,
             spectrumCalculator,
             peakExtractor

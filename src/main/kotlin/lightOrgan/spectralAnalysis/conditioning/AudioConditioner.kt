@@ -1,15 +1,16 @@
 package lightOrgan.spectralAnalysis.conditioning
 
 import audio.samples.AudioFrame
+import config.AppConfigSingleton
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
 import dsp.filtering.Passband
 import dsp.filtering.StatefulFilter
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.AudioConditionerConfig
 
 class AudioConditioner(
-    private val config: SpectralAnalysisConfig,
+    private val config: AudioConditionerConfig = AppConfigSingleton.value.spectralAnalysis.audioConditioner,
     private val monoMixer: MonoMixer = MonoMixer(),
     private val gain: Gain = Gain(),
     private val filterFactory: FilterFactory = FilterFactory(),
@@ -20,10 +21,12 @@ class AudioConditioner(
     private val lowPassFilter: StatefulFilter? = config.lowPassFilter?.let { filterFactory.create(it) }
 
     val passband: Passband
-        get() = Passband(
-            lowerFrequency = highPassFilter?.frequencyAt(config.rolloffThreshold) ?: 0f,
-            higherFrequency = lowPassFilter?.frequencyAt(config.rolloffThreshold) ?: Float.POSITIVE_INFINITY,
-        )
+        get() {
+            return Passband(
+                lowerFrequency = config.highPassFilter?.frequencyAt(config.rolloffThreshold) ?: 0f,
+                higherFrequency = config.lowPassFilter?.frequencyAt(config.rolloffThreshold) ?: Float.POSITIVE_INFINITY,
+            )
+        }
 
     fun condition(audio: AudioFrame): AudioFrame {
         var conditionedAudio = audio
