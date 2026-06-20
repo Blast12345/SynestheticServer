@@ -17,6 +17,4 @@ class StatefulFilter(
         return filter!!.filter(samples)
     }
 
-    fun frequencyAt(dBFS: Float): Float = config.frequencyAt(dBFS)
-
 }
