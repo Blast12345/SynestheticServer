@@ -15,7 +15,7 @@ data class SpectralAnalysisConfig(
 
 data class AudioConditionerConfig(
     val gainDb: Float,
-    val rolloffThreshold: Float,
+    val rolloffThreshold: Float, // e.g. -48 dBFS
     val highPassFilter: FilterConfig.HighPass?,
     val lowPassFilter: FilterConfig.LowPass?,
     val decimate: Boolean,
