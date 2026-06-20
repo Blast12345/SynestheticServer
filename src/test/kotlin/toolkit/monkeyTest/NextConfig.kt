@@ -2,7 +2,7 @@ package toolkit.monkeyTest
 
 import config.AppConfig
 
-fun nextConfig(): AppConfig {
+fun nextAppConfig(): AppConfig {
     return AppConfig(
         spectralAnalysis = nextSpectralAnalysisConfig(),
         gateway = nextGatewayConfig()
