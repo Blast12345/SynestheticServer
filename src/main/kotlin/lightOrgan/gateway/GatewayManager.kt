@@ -1,5 +1,6 @@
 package lightOrgan.gateway
 
+import config.ConfigSingleton
 import extensions.await
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -27,12 +28,13 @@ interface GatewayManager {
     }
 }
 
-// ENHANCEMENT: Auto-reconnect
 @OptIn(ExperimentalCoroutinesApi::class)
 class RealGatewayManager(
+    private val config: GatewayConfig = ConfigSingleton.gateway,
     private val gatewayFinder: GatewayFinder = SerialGatewayFinder(),
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) : GatewayManager {
+
 
     private val _state = MutableStateFlow<State>(State.Disconnected)
     override val state: StateFlow<State> = _state
@@ -64,6 +66,21 @@ class RealGatewayManager(
         gateway.isConnected.await(false)
         _state.value = State.Disconnected
         _events.emit(Event.UnexpectedDisconnect)
+
+        if (config.autoReconnect) {
+            reconnect()
+        }
+    }
+
+    private suspend fun reconnect() {
+        while (true) {
+            try {
+                connect()
+                return
+            } catch (_: Exception) {
+                delay(config.reconnectInterval)
+            }
+        }
     }
 
     override suspend fun disconnect() {
