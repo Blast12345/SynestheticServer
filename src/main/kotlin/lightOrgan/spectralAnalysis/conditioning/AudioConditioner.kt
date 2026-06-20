@@ -9,19 +9,7 @@ import dsp.filtering.FilterConfig
 import dsp.filtering.Passband
 import dsp.filtering.StatefulFilter
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
-
-class CachedFactory<K, V>(private val create: (K) -> V) {
-    private var key: K? = null
-    private var value: V? = null
-
-    fun get(key: K): V {
-        if (key != this.key) {
-            this.key = key
-            value = create(key)
-        }
-        return value!!
-    }
-}
+import utilities.CachedProvider
 
 class AudioConditioner(
     private val config: () -> AudioConditionerConfig = { AppConfigSingleton.value.spectralAnalysis.audioConditioner },
@@ -31,8 +19,8 @@ class AudioConditioner(
     private val decimator: Decimator = Decimator(),
 ) {
 
-    private val highPassFilterCache = CachedFactory<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
-    private val lowPassFilterCache = CachedFactory<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
+    private val highPassFilterCache = CachedProvider<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
+    private val lowPassFilterCache = CachedProvider<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
 
     val passband: Passband
         get() {
