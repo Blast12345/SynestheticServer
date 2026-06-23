@@ -15,8 +15,8 @@ class GainHotkeyListener(
         if (event.modifiers and ctrlShift != ctrlShift) return
 
         when (event.keyCode) {
-            NativeKeyEvent.VC_UP -> adjustGain(stepDb)
-            NativeKeyEvent.VC_DOWN -> adjustGain(-stepDb)
+            NativeKeyEvent.VC_PAGE_UP -> adjustGain(stepDb)
+            NativeKeyEvent.VC_PAGE_DOWN -> adjustGain(-stepDb)
         }
     }
 

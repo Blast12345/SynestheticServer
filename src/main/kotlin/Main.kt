@@ -10,6 +10,7 @@ import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
 import hotkeys.GainHotkeyListener
+import hotkeys.NoiseReductionHotkeyListener
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
@@ -59,6 +60,7 @@ private fun addHotkeyListeners() {
     GlobalScreen.registerNativeHook()
 
     GlobalScreen.addNativeKeyListener(GainHotkeyListener())
+    GlobalScreen.addNativeKeyListener(NoiseReductionHotkeyListener())
 }
 
 private fun launchGUI(

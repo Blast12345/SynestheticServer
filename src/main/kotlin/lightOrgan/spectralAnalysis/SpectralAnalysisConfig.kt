@@ -10,7 +10,8 @@ data class SpectralAnalysisConfig(
     val frameDuration: Duration,
     val approximateBinSpacing: Float,
     val window: WindowType,
-    val peakExtractor: PeakExtractorConfig
+    val peakExtractor: PeakExtractorConfig,
+    val noiseReduction: NoiseReductionConfig,
 )
 
 data class AudioConditionerConfig(
@@ -20,3 +21,15 @@ data class AudioConditionerConfig(
     val lowPassFilter: FilterConfig.LowPass?,
     val decimate: Boolean,
 )
+
+data class NoiseReductionConfig(
+    val threshold: Double,
+    val kneeWidth: Double,
+) {
+
+    init {
+        require(threshold >= 0.0) { "Noise reduction threshold cannot be negative." }
+        require(kneeWidth >= 0.0) { "Noise reduction knee width cannot be negative." }
+    }
+
+}

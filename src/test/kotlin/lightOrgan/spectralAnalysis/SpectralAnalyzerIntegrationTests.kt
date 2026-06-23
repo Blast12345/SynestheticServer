@@ -5,6 +5,7 @@ import audio.samples.AudioFrame
 import config.AppConfigSingleton
 import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
+import lightOrgan.spectralAnalysis.NoiseReductionConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
@@ -32,6 +33,10 @@ class SpectralAnalyzerIntegrationTests {
         approximateBinSpacing = 1f,
         window = WindowType.Hann,
         peakExtractor = PeakExtractorConfig.Parabolic,
+        noiseReduction = NoiseReductionConfig(
+            threshold = 0.0,
+            kneeWidth = 0.0
+        )
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)

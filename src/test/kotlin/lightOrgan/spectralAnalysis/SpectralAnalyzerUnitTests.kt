@@ -5,6 +5,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
+import lightOrgan.spectralAnalysis.noiseReduction.NoiseGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 import org.junit.jupiter.api.AfterEach
@@ -20,8 +21,8 @@ class SpectralAnalyzerUnitTests {
     private val audioConditioner: AudioConditioner = mockk()
     private val spectrumCalculator: SpectrumCalculator = mockk()
     private val peakExtractor: PeakExtractor = mockk()
+    private val noiseGate: NoiseGate = mockk()
 
-    private val passband = Passband(lowerFrequency = 2f, higherFrequency = 3f)
     private val audioFrame = nextAudioFrame()
     private val conditionedAudio = nextAudioFrame()
 
@@ -43,7 +44,10 @@ class SpectralAnalyzerUnitTests {
         every { spectrumCalculator.calculate(conditionedAudio) } returns allBins
         every { peakExtractor.extract(allBins) } returns allPeaks
 
-        every { audioConditioner.passband } returns passband
+        // Disable post-processing
+        every { audioConditioner.passband } returns Passband.ALL
+        every { noiseGate.apply(allBins) } returns allBins
+        every { noiseGate.apply(allPeaks) } returns allPeaks
     }
 
     @AfterEach
@@ -55,14 +59,16 @@ class SpectralAnalyzerUnitTests {
         return SpectralAnalyzer(
             audioConditioner,
             spectrumCalculator,
-            peakExtractor
+            peakExtractor,
+            noiseGate
         )
     }
 
-    // Analysis Result
+    // Passband
     @Test
     fun `the spectrum is within the pass band`() {
         val sut = createSUT()
+        every { audioConditioner.passband } returns Passband(lowerFrequency = bin2.frequency, higherFrequency = bin3.frequency)
 
         val result = sut.analyze(audioFrame)
 
@@ -75,6 +81,7 @@ class SpectralAnalyzerUnitTests {
     @Test
     fun `the peaks are within the pass band`() {
         val sut = createSUT()
+        every { audioConditioner.passband } returns Passband(lowerFrequency = peak2.frequency, higherFrequency = peak3.frequency)
 
         val result = sut.analyze(audioFrame)
 
@@ -82,6 +89,29 @@ class SpectralAnalyzerUnitTests {
             listOf(peak2, peak3),
             result.peaks
         )
+    }
+
+    // Noise reduction
+    @Test
+    fun `the spectrum is denoised`() {
+        val sut = createSUT()
+        val denoisedBins = listOf(nextFrequencyBin(), nextFrequencyBin())
+        every { noiseGate.apply(allBins) } returns denoisedBins
+
+        val result = sut.analyze(audioFrame)
+
+        assertEquals(denoisedBins, result.spectrum)
+    }
+
+    @Test
+    fun `the peaks are denoised`() {
+        val sut = createSUT()
+        val denoisedPeaks = listOf(nextSpectralPeak(), nextSpectralPeak())
+        every { noiseGate.apply(allPeaks) } returns denoisedPeaks
+
+        val result = sut.analyze(audioFrame)
+
+        assertEquals(denoisedPeaks, result.peaks)
     }
 
     // Flow
