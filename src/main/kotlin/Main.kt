@@ -4,13 +4,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
-import hotkeys.GainHotkeyListener
-import hotkeys.NoiseReductionHotkeyListener
+import hotkeys.GainHotkeyHandler
+import hotkeys.HotkeyProvider
+import hotkeys.NoiseReductionHotkeyHandler
+import hotkeys.core.JNativeHookProvider
+import hotkeys.core.LinuxInputProvider
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
@@ -57,11 +59,18 @@ private fun configureLogger(args: Array<String>) {
 }
 
 private fun addHotkeyListeners() {
-    GlobalScreen.registerNativeHook()
+//    GlobalScreen.registerNativeHook()
+//
+//    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
+//    GlobalScreen.addNativeKeyListener(NoiseReductionHotkeyHandler())
+    val provider: HotkeyProvider = if (isLinux()) LinuxInputProvider("/dev/input/eventX") else JNativeHookProvider()
 
-    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
-    GlobalScreen.addNativeKeyListener(NoiseReductionHotkeyListener())
+    provider.addListener(GainHotkeyHandler()::handle)
+    provider.addListener(NoiseReductionHotkeyHandler()::handle)
+    provider.start()
 }
+
+fun isLinux(): Boolean = System.getProperty("os.name").lowercase().contains("linux")
 
 private fun launchGUI(
     inputManager: AudioInputManager,
