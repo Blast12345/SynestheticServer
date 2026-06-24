@@ -2,6 +2,7 @@ package hotkeys.core
 
 import hotkeys.HotkeyProvider
 import kotlinx.coroutines.*
+import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -9,8 +10,9 @@ import java.nio.ByteOrder
 import java.util.concurrent.CopyOnWriteArrayList
 
 class LinuxInputProvider(
-    private val devicePath: String,
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob()),
+    private val deviceName: String = "SayoDevice",
+    private val reconnectDelayMs: Long = 2000,
 ) : HotkeyProvider {
 
     private val listeners = CopyOnWriteArrayList<(KeyEvent) -> Unit>()
@@ -24,10 +26,8 @@ class LinuxInputProvider(
     }
 
     override fun start() {
-        stop()
-
         job = scope.launch(Dispatchers.IO) {
-            readEvents()
+            connectionLoop()
         }
     }
 
@@ -36,7 +36,21 @@ class LinuxInputProvider(
         job?.cancel()
     }
 
-    private fun readEvents() {
+    private suspend fun connectionLoop() {
+        while (true) {
+            val devicePath = findDevice()
+            if (devicePath == null) {
+                delay(reconnectDelayMs)
+                continue
+            }
+
+            readEvents(devicePath)
+            activeModifiers.clear()
+            delay(reconnectDelayMs)
+        }
+    }
+
+    private fun readEvents(devicePath: String) {
         try {
             FileInputStream(devicePath).use { input ->
                 stream = input
@@ -56,8 +70,15 @@ class LinuxInputProvider(
                 }
             }
         } catch (_: IOException) {
-            // Stream closed during shutdown
+            // Device disconnected or stream closed during shutdown
         }
+    }
+
+    private fun findDevice(): String? {
+        val byId = File("/dev/input/by-id/")
+        val device = byId.listFiles()
+            ?.firstOrNull { it.name.contains(deviceName) && it.name.endsWith("-event-kbd") }
+        return device?.canonicalPath
     }
 
     private fun handleKey(code: Int, value: Int) {

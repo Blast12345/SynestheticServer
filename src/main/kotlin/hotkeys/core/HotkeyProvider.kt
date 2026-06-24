@@ -14,7 +14,7 @@ class HotkeyProviderFactory {
 
     fun create(): HotkeyProvider {
         return if (isLinux()) {
-            LinuxInputProvider("/dev/input/eventX")
+            LinuxInputProvider()
         } else {
             JNativeHookProvider()
         }
