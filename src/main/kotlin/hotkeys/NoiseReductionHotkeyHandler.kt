@@ -19,10 +19,12 @@ class NoiseReductionHotkeyHandler(private val step: Double = 0.01) {
 
         AppConfigSingleton.update { config ->
             val noiseReduction = config.spectralAnalysis.noiseReduction
+            val newThreshold = (noiseReduction.threshold + delta).coerceIn(0.0, 1.0)
+
             config.copy(
                 spectralAnalysis = config.spectralAnalysis.copy(
                     noiseReduction = noiseReduction.copy(
-                        threshold = noiseReduction.threshold + delta
+                        threshold = newThreshold
                     )
                 )
             )
