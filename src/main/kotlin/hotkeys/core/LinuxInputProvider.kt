@@ -1,85 +1,101 @@
 package hotkeys.core
 
 import hotkeys.HotkeyProvider
+import kotlinx.coroutines.*
 import java.io.FileInputStream
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.CopyOnWriteArrayList
 
-class LinuxInputProvider(private val devicePath: String) : HotkeyProvider {
+class LinuxInputProvider(
+    private val devicePath: String,
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+) : HotkeyProvider {
 
-    private val listeners = mutableListOf<(KeyEvent) -> Unit>()
+    private val listeners = CopyOnWriteArrayList<(KeyEvent) -> Unit>()
     private val activeModifiers = mutableSetOf<Modifier>()
 
-    @Volatile
-    private var running = false
-    private var thread: Thread? = null
+    private var stream: FileInputStream? = null
+    private var job: Job? = null
 
     override fun addListener(listener: (KeyEvent) -> Unit) {
         listeners.add(listener)
     }
 
     override fun start() {
-        running = true
-        thread = Thread(::readEvents).apply {
-            isDaemon = true
-            name = "linux-input-reader"
-            start()
+        stop()
+
+        job = scope.launch(Dispatchers.IO) {
+            readEvents()
         }
     }
 
     override fun stop() {
-        running = false
-        thread?.interrupt()
+        stream?.close()
+        job?.cancel()
     }
 
     private fun readEvents() {
-        FileInputStream(devicePath).use { stream ->
-            val buffer = ByteArray(EVENT_SIZE)
-            while (running) {
-                if (stream.read(buffer) != EVENT_SIZE) continue
-                val parsed = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN)
-                val type = parsed.getShort(16).toInt() and 0xFFFF
-                val code = parsed.getShort(18).toInt() and 0xFFFF
-                val value = parsed.getInt(20)
+        try {
+            FileInputStream(devicePath).use { input ->
+                stream = input
+                val buffer = ByteArray(EVENT_SIZE)
 
-                if (type == EV_KEY) handleKey(code, value)
+                while (true) {
+                    val bytesRead = input.read(buffer)
+                    if (bytesRead == -1) return
+                    if (bytesRead != EVENT_SIZE) continue
+
+                    val parsed = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN)
+                    val type = parsed.getShort(16).toInt() and 0xFFFF
+                    val code = parsed.getShort(18).toInt() and 0xFFFF
+                    val value = parsed.getInt(20)
+
+                    if (type == EV_KEY) handleKey(code, value)
+                }
             }
+        } catch (_: IOException) {
+            // Stream closed during shutdown
         }
     }
 
     private fun handleKey(code: Int, value: Int) {
-        when (code) {
-            KEY_LEFTCTRL -> updateModifier(Modifier.CTRL, pressed = value > 0)
-            KEY_LEFTSHIFT -> updateModifier(Modifier.SHIFT, pressed = value > 0)
-            else -> {
-                if (value != 1) return
-                val key = mapKey(code) ?: return
-                val event = KeyEvent(key, activeModifiers.toSet())
-                listeners.forEach { it(event) }
-            }
+        val modifier = toModifier(code)
+        if (modifier != null) {
+            if (value > 0) activeModifiers.add(modifier) else activeModifiers.remove(modifier)
+            return
         }
-    }
 
-    private fun updateModifier(modifier: Modifier, pressed: Boolean) {
-        if (pressed) activeModifiers.add(modifier) else activeModifiers.remove(modifier)
-    }
-
-    private fun mapKey(code: Int): Key? = when (code) {
-        KEY_PAGEUP -> Key.PAGE_UP
-        KEY_PAGEDOWN -> Key.PAGE_DOWN
-        KEY_HOME -> Key.HOME
-        KEY_END -> Key.END
-        else -> null
+        if (value != 1) return
+        val key = toKey(code) ?: return
+        val event = KeyEvent(key, activeModifiers.toSet())
+        listeners.forEach { it(event) }
     }
 
     companion object {
         private const val EVENT_SIZE = 24
         private const val EV_KEY = 1
+
         private const val KEY_LEFTCTRL = 29
         private const val KEY_LEFTSHIFT = 42
         private const val KEY_HOME = 102
         private const val KEY_PAGEUP = 104
         private const val KEY_END = 107
         private const val KEY_PAGEDOWN = 109
+
+        private fun toModifier(code: Int): Modifier? = when (code) {
+            KEY_LEFTCTRL -> Modifier.CTRL
+            KEY_LEFTSHIFT -> Modifier.SHIFT
+            else -> null
+        }
+
+        private fun toKey(code: Int): Key? = when (code) {
+            KEY_PAGEUP -> Key.PAGE_UP
+            KEY_PAGEDOWN -> Key.PAGE_DOWN
+            KEY_HOME -> Key.HOME
+            KEY_END -> Key.END
+            else -> null
+        }
     }
 }

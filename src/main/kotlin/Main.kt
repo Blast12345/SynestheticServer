@@ -9,10 +9,8 @@ import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
 import hotkeys.GainHotkeyHandler
-import hotkeys.HotkeyProvider
+import hotkeys.HotkeyProviderFactory
 import hotkeys.NoiseReductionHotkeyHandler
-import hotkeys.core.JNativeHookProvider
-import hotkeys.core.LinuxInputProvider
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
@@ -59,18 +57,13 @@ private fun configureLogger(args: Array<String>) {
 }
 
 private fun addHotkeyListeners() {
-//    GlobalScreen.registerNativeHook()
-//
-//    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
-//    GlobalScreen.addNativeKeyListener(NoiseReductionHotkeyHandler())
-    val provider: HotkeyProvider = if (isLinux()) LinuxInputProvider("/dev/input/eventX") else JNativeHookProvider()
+    val provider = HotkeyProviderFactory().create()
 
     provider.addListener(GainHotkeyHandler()::handle)
     provider.addListener(NoiseReductionHotkeyHandler()::handle)
+
     provider.start()
 }
-
-fun isLinux(): Boolean = System.getProperty("os.name").lowercase().contains("linux")
 
 private fun launchGUI(
     inputManager: AudioInputManager,
