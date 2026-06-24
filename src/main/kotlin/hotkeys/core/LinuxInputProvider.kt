@@ -88,7 +88,7 @@ class LinuxInputProvider(
             return
         }
 
-        if (value != 1) return
+        if (value != 1 && value != 2) return
         val key = toKey(code) ?: return
         val event = KeyEvent(key, activeModifiers.toSet())
         listeners.forEach { it(event) }
