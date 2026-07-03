@@ -2,6 +2,7 @@ package hotkeys.core
 
 import hotkeys.HotkeyProvider
 import kotlinx.coroutines.*
+import logging.Logger
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -69,7 +70,8 @@ class LinuxInputProvider(
                     if (type == EV_KEY) handleKey(code, value)
                 }
             }
-        } catch (_: IOException) {
+        } catch (e: IOException) {
+            Logger.error(e)
             // Device disconnected or stream closed during shutdown
         }
     }

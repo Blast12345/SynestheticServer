@@ -8,12 +8,11 @@ import lightOrgan.spectralAnalysis.NoiseReductionConfig
 import org.apache.commons.math3.complex.Complex
 
 // TODO: Test me
-class NoiseGate(
+class SpectralGate(
     private val config: () -> NoiseReductionConfig = { AppConfigSingleton.value.spectralAnalysis.noiseReduction },
-) {
+) : NoiseReducer {
 
-    @JvmName("applyToSpectrum")
-    fun apply(spectrum: FrequencyBins): FrequencyBins {
+    override fun reduce(spectrum: FrequencyBins): FrequencyBins {
         val config = this.config()
 
         if (config.threshold == 0.0) return spectrum
@@ -25,8 +24,7 @@ class NoiseGate(
         }
     }
 
-    @JvmName("applyToPeaks")
-    fun apply(peaks: SpectralPeaks): SpectralPeaks {
+    override fun reduce(peaks: SpectralPeaks): SpectralPeaks {
         val config = this.config()
 
         if (config.threshold == 0.0) return peaks

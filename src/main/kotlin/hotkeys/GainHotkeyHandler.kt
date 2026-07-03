@@ -28,4 +28,5 @@ class GainHotkeyHandler(private val stepDb: Float = 1f) {
             )
         }
     }
+
 }

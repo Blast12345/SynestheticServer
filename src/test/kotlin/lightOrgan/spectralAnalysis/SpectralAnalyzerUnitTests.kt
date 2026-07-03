@@ -5,7 +5,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
-import lightOrgan.spectralAnalysis.noiseReduction.NoiseGate
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 import org.junit.jupiter.api.AfterEach
@@ -21,7 +21,7 @@ class SpectralAnalyzerUnitTests {
     private val audioConditioner: AudioConditioner = mockk()
     private val spectrumCalculator: SpectrumCalculator = mockk()
     private val peakExtractor: PeakExtractor = mockk()
-    private val noiseGate: NoiseGate = mockk()
+    private val spectralGate: SpectralGate = mockk()
 
     private val audioFrame = nextAudioFrame()
     private val conditionedAudio = nextAudioFrame()
@@ -46,8 +46,8 @@ class SpectralAnalyzerUnitTests {
 
         // Disable post-processing
         every { audioConditioner.passband } returns Passband.ALL
-        every { noiseGate.apply(allBins) } returns allBins
-        every { noiseGate.apply(allPeaks) } returns allPeaks
+        every { spectralGate.apply(allBins) } returns allBins
+        every { spectralGate.apply(allPeaks) } returns allPeaks
     }
 
     @AfterEach
@@ -60,7 +60,7 @@ class SpectralAnalyzerUnitTests {
             audioConditioner,
             spectrumCalculator,
             peakExtractor,
-            noiseGate
+            spectralGate
         )
     }
 
@@ -96,7 +96,7 @@ class SpectralAnalyzerUnitTests {
     fun `the spectrum is denoised`() {
         val sut = createSUT()
         val denoisedBins = listOf(nextFrequencyBin(), nextFrequencyBin())
-        every { noiseGate.apply(allBins) } returns denoisedBins
+        every { spectralGate.apply(allBins) } returns denoisedBins
 
         val result = sut.analyze(audioFrame)
 
@@ -107,7 +107,7 @@ class SpectralAnalyzerUnitTests {
     fun `the peaks are denoised`() {
         val sut = createSUT()
         val denoisedPeaks = listOf(nextSpectralPeak(), nextSpectralPeak())
-        every { noiseGate.apply(allPeaks) } returns denoisedPeaks
+        every { spectralGate.apply(allPeaks) } returns denoisedPeaks
 
         val result = sut.analyze(audioFrame)
 

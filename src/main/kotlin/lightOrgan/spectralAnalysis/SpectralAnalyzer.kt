@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
-import lightOrgan.spectralAnalysis.noiseReduction.NoiseGate
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
@@ -17,7 +17,7 @@ class SpectralAnalyzer(
     private val audioConditioner: AudioConditioner = AudioConditioner(),
     private val spectrumCalculator: SpectrumCalculator = SpectrumCalculator(),
     private val peakExtractor: PeakExtractor = PeakExtractor(),
-    private val noiseGate: NoiseGate = NoiseGate()
+    private val noiseReducer: SpectralGate = SpectralGate()
 ) {
 
     private val _analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
@@ -44,9 +44,9 @@ class SpectralAnalyzer(
     private fun SpectralPeaks.passband(): SpectralPeaks = filter { it.frequency in audioConditioner.passband }
 
     @JvmName("denoiseSpectrum")
-    private fun FrequencyBins.denoise(): FrequencyBins = noiseGate.apply(this)
+    private fun FrequencyBins.denoise(): FrequencyBins = noiseReducer.reduce(this)
 
     @JvmName("denoisePeaks")
-    private fun SpectralPeaks.denoise(): SpectralPeaks = noiseGate.apply(this)
+    private fun SpectralPeaks.denoise(): SpectralPeaks = noiseReducer.reduce(this)
 
 }
