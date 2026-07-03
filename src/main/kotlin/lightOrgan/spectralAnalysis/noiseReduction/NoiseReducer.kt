@@ -4,6 +4,6 @@ import dsp.bins.FrequencyBins
 import dsp.peakExtraction.SpectralPeaks
 
 interface NoiseReducer {
-    fun reduce(spectrum: FrequencyBins): FrequencyBins
-    fun reduce(peaks: SpectralPeaks): SpectralPeaks
+    fun reduceSpectrum(spectrum: FrequencyBins): FrequencyBins
+    fun reducePeaks(peaks: SpectralPeaks): SpectralPeaks
 }

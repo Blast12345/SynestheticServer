@@ -44,9 +44,9 @@ class SpectralAnalyzer(
     private fun SpectralPeaks.passband(): SpectralPeaks = filter { it.frequency in audioConditioner.passband }
 
     @JvmName("denoiseSpectrum")
-    private fun FrequencyBins.denoise(): FrequencyBins = noiseReducer.reduce(this)
+    private fun FrequencyBins.denoise(): FrequencyBins = noiseReducer.reduceSpectrum(this)
 
     @JvmName("denoisePeaks")
-    private fun SpectralPeaks.denoise(): SpectralPeaks = noiseReducer.reduce(this)
+    private fun SpectralPeaks.denoise(): SpectralPeaks = noiseReducer.reducePeaks(this)
 
 }

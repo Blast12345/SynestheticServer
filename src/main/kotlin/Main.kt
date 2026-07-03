@@ -4,13 +4,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
 import gui.snackbar.SimpleSnackbar
-import hotkeys.GainHotkeyHandler
-import hotkeys.HotkeyProviderFactory
-import hotkeys.NoiseReductionHotkeyHandler
+import hotkeys.GainHotkeyListener
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
@@ -57,12 +56,9 @@ private fun configureLogger(args: Array<String>) {
 }
 
 private fun addHotkeyListeners() {
-    val provider = HotkeyProviderFactory().create()
+    GlobalScreen.registerNativeHook()
 
-    provider.addListener(GainHotkeyHandler()::handle)
-    provider.addListener(NoiseReductionHotkeyHandler()::handle)
-
-    provider.start()
+    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
 }
 
 private fun launchGUI(

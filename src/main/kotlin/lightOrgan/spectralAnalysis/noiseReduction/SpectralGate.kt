@@ -12,7 +12,7 @@ class SpectralGate(
     private val config: () -> NoiseReductionConfig = { AppConfigSingleton.value.spectralAnalysis.noiseReduction },
 ) : NoiseReducer {
 
-    override fun reduce(spectrum: FrequencyBins): FrequencyBins {
+    override fun reduceSpectrum(spectrum: FrequencyBins): FrequencyBins {
         val config = this.config()
 
         if (config.threshold == 0.0) return spectrum
@@ -24,7 +24,7 @@ class SpectralGate(
         }
     }
 
-    override fun reduce(peaks: SpectralPeaks): SpectralPeaks {
+    override fun reducePeaks(peaks: SpectralPeaks): SpectralPeaks {
         val config = this.config()
 
         if (config.threshold == 0.0) return peaks
