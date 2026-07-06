@@ -22,6 +22,7 @@ data class AudioConditionerConfig(
     val decimate: Boolean,
 )
 
+// ENHANCEMENT: As more reduction strategies are added, this config can become a sealed interface
 data class NoiseReductionConfig(
     val threshold: Double,
     val kneeWidth: Double,
