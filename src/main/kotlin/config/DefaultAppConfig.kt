@@ -28,7 +28,7 @@ val DefaultAppConfig = AppConfig(
                 frequency = tuning.getFrequency(tuning.A, octave = 2),
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
-            rolloffThreshold = -48f,
+            rolloffThreshold = -48f, // TODO: unrealistic input crashes
             decimate = true
         ),
         frameDuration = 63.milliseconds,
@@ -36,8 +36,8 @@ val DefaultAppConfig = AppConfig(
         window = WindowType.BlackmanHarris3Term,
         peakExtractor = PeakExtractorConfig.Parabolic,
         noiseReduction = NoiseReductionConfig(
-            threshold = 0.1,
-            kneeWidth = 0.1
+            thresholdDb = -24.0,
+            kneeWidthDb = 12.0
         )
     ),
     gateway = GatewayConfig(

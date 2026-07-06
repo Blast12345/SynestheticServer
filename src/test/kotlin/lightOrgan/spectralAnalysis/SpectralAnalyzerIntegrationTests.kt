@@ -34,8 +34,8 @@ class SpectralAnalyzerIntegrationTests {
         window = WindowType.Hann,
         peakExtractor = PeakExtractorConfig.Parabolic,
         noiseReduction = NoiseReductionConfig(
-            threshold = 0.0,
-            kneeWidth = 0.0
+            thresholdDb = Double.NEGATIVE_INFINITY,
+            kneeWidthDb = 0.0
         )
     )
 
