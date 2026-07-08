@@ -4,14 +4,13 @@ import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.NoiseReductionConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import kotlin.random.Random
 
 fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
     return SpectralAnalysisConfig(
         audioConditioner = nextAudioConditionerConfig(),
-        frameDuration = nextDuration(),
-        approximateBinSpacing = nextPositiveFloat(),
-        window = nextEnum<WindowType>(),
+        spectrumCalculator = nextSpectrumCalculatorConfig(),
         peakExtractor = nextPeakExtractorConfig(),
         noiseReduction = nextNoiseReductionConfig()
     )
@@ -27,9 +26,17 @@ fun nextAudioConditionerConfig(): AudioConditionerConfig {
     )
 }
 
+fun nextSpectrumCalculatorConfig(): SpectrumCalculatorConfig {
+    return SpectrumCalculatorConfig(
+        frameDuration = nextDuration(),
+        approximateBinSpacing = nextPositiveFloat(),
+        window = nextEnum<WindowType>(),
+    )
+}
+
 fun nextNoiseReductionConfig(): NoiseReductionConfig {
     return NoiseReductionConfig(
-        threshold = Random.nextDouble(),
-        kneeWidth = Random.nextDouble()
+        thresholdDb = Random.nextDouble(),
+        kneeWidthDb = Random.nextDouble()
     )
 }

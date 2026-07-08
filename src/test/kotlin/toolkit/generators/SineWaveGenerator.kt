@@ -2,6 +2,7 @@ package toolkit.generators
 
 import extensions.inSeconds
 import kotlin.math.PI
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -29,3 +30,17 @@ fun generateSineWave(
         )
     )
 }
+
+fun generateSineWave(
+    frequency: Float,
+    amplitudeDb: Double,
+    sampleRate: Float,
+    duration: Duration = 1.seconds,
+): SineWave = generateSineWave(
+    frequency = frequency,
+    amplitude = amplitudeDb.dbToLinear().toFloat(),
+    sampleRate = sampleRate,
+    duration = duration,
+)
+
+fun Double.dbToLinear(): Double = 10.0.pow(this / 20.0)

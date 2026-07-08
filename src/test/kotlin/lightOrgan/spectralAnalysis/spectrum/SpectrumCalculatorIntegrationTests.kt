@@ -2,14 +2,13 @@ package lightOrgan.spectralAnalysis.spectrum
 
 import audio.samples.AudioFormat
 import dsp.windowing.WindowType
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves
 import toolkit.generators.generateSilence
 import toolkit.generators.generateSineWave
-import toolkit.monkeyTest.nextSpectralAnalysisConfig
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -18,7 +17,7 @@ class SpectrumCalculatorIntegrationTests {
     private val resolution = 20f
     private val minimumDuration = (1000 / resolution).toLong().milliseconds
 
-    private val config = nextSpectralAnalysisConfig().copy(
+    private val config = SpectrumCalculatorConfig(
         frameDuration = minimumDuration * 2,
         approximateBinSpacing = 1f,
         window = WindowType.Hann
@@ -30,7 +29,7 @@ class SpectrumCalculatorIntegrationTests {
     private val tone2 = generateSineWave(frequency = resolution * 100, sampleRate = audioFormat.sampleRate, duration = config.frameDuration)
     private val combinedTones = combineWaves(tone1.waveForm, tone2.waveForm)
 
-    private fun createSUT(config: SpectralAnalysisConfig = this.config): SpectrumCalculator {
+    private fun createSUT(config: SpectrumCalculatorConfig = this.config): SpectrumCalculator {
         return SpectrumCalculator(config)
     }
 

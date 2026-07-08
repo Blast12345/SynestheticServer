@@ -1,6 +1,5 @@
 package lightOrgan.spectralAnalysis.noiseReduction
 
-import config.AppConfigSingleton
 import dsp.bins.FrequencyBins
 import dsp.peakExtraction.SpectralPeaks
 import extensions.times
@@ -9,13 +8,9 @@ import org.apache.commons.math3.complex.Complex
 import kotlin.math.pow
 
 // TODO: Test me
-class SpectralGate(
-    private val config: () -> NoiseReductionConfig = { AppConfigSingleton.value.spectralAnalysis.noiseReduction },
-) : NoiseReducer {
+class SpectralGate : NoiseReducer {
 
-    override fun reduceSpectrum(spectrum: FrequencyBins): FrequencyBins {
-        val config = this.config()
-
+    override fun reduceSpectrum(spectrum: FrequencyBins, config: NoiseReductionConfig): FrequencyBins {
         return spectrum.map { bin ->
             val gain = computeGain(bin.magnitude.toDouble(), config.thresholdDb, config.kneeWidthDb)
             if (gain == 0.0) bin.copy(value = Complex.ZERO)
@@ -23,9 +18,7 @@ class SpectralGate(
         }
     }
 
-    override fun reducePeaks(peaks: SpectralPeaks): SpectralPeaks {
-        val config = this.config()
-
+    override fun reducePeaks(peaks: SpectralPeaks, config: NoiseReductionConfig): SpectralPeaks {
         return peaks.mapNotNull { peak ->
             val gain = computeGain(peak.magnitude.toDouble(), config.thresholdDb, config.kneeWidthDb)
             if (gain == 0.0) null

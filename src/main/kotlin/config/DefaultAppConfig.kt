@@ -8,6 +8,7 @@ import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.NoiseReductionConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
@@ -31,13 +32,15 @@ val DefaultAppConfig = AppConfig(
             rolloffThreshold = -48f, // TODO: unrealistic input crashes
             decimate = true
         ),
-        frameDuration = 63.milliseconds,
-        approximateBinSpacing = 1f,
-        window = WindowType.BlackmanHarris3Term,
+        spectrumCalculator = SpectrumCalculatorConfig(
+            window = WindowType.BlackmanHarris3Term,
+            frameDuration = 63.milliseconds,
+            approximateBinSpacing = 1f,
+        ),
         peakExtractor = PeakExtractorConfig.Parabolic,
         noiseReduction = NoiseReductionConfig(
             thresholdDb = -24.0,
-            kneeWidthDb = 12.0
+            kneeWidthDb = 0.0
         )
     ),
     gateway = GatewayConfig(

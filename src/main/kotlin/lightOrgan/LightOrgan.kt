@@ -1,5 +1,7 @@
 package lightOrgan
 
+import config.AppConfig
+import config.AppConfigSingleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
@@ -26,10 +28,12 @@ class LightOrgan(
 
     private val timeBetweenColors = TimestampUtility("Time between colors")
 
-    fun start() {
+    fun start(
+        config: () -> AppConfig = { AppConfigSingleton.value }
+    ) {
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
+            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it, config().spectralAnalysis) }
             .conflate()
             .mapSequenced("Color generation") { colorManager.calculate(it) }
             .conflate()

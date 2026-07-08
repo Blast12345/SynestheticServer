@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import toolkit.monkeyTest.nextAppConfig
 import toolkit.monkeyTest.nextAudioFrame
 import toolkit.monkeyTest.nextSpectralAnalysis
 import toolkit.monkeyTest.nextStandardRgbColor
@@ -27,6 +28,7 @@ class LightOrganTests {
     private lateinit var colorManager: ColorManagerFixture
     private lateinit var fakeGatewayManager: FakeGatewayManager
 
+    private val config = nextAppConfig()
     private val audioFrame = nextAudioFrame()
     private val spectralAnalysis = nextSpectralAnalysis()
     private val newColor = nextStandardRgbColor()
@@ -38,7 +40,7 @@ class LightOrganTests {
         colorManager = ColorManagerFixture.create()
         fakeGatewayManager = FakeGatewayManager()
 
-        every { spectralAnalyzer.mock.analyze(audioFrame) } returns spectralAnalysis
+        every { spectralAnalyzer.mock.analyze(audioFrame, config.spectralAnalysis) } returns spectralAnalysis
         every { colorManager.mock.calculate(spectralAnalysis) } returns newColor
     }
 
@@ -61,7 +63,7 @@ class LightOrganTests {
     fun `when an audio frame is received, then a color is derived and broadcast`() = runTest {
         val sut = createSUT(backgroundScope)
         fakeGatewayManager.connect()
-        sut.start()
+        sut.start({ config })
         runCurrent()
 
         inputManager.audioStream.emit(audioFrame.asLazySequence())

@@ -1,15 +1,12 @@
 package lightOrgan.spectralAnalysis
 
 import audio.samples.AudioFrame
-import dsp.bins.FrequencyBins
-import dsp.peakExtraction.SpectralPeaks
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
-import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducer
-import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
+import lightOrgan.spectralAnalysis.postProcessing.SpectralPostProcessor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
 // TODO: Test me
@@ -18,37 +15,28 @@ class SpectralAnalyzer(
     private val audioConditioner: AudioConditioner = AudioConditioner(),
     private val spectrumCalculator: SpectrumCalculator = SpectrumCalculator(),
     private val peakExtractor: PeakExtractor = PeakExtractor(),
-    private val noiseReducer: NoiseReducer = SpectralGate()
+    private val postProcessor: SpectralPostProcessor = SpectralPostProcessor()
 ) {
 
     private val _analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
     val analysis: StateFlow<SpectralAnalysis> = _analysis.asStateFlow()
 
     // WARNING: Discontinuous data will cause spectral artifacts
-    fun analyze(audio: AudioFrame): SpectralAnalysis {
-        val conditionedAudio = audioConditioner.condition(audio)
-        val spectrum = spectrumCalculator.calculate(conditionedAudio)
-        val peaks = peakExtractor.extract(spectrum)
+    fun analyze(
+        audio: AudioFrame,
+        config: SpectralAnalysisConfig
+    ): SpectralAnalysis {
+        val conditionedAudio = audioConditioner.condition(audio, config.audioConditioner)
+        val rawSpectrum = spectrumCalculator.calculate(conditionedAudio)
+        val rawPeaks = peakExtractor.extract(rawSpectrum)
 
         val analysis = SpectralAnalysis(
-            spectrum = spectrum.passband().denoise(),
-            peaks = peaks.passband().denoise(),
+            spectrum = postProcessor.processSpectrum(rawSpectrum, config),
+            peaks = postProcessor.processPeaks(rawPeaks, config),
         )
 
         _analysis.value = analysis
         return analysis
     }
-
-    @JvmName("passbandSpectrum")
-    private fun FrequencyBins.passband(): FrequencyBins = filter { it.frequency in audioConditioner.passband }
-
-    @JvmName("passbandPeaks")
-    private fun SpectralPeaks.passband(): SpectralPeaks = filter { it.frequency in audioConditioner.passband }
-
-    @JvmName("denoiseSpectrum")
-    private fun FrequencyBins.denoise(): FrequencyBins = noiseReducer.reduceSpectrum(this)
-
-    @JvmName("denoisePeaks")
-    private fun SpectralPeaks.denoise(): SpectralPeaks = noiseReducer.reducePeaks(this)
 
 }

@@ -10,22 +10,21 @@ import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
 import dsp.windowing.Window
 import extensions.inSeconds
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import math.nextPowerOfTwo
 
 // ENHANCEMENT: Spectral "reassignment method"
 // ENHANCEMENT: Multi-resolution bin generations
 // ENHANCEMENT: Implement equal-loudness contours (ISO 226:2003). Manual SPL number with future plans of external meter?
 class SpectrumCalculator(
-    private val config: SpectralAnalysisConfig = AppConfigSingleton.value.spectralAnalysis,
+    private val config: SpectrumCalculatorConfig = AppConfigSingleton.value.spectralAnalysis.spectrumCalculator,
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
     private val window: Window = config.window.createWindow(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
     private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
 
-    private val frequencyResolution = 1 / config.frameDuration.inSeconds
-
+    // ENHANCEMENT: Pass config via function parameter
     fun calculate(audio: AudioFrame): FrequencyBins {
         val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
         val samplesSizeForDesiredSpacing = (audio.format.sampleRate / config.approximateBinSpacing).toInt()
@@ -46,7 +45,7 @@ class SpectrumCalculator(
     }
 
     private fun filterBins(bins: FrequencyBins, format: AudioFormat): FrequencyBins {
-        val lowestFrequency = frequencyResolution
+        val lowestFrequency = config.frequencyResolution
         val highestFrequency = format.nyquistFrequency
 
         return bins.filter { it.frequency in lowestFrequency..<highestFrequency }
