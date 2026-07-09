@@ -33,10 +33,7 @@ class SpectralAnalyzerIntegrationTests {
             approximateBinSpacing = 1f,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
-        noiseReduction = NoiseReductionConfig(
-            thresholdDb = Double.NEGATIVE_INFINITY,
-            kneeWidthDb = 0.0
-        )
+        noiseReduction = null
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)

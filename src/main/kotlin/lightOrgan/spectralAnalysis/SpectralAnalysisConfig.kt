@@ -4,6 +4,7 @@ import dsp.filtering.FilterConfig
 import dsp.filtering.Passband
 import dsp.windowing.WindowType
 import extensions.inSeconds
+import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducer
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import kotlin.time.Duration
 
@@ -11,7 +12,7 @@ data class SpectralAnalysisConfig(
     val audioConditioner: AudioConditionerConfig,
     val spectrumCalculator: SpectrumCalculatorConfig,
     val peakExtractor: PeakExtractorConfig,
-    val noiseReduction: NoiseReductionConfig,
+    val noiseReduction: NoiseReducer.Config?,
 )
 
 data class AudioConditionerConfig(
@@ -76,17 +77,5 @@ data class SpectrumCalculatorConfig(
 ) {
 
     val frequencyResolution = 1 / frameDuration.inSeconds
-
-}
-
-// ENHANCEMENT: As more reduction strategies are added, this config can become a sealed interface
-data class NoiseReductionConfig(
-    val thresholdDb: Double,
-    val kneeWidthDb: Double,
-) {
-
-    init {
-        require(kneeWidthDb >= 0.0) { "Noise reduction knee width cannot be negative." }
-    }
 
 }

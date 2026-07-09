@@ -59,8 +59,6 @@ class SpectralAnalyzerUnitTests {
 
     @Test
     fun `peaks are extracted from the raw spectrum`() {
-        // This ensures that downstream interpolation is accurate
-
         val sut = createSUT()
 
         sut.analyze(audioFrame, config)
