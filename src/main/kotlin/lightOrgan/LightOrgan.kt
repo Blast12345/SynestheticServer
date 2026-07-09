@@ -10,6 +10,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
+import lightOrgan.spectralAnalysis.SpectralAnalysis
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.Logger
 import utilities.TimestampUtility
@@ -28,12 +29,16 @@ class LightOrgan(
 
     private val timeBetweenColors = TimestampUtility("Time between colors")
 
+    private val _analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
+    val analysis: StateFlow<SpectralAnalysis> = _analysis.asStateFlow()
+
     fun start(
         config: () -> AppConfig = { AppConfigSingleton.value }
     ) {
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
             .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it, config().spectralAnalysis) }
+            .onEach { _analysis.value = it.value }
             .conflate()
             .mapSequenced("Color generation") { colorManager.calculate(it) }
             .conflate()

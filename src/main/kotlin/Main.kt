@@ -8,9 +8,14 @@ import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
+import gui.dashboard.tiles.color.ColorTileViewModel
+import gui.dashboard.tiles.spectralAnalysis.SpectralAnalysisTileViewModel
 import gui.snackbar.SimpleSnackbar
+import gui.tiles.audioInput.AudioInputTileViewModel
+import gui.tiles.gateway.GatewayTileViewModel
 import hotkeys.GainHotkeyListener
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
 import lightOrgan.color.ColorManager
@@ -18,6 +23,7 @@ import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
 import lightOrgan.input.RealAudioInputManager
+import lightOrgan.spectralAnalysis.SpectralAnalysis
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.LogLevel
 import logging.Logger
@@ -44,7 +50,7 @@ fun main(args: Array<String>) {
     if (args.contains("--headless")) {
         launchHeadless(inputManager, gatewayManager)
     } else {
-        launchGUI(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+        launchGUI(inputManager, lightOrgan.analysis, colorManager, gatewayManager)
     }
 }
 
@@ -64,7 +70,7 @@ private fun addHotkeyListeners() {
 
 private fun launchGUI(
     inputManager: AudioInputManager,
-    spectralAnalyzer: SpectralAnalyzer,
+    analysis: StateFlow<SpectralAnalysis>,
     colorManager: ColorManager,
     gatewayManager: GatewayManager,
 ) = application {
@@ -89,11 +95,10 @@ private fun launchGUI(
             ) {
                 val viewModel = remember {
                     DashboardViewModel(
-                        inputManager,
-                        spectralAnalyzer,
-                        colorManager,
-                        gatewayManager,
-                        snackbar.controller
+                        AudioInputTileViewModel(inputManager, snackbar.controller),
+                        SpectralAnalysisTileViewModel(analysis),
+                        ColorTileViewModel(colorManager),
+                        GatewayTileViewModel(gatewayManager, snackbar.controller),
                     )
                 }
 
