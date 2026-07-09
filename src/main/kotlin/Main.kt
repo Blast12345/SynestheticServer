@@ -17,6 +17,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
+import lightOrgan.input.RealAudioInputManager
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.LogLevel
 import logging.Logger
@@ -32,7 +33,7 @@ fun main(args: Array<String>) {
     configureLogger(args)
     addHotkeyListeners()
 
-    val inputManager = AudioInputManager()
+    val inputManager = RealAudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
     val colorManager = ColorManager()
     val gatewayManager = RealGatewayManager()
