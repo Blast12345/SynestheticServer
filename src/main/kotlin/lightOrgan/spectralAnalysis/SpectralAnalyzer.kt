@@ -19,14 +19,17 @@ class SpectralAnalyzer(
     val analysis: StateFlow<SpectralAnalysis> = _analysis.asStateFlow()
 
     // WARNING: Discontinuous data will cause spectral artifacts
-    fun analyze(audio: AudioFrame): SpectralAnalysis {
-        val conditionedAudio = audioConditioner.condition(audio)
+    fun analyze(
+        audio: AudioFrame,
+        config: SpectralAnalysisConfig
+    ): SpectralAnalysis {
+        val conditionedAudio = audioConditioner.condition(audio, config.audioConditioner)
         val spectrum = spectrumCalculator.calculate(conditionedAudio)
         val peaks = peakExtractor.extract(spectrum)
 
         _analysis.value = SpectralAnalysis(
-            spectrum = spectrum.filter { it.frequency in audioConditioner.passband },
-            peaks = peaks.filter { it.frequency in audioConditioner.passband },
+            spectrum = spectrum.filter { it.frequency in config.audioConditioner.passband },
+            peaks = peaks.filter { it.frequency in config.audioConditioner.passband },
         )
 
         return _analysis.value
