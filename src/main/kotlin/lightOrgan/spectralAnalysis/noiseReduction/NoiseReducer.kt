@@ -16,7 +16,7 @@ class NoiseReducerFactory {
 
     fun create(config: NoiseReducer.Config): NoiseReducer {
         return when (config) {
-            is SpectralGateConfig -> SpectralGate(config)
+            is SpectralGate.Config -> SpectralGate(config)
         }
     }
 

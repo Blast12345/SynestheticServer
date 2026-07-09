@@ -6,14 +6,14 @@ import extensions.times
 import org.apache.commons.math3.complex.Complex
 import kotlin.math.pow
 
-data class SpectralGateConfig(
-    val thresholdDb: Double
-) : NoiseReducer.Config
-
 // TODO: Test me
 class SpectralGate(
-    val config: SpectralGateConfig
+    val config: Config
 ) : NoiseReducer {
+
+    data class Config(
+        val thresholdDb: Double
+    ) : NoiseReducer.Config
 
     override fun reduceSpectrum(spectrum: FrequencyBins): FrequencyBins {
         return spectrum.map { bin ->

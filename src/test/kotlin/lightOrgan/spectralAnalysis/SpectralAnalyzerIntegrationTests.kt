@@ -6,7 +6,11 @@ import dsp.filtering.FilterConfig
 import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.windowing.WindowType
-import lightOrgan.spectralAnalysis.*
+import lightOrgan.spectralAnalysis.AudioConditionerConfig
+import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -33,7 +37,7 @@ class SpectralAnalyzerIntegrationTests {
             approximateBinSpacing = 1f,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
-        noiseReduction = null
+        noiseReducer = null
     )
 
     private val audioFormat = AudioFormat(48000f, 16, 1)
@@ -132,7 +136,7 @@ class SpectralAnalyzerIntegrationTests {
     }
 
     // Noise Reduction
-    private val gateAt24Db = NoiseReductionConfig(thresholdDb = -24.0, kneeWidthDb = 0.0)
+    private val gateAt24Db = SpectralGate.Config(thresholdDb = -24.0)
 
     private fun toneFrame(frequency: Float, amplitudeDb: Double): AudioFrame {
         val tone = generateSineWave(frequency, amplitudeDb, audioFormat.sampleRate)
@@ -144,7 +148,7 @@ class SpectralAnalyzerIntegrationTests {
         val sut = createSUT()
         val quietTone = toneFrame(60f, amplitudeDb = -30.0)
 
-        val spectrum = sut.analyze(quietTone, minimalConfig.copy(noiseReduction = gateAt24Db)).spectrum
+        val spectrum = sut.analyze(quietTone, minimalConfig.copy(noiseReducer = gateAt24Db)).spectrum
 
         assertTrue(spectrum.all { it.magnitude == 0f })
     }
@@ -155,7 +159,7 @@ class SpectralAnalyzerIntegrationTests {
         val toneFrequency = 60f
         val loudTone = toneFrame(toneFrequency, amplitudeDb = 0.0)
 
-        val spectrum = sut.analyze(loudTone, minimalConfig.copy(noiseReduction = gateAt24Db)).spectrum
+        val spectrum = sut.analyze(loudTone, minimalConfig.copy(noiseReducer = gateAt24Db)).spectrum
 
         val strongestBin = spectrum.maxBy { it.magnitude } // TODO: Func to find bin closest to freq (with wiggle room)
         assertEquals(toneFrequency, strongestBin.frequency, minimalConfig.spectrumCalculator.approximateBinSpacing)
@@ -167,7 +171,7 @@ class SpectralAnalyzerIntegrationTests {
         val sut = createSUT()
         val quietTone = toneFrame(60f, amplitudeDb = -30.0)
 
-        val peaks = sut.analyze(quietTone, minimalConfig.copy(noiseReduction = gateAt24Db)).peaks
+        val peaks = sut.analyze(quietTone, minimalConfig.copy(noiseReducer = gateAt24Db)).peaks
 
         assertEquals(0, peaks.size)
     }
@@ -178,7 +182,7 @@ class SpectralAnalyzerIntegrationTests {
         val toneFrequency = 60f
         val loudTone = toneFrame(toneFrequency, amplitudeDb = 0.0)
 
-        val peaks = sut.analyze(loudTone, minimalConfig.copy(noiseReduction = gateAt24Db)).peaks
+        val peaks = sut.analyze(loudTone, minimalConfig.copy(noiseReducer = gateAt24Db)).peaks
 
         val strongestPeak = peaks.maxBy { it.magnitude }
         assertEquals(toneFrequency, strongestPeak.frequency, minimalConfig.spectrumCalculator.approximateBinSpacing)

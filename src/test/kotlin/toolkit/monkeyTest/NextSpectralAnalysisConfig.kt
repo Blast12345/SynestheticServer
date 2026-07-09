@@ -2,9 +2,10 @@ package toolkit.monkeyTest
 
 import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
-import lightOrgan.spectralAnalysis.NoiseReductionConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
+import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducer
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import kotlin.random.Random
 
 fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
@@ -12,7 +13,7 @@ fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
         audioConditioner = nextAudioConditionerConfig(),
         spectrumCalculator = nextSpectrumCalculatorConfig(),
         peakExtractor = nextPeakExtractorConfig(),
-        noiseReduction = nextNoiseReductionConfig()
+        noiseReducer = nextNoiseReducerConfig()
     )
 }
 
@@ -34,9 +35,15 @@ fun nextSpectrumCalculatorConfig(): SpectrumCalculatorConfig {
     )
 }
 
-fun nextNoiseReductionConfig(): NoiseReductionConfig {
-    return NoiseReductionConfig(
-        thresholdDb = Random.nextDouble(),
-        kneeWidthDb = Random.nextDouble()
+// TODO: Move me
+fun nextNoiseReducerConfig(): NoiseReducer.Config {
+    return listOf(
+        nextSpectralGateConfig()
+    ).random()
+}
+
+fun nextSpectralGateConfig(): SpectralGate.Config {
+    return SpectralGate.Config(
+        thresholdDb = Random.nextDouble()
     )
 }

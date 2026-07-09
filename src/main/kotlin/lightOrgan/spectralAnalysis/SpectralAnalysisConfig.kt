@@ -12,7 +12,7 @@ data class SpectralAnalysisConfig(
     val audioConditioner: AudioConditionerConfig,
     val spectrumCalculator: SpectrumCalculatorConfig,
     val peakExtractor: PeakExtractorConfig,
-    val noiseReduction: NoiseReducer.Config?,
+    val noiseReducer: NoiseReducer.Config?,
 )
 
 data class AudioConditionerConfig(

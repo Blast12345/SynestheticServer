@@ -8,7 +8,7 @@ import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
-import lightOrgan.spectralAnalysis.noiseReduction.SpectralGateConfig
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
@@ -29,7 +29,7 @@ val DefaultAppConfig = AppConfig(
                 frequency = tuning.getFrequency(tuning.A, octave = 2),
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
-            rolloffThreshold = -48f, // TODO: unrealistic input crashes
+            rolloffThreshold = -48f,
             decimate = true
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
@@ -38,7 +38,7 @@ val DefaultAppConfig = AppConfig(
             approximateBinSpacing = 1f,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
-        noiseReduction = SpectralGateConfig(thresholdDb = -24.0)
+        noiseReducer = SpectralGate.Config(thresholdDb = -24.0)
     ),
     gateway = GatewayConfig(
         autoReconnect = true,

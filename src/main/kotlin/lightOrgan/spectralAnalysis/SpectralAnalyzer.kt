@@ -31,8 +31,8 @@ class SpectralAnalyzer(
         val rawPeaks = peakExtractor.extract(rawSpectrum)
 
         val analysis = SpectralAnalysis(
-            spectrum = postProcessor.processSpectrum(rawSpectrum, config.audioConditioner.passband, config.noiseReduction),
-            peaks = postProcessor.processPeaks(rawPeaks, config.audioConditioner.passband, config.noiseReduction),
+            spectrum = postProcessor.processSpectrum(rawSpectrum, config.audioConditioner.passband, config.noiseReducer),
+            peaks = postProcessor.processPeaks(rawPeaks, config.audioConditioner.passband, config.noiseReducer),
         )
 
         _analysis.value = analysis
