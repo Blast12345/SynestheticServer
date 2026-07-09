@@ -1,5 +1,7 @@
 package lightOrgan
 
+import color.StandardRgbColor
+import color.StandardRgbColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
@@ -8,6 +10,7 @@ import lightOrgan.color.ColorManager
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
+import lightOrgan.spectralAnalysis.SpectralAnalysis
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.Logger
 import utilities.TimestampUtility
@@ -24,14 +27,22 @@ class LightOrgan(
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) {
 
-    private val timeBetweenColors = TimestampUtility("Time between colors")
+    private val _spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
+    val spectralAnalysis: StateFlow<SpectralAnalysis> = _spectralAnalysis.asStateFlow()
+
+    private val _color = MutableStateFlow(StandardRgbColors.Black)
+    val color: StateFlow<StandardRgbColor> = _color.asStateFlow()
 
     fun start() {
+        val timeBetweenColors = TimestampUtility("Time between colors")
+
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
             .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
+            .onEach { _spectralAnalysis.value = it.value }
             .conflate()
             .mapSequenced("Color generation") { colorManager.calculate(it) }
+            .onEach { _color.value = it.value }
             .conflate()
             .onEachSequenced("Gateway broadcast") { gatewayManager.gateway?.broadcastColor(it) }
             .onEach { timeBetweenColors.logTimeSinceLast() }
