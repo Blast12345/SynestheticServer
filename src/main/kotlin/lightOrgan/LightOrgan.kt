@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
@@ -22,25 +22,27 @@ import utilities.coroutines.onEachSequenced
 class LightOrgan(
     private val inputManager: AudioInputManager,
     private val spectralAnalyzer: SpectralAnalyzer,
-    private val colorManager: ColorManager,
+    private val colorCalculator: ColorCalculator,
     private val gatewayManager: GatewayManager,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) {
 
-    private val timeBetweenColors = TimestampUtility("Time between colors")
+    private val _spectralAnalysis = MutableStateFlow(SpectralAnalysis.EMPTY)
+    val spectralAnalysis: StateFlow<SpectralAnalysis> = _spectralAnalysis.asStateFlow()
 
-    private val _analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
-    val analysis: StateFlow<SpectralAnalysis> = _analysis.asStateFlow()
+    private val _color = MutableStateFlow(StandardRgbColors.Black)
+    val color: StateFlow<StandardRgbColor> = _color.asStateFlow()
 
-    fun start(
-        config: () -> AppConfig = { AppConfigSingleton.value }
-    ) {
+    fun start() {
+        val timeBetweenColors = TimestampUtility("Time between colors")
+
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it, config().spectralAnalysis) }
-            .onEach { _analysis.value = it.value }
+            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
+            .onEach { _spectralAnalysis.value = it.value }
             .conflate()
-            .mapSequenced("Color generation") { colorManager.calculate(it) }
+            .mapSequenced("Color generation") { colorCalculator.calculate(it) }
+            .onEach { _color.value = it.value }
             .conflate()
             .onEachSequenced("Gateway broadcast") { gatewayManager.gateway?.broadcastColor(it) }
             .onEach { timeBetweenColors.logTimeSinceLast() }
@@ -59,7 +61,7 @@ class LightOrgan(
         onGap = { Logger.warning("$label is slow, dropped $it") }
     )
 
-    fun <T> Flow<Sequenced<T>>.onEachSequenced(
+    private fun <T> Flow<Sequenced<T>>.onEachSequenced(
         label: String,
         action: suspend (T) -> Unit
     ): Flow<Sequenced<T>> = onEachSequenced(

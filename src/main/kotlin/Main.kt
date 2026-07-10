@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import color.StandardRgbColor
 import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
@@ -18,7 +19,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
@@ -41,16 +42,16 @@ fun main(args: Array<String>) {
 
     val inputManager = RealAudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
-    val colorManager = ColorManager()
+    val colorCalculator = ColorCalculator()
     val gatewayManager = RealGatewayManager()
 
-    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
     lightOrgan.start()
 
     if (args.contains("--headless")) {
         launchHeadless(inputManager, gatewayManager)
     } else {
-        launchGUI(inputManager, lightOrgan.analysis, colorManager, gatewayManager)
+        launchGUI(inputManager, lightOrgan.spectralAnalysis, lightOrgan.color, gatewayManager)
     }
 }
 
@@ -70,8 +71,8 @@ private fun addHotkeyListeners() {
 
 private fun launchGUI(
     inputManager: AudioInputManager,
-    analysis: StateFlow<SpectralAnalysis>,
-    colorManager: ColorManager,
+    spectralAnalysis: StateFlow<SpectralAnalysis>,
+    color: StateFlow<StandardRgbColor>,
     gatewayManager: GatewayManager,
 ) = application {
     val minimumWidth = 1200
@@ -96,8 +97,8 @@ private fun launchGUI(
                 val viewModel = remember {
                     DashboardViewModel(
                         AudioInputTileViewModel(inputManager, snackbar.controller),
-                        SpectralAnalysisTileViewModel(analysis),
-                        ColorTileViewModel(colorManager),
+                        SpectralAnalysisTileViewModel(spectralAnalysis),
+                        ColorTileViewModel(color),
                         GatewayTileViewModel(gatewayManager, snackbar.controller),
                     )
                 }
