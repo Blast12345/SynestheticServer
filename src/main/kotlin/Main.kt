@@ -4,20 +4,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import color.StandardRgbColor
 import com.github.kwhat.jnativehook.GlobalScreen
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
+import gui.dashboard.tiles.color.ColorTileViewModel
+import gui.dashboard.tiles.spectralAnalysis.SpectralAnalysisTileViewModel
 import gui.snackbar.SimpleSnackbar
+import gui.tiles.audioInput.AudioInputTileViewModel
+import gui.tiles.gateway.GatewayTileViewModel
 import hotkeys.GainHotkeyListener
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
 import lightOrgan.input.RealAudioInputManager
+import lightOrgan.spectralAnalysis.SpectralAnalysis
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.LogLevel
 import logging.Logger
@@ -35,16 +42,16 @@ fun main(args: Array<String>) {
 
     val inputManager = RealAudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
-    val colorManager = ColorManager()
+    val colorCalculator = ColorCalculator()
     val gatewayManager = RealGatewayManager()
 
-    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
     lightOrgan.start()
 
     if (args.contains("--headless")) {
         launchHeadless(inputManager, gatewayManager)
     } else {
-        launchGUI(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+        launchGUI(inputManager, lightOrgan.spectralAnalysis, lightOrgan.color, gatewayManager)
     }
 }
 
@@ -64,8 +71,8 @@ private fun addHotkeyListeners() {
 
 private fun launchGUI(
     inputManager: AudioInputManager,
-    spectralAnalyzer: SpectralAnalyzer,
-    colorManager: ColorManager,
+    spectralAnalysis: StateFlow<SpectralAnalysis>,
+    color: StateFlow<StandardRgbColor>,
     gatewayManager: GatewayManager,
 ) = application {
     val minimumWidth = 1200
@@ -89,11 +96,10 @@ private fun launchGUI(
             ) {
                 val viewModel = remember {
                     DashboardViewModel(
-                        inputManager,
-                        spectralAnalyzer,
-                        colorManager,
-                        gatewayManager,
-                        snackbar.controller
+                        AudioInputTileViewModel(inputManager, snackbar.controller),
+                        SpectralAnalysisTileViewModel(spectralAnalysis),
+                        ColorTileViewModel(color),
+                        GatewayTileViewModel(gatewayManager, snackbar.controller),
                     )
                 }
 
