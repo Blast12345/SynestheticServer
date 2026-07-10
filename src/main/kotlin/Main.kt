@@ -19,7 +19,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import lightOrgan.LightOrgan
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.gateway.RealGatewayManager
 import lightOrgan.input.AudioInputManager
@@ -42,10 +42,10 @@ fun main(args: Array<String>) {
 
     val inputManager = RealAudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
-    val colorManager = ColorManager()
+    val colorCalculator = ColorCalculator()
     val gatewayManager = RealGatewayManager()
 
-    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorManager, gatewayManager)
+    val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
     lightOrgan.start()
 
     if (args.contains("--headless")) {

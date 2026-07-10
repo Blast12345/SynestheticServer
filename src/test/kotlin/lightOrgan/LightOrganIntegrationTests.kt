@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.FakeGatewayManager
 import lightOrgan.gateway.GatewayConfig
 import lightOrgan.input.FakeAudioInputManager
@@ -68,7 +68,7 @@ class LightOrganIntegrationTests {
         return LightOrgan(
             inputManager = fakeAudioInputManager,
             spectralAnalyzer = SpectralAnalyzer(),
-            colorManager = ColorManager(),
+            colorCalculator = ColorCalculator(),
             gatewayManager = fakeGatewayManager,
             scope = scope
         )

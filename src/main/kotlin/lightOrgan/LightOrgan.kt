@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-import lightOrgan.color.ColorManager
+import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.Gateway
 import lightOrgan.gateway.GatewayManager
 import lightOrgan.input.AudioInputManager
@@ -22,7 +22,7 @@ import utilities.coroutines.onEachSequenced
 class LightOrgan(
     private val inputManager: AudioInputManager,
     private val spectralAnalyzer: SpectralAnalyzer,
-    private val colorManager: ColorManager,
+    private val colorCalculator: ColorCalculator,
     private val gatewayManager: GatewayManager,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) {
@@ -41,7 +41,7 @@ class LightOrgan(
             .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
             .onEach { _spectralAnalysis.value = it.value }
             .conflate()
-            .mapSequenced("Color generation") { colorManager.calculate(it) }
+            .mapSequenced("Color generation") { colorCalculator.calculate(it) }
             .onEach { _color.value = it.value }
             .conflate()
             .onEachSequenced("Gateway broadcast") { gatewayManager.gateway?.broadcastColor(it) }

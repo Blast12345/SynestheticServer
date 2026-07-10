@@ -5,7 +5,7 @@ import lightOrgan.spectralAnalysis.SpectralAnalysis
 
 // ENHANCEMENT: OKLCH (or other perceptually balanced spectrum)
 // ENHANCEMENT: Force a given hue, saturation, or color.
-class ColorManager(
+class ColorCalculator(
     private val colorAlgorithm: ColorAlgorithm = ColorWheelAlgorithm(),
 ) {
 
