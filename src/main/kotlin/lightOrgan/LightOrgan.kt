@@ -61,7 +61,7 @@ class LightOrgan(
         onGap = { Logger.warning("$label is slow, dropped $it") }
     )
 
-    fun <T> Flow<Sequenced<T>>.onEachSequenced(
+    private fun <T> Flow<Sequenced<T>>.onEachSequenced(
         label: String,
         action: suspend (T) -> Unit
     ): Flow<Sequenced<T>> = onEachSequenced(
