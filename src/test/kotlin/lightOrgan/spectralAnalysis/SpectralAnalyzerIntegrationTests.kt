@@ -4,34 +4,17 @@ import dsp.filtering.FilterConfig
 import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.peakExtraction.nearestTo
-import dsp.windowing.WindowType
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
-import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import toolkit.generators.TestToneGenerator
 import toolkit.generators.Tone
-import kotlin.time.Duration.Companion.milliseconds
+import toolkit.minimalAppConfig
 
 class SpectralAnalyzerIntegrationTests {
 
-    // TODO: Create a shared minimal config
-    private val minimalConfig = SpectralAnalysisConfig(
-        audioConditioner = AudioConditionerConfig(
-            gainDb = 0f,
-            highPassFilter = null,
-            lowPassFilter = null,
-            rolloffThreshold = null,
-            decimate = true
-        ),
-        frameDuration = 50.milliseconds, // 20 Hz spacing
-        approximateBinSpacing = 1f,
-        window = WindowType.Hann,
-        peakExtractor = PeakExtractorConfig.Parabolic,
-    )
+    private val minimalConfig = minimalAppConfig.spectralAnalysis
     private val frequencyTolerance = minimalConfig.approximateBinSpacing
     private val magnitudeTolerance = 0.1f
 

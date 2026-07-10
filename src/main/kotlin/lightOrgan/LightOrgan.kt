@@ -3,7 +3,6 @@ package lightOrgan
 import color.StandardRgbColor
 import color.StandardRgbColors
 import config.AppConfig
-import config.AppConfigSingleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
@@ -36,7 +35,7 @@ class LightOrgan(
     val color: StateFlow<StandardRgbColor> = _color.asStateFlow()
 
     fun start(
-        config: () -> AppConfig = { AppConfigSingleton.value }
+        config: () -> AppConfig
     ) {
         val timeBetweenColors = TimestampUtility("Time between colors")
 
