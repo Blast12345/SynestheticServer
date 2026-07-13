@@ -89,7 +89,7 @@ class SpectralAnalyzerIntegrationTests {
 
     private val passbandConfig = minimalConfig.copy(
         audioConditioner = minimalConfig.audioConditioner.copy(
-            rolloffThreshold = rolloffThreshold,
+            rolloffThresholdDb = rolloffThreshold,
             highPassFilter = FilterConfig.HighPass(
                 frequency = highPassCutoff,
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(filterDbPerOctave)),

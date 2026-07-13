@@ -3,8 +3,8 @@ package toolkit
 import config.AppConfig
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.seconds
@@ -15,7 +15,7 @@ val minimalAppConfig = AppConfig(
             gainDb = 0f,
             highPassFilter = null,
             lowPassFilter = null,
-            rolloffThreshold = null,
+            rolloffThresholdDb = null,
             decimate = false
         ),
         frameDuration = 1.seconds,

@@ -1,8 +1,10 @@
 package lightOrgan
 
 import color.StandardRgbColors
+import config.AppConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import lightOrgan.color.ColorCalculator
@@ -28,6 +30,8 @@ class LightOrganIntegrationTests {
     private val cFrequency = westernTuning.getFrequency(westernTuning.C, 4)
     private val fSharpFrequency = westernTuning.getFrequency(westernTuning.F_SHARP, 4)
 
+    private val frequencyTolerance = minimalAppConfig.spectralAnalysis.approximateBinSpacing
+
     @BeforeEach
     fun setup() {
         fakeAudioInputManager = FakeAudioInputManager()
@@ -44,47 +48,46 @@ class LightOrganIntegrationTests {
         )
     }
 
+    private fun TestScope.startLightOrgan(config: AppConfig = minimalAppConfig): LightOrgan {
+        val sut = createSUT(backgroundScope)
+        sut.start(config = { config })
+        runCurrent()
+        return sut
+    }
+
     // Spectral analysis
     @Test
     fun `before any audio arrives, the analysis is empty`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         assertEquals(SpectralAnalysis.EMPTY, sut.spectralAnalysis.value)
     }
 
     @Test
     fun `when a tone is played, then the dominant bin is near that frequency`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
 
-        val dominantBin = sut.spectralAnalysis.value.spectrum.maxByOrNull { it.magnitude }!!
-        assertEquals(cFrequency, dominantBin.frequency, minimalAppConfig.spectralAnalysis.approximateBinSpacing)
+        val dominantBin = sut.spectralAnalysis.value.spectrum.maxBy { it.magnitude }
+        assertEquals(cFrequency, dominantBin.frequency, frequencyTolerance)
     }
 
     @Test
     fun `when a tone is played, then the dominant peak is near that frequency`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
 
-        val dominantPeak = sut.spectralAnalysis.value.peaks.maxByOrNull { it.magnitude }!!
-        assertEquals(cFrequency, dominantPeak.frequency, minimalAppConfig.spectralAnalysis.approximateBinSpacing)
+        val dominantPeak = sut.spectralAnalysis.value.peaks.maxBy { it.magnitude }
+        assertEquals(cFrequency, dominantPeak.frequency, frequencyTolerance)
     }
 
     @Test
     fun `when a second tone is played, then the analysis reflects the new tone`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
@@ -92,25 +95,21 @@ class LightOrganIntegrationTests {
         fakeAudioInputManager.emitTone(fSharpFrequency)
         runCurrent()
 
-        val dominantPeak = sut.spectralAnalysis.value.peaks.maxByOrNull { it.magnitude }!!
-        assertEquals(fSharpFrequency, dominantPeak.frequency, minimalAppConfig.spectralAnalysis.approximateBinSpacing)
+        val dominantPeak = sut.spectralAnalysis.value.peaks.maxBy { it.magnitude }
+        assertEquals(fSharpFrequency, dominantPeak.frequency, frequencyTolerance)
     }
 
     // Color flow
     @Test
     fun `before any audio arrives, the color is black`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         assertEquals(StandardRgbColors.Black, sut.color.value)
     }
 
     @Test
-    fun `when tone is played, then a color is emitted`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+    fun `when a tone is played, then a color is emitted`() = runTest {
+        val sut = startLightOrgan(minimalAppConfig)
 
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
@@ -120,9 +119,7 @@ class LightOrganIntegrationTests {
 
     @Test
     fun `when a second tone is played, then the color changes`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
 
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
@@ -138,8 +135,8 @@ class LightOrganIntegrationTests {
     // Broadcast
     @Test
     fun `before any audio arrives, nothing was broadcast`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
+        val sut = startLightOrgan(minimalAppConfig)
+
         fakeGatewayManager.connect()
         runCurrent()
 
@@ -148,8 +145,7 @@ class LightOrganIntegrationTests {
 
     @Test
     fun `when a tone is played, then the current color is broadcast`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
+        val sut = startLightOrgan(minimalAppConfig)
         fakeGatewayManager.connect()
         runCurrent()
 
@@ -161,9 +157,8 @@ class LightOrganIntegrationTests {
 
     @Test
     fun `when a gateway connects after audio has started, then subsequent colors are broadcast`() = runTest {
-        val sut = createSUT(backgroundScope)
-        sut.start(config = { minimalAppConfig })
-        runCurrent()
+        val sut = startLightOrgan(minimalAppConfig)
+
         fakeAudioInputManager.emitTone(cFrequency)
         runCurrent()
 

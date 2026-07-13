@@ -2,7 +2,7 @@ package dsp.filtering
 
 data class Passband(
     val lowerFrequency: Float,
-    val higherFrequency: Float,
+    val upperFrequency: Float,
 ) {
 
     companion object {
@@ -10,7 +10,7 @@ data class Passband(
     }
 
     operator fun contains(frequency: Float): Boolean {
-        return frequency in lowerFrequency..higherFrequency
+        return frequency in lowerFrequency..upperFrequency
     }
 
 }

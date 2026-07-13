@@ -6,7 +6,6 @@ import dsp.Gain
 import dsp.MonoMixer
 import dsp.filtering.FilterConfig
 import dsp.filtering.StatefulFilter
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import utilities.CachedProvider
 import kotlin.math.min
 
@@ -43,7 +42,7 @@ class AudioConditioner(
         }
 
         if (config.decimate && lowPassFilter != null) {
-            val targetNyquist = min(config.passband.higherFrequency, conditionedAudio.format.sampleRate / 2f) // TODO: Test me
+            val targetNyquist = min(config.passband.upperFrequency, conditionedAudio.format.sampleRate / 2f) // TODO: Test me
             conditionedAudio = decimate(conditionedAudio, targetNyquist)
         }
 
