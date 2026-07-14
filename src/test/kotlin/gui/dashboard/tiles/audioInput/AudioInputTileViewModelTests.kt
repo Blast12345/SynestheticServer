@@ -4,6 +4,7 @@ import gui.snackbar.SnackbarController
 import gui.tiles.audioInput.AudioInputTileViewModel
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
