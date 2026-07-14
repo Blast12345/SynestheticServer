@@ -2,7 +2,6 @@ package toolkit.monkeyTest
 
 import kotlin.random.Random
 
-
 fun nextFloat(min: Float = 1f, max: Float = 1024f): Float {
     require(min < max) { "min must be less than max" }
 
