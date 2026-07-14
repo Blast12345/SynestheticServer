@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import toolkit.minimalAppConfig
+import toolkit.monkeyTest.nextNegativeFloat
 import toolkit.monkeyTest.nextPositiveFloat
 
 class AudioConditionerConfigTests {
 
     private val minimalConfig = minimalAppConfig.spectralAnalysis.audioConditioner
 
-    private val threshold = nextPositiveFloat() // TODO: Negative
+    private val threshold = nextNegativeFloat()
     private val highPassFilter: FilterConfig.HighPass = mockk()
     private val lowPassFilter: FilterConfig.LowPass = mockk()
 
