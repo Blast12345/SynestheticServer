@@ -18,12 +18,12 @@ class AudioConditionerConfigTests {
     private val lowPassFilter: FilterConfig.LowPass = mockk()
 
     private val lowerFrequency = nextPositiveFloat()
-    private val upperFrequency = nextPositiveFloat()
+    private val higherFrequency = nextPositiveFloat()
 
     @BeforeEach
     fun setupHappyPath() {
         every { highPassFilter.frequencyAt(threshold) } returns lowerFrequency
-        every { lowPassFilter.frequencyAt(threshold) } returns upperFrequency
+        every { lowPassFilter.frequencyAt(threshold) } returns higherFrequency
     }
 
     // Passband
@@ -36,7 +36,7 @@ class AudioConditionerConfigTests {
         )
 
         assertEquals(0f, sut.passband.lowerFrequency)
-        assertEquals(Float.POSITIVE_INFINITY, sut.passband.upperFrequency)
+        assertEquals(Float.POSITIVE_INFINITY, sut.passband.higherFrequency)
     }
 
     @Test
@@ -61,24 +61,24 @@ class AudioConditionerConfigTests {
     }
 
     @Test
-    fun `given a rolloff threshold and a low pass filter, the passband's upper frequency is the filter's frequency at that threshold`() {
+    fun `given a rolloff threshold and a low pass filter, the passband's higher frequency is the filter's frequency at that threshold`() {
         val sut = minimalConfig.copy(
             rolloffThresholdDb = threshold,
             lowPassFilter = lowPassFilter
         )
 
-        assertEquals(upperFrequency, sut.passband.upperFrequency)
+        assertEquals(higherFrequency, sut.passband.higherFrequency)
     }
 
     @Test
-    fun `given a rolloff threshold but no low pass filter, the passband's upper frequency is positive infinity`() {
+    fun `given a rolloff threshold but no low pass filter, the passband's higher frequency is positive infinity`() {
         val sut = minimalConfig.copy(
             rolloffThresholdDb = threshold,
             highPassFilter = highPassFilter,
             lowPassFilter = null
         )
 
-        assertEquals(Float.POSITIVE_INFINITY, sut.passband.upperFrequency)
+        assertEquals(Float.POSITIVE_INFINITY, sut.passband.higherFrequency)
     }
 
 }

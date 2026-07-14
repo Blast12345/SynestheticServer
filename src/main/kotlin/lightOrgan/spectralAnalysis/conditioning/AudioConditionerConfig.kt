@@ -17,7 +17,7 @@ data class AudioConditionerConfig(
 
             return Passband(
                 lowerFrequency = highPassFilter?.frequencyAt(threshold) ?: 0f,
-                upperFrequency = lowPassFilter?.frequencyAt(threshold) ?: Float.POSITIVE_INFINITY,
+                higherFrequency = lowPassFilter?.frequencyAt(threshold) ?: Float.POSITIVE_INFINITY,
             )
         }
 

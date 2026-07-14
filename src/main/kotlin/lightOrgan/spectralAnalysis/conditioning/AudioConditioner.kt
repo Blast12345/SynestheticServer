@@ -42,7 +42,7 @@ class AudioConditioner(
         }
 
         if (config.decimate && lowPassFilter != null) {
-            val targetNyquist = min(config.passband.upperFrequency, conditionedAudio.format.sampleRate / 2f) // TODO: Test me
+            val targetNyquist = min(config.passband.higherFrequency, conditionedAudio.format.sampleRate / 2f) // TODO: Test me
             conditionedAudio = decimate(conditionedAudio, targetNyquist)
         }
 
