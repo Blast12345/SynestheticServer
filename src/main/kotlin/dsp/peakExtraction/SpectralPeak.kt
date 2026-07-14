@@ -11,7 +11,7 @@ data class SpectralPeak(
 
 typealias SpectralPeaks = List<SpectralPeak>
 
-fun List<SpectralPeak>.nearestTo(frequency: Float): SpectralPeak = minBy { abs(it.frequency - frequency) }
+fun List<SpectralPeak>.nearestTo(frequency: Float): SpectralPeak? = minByOrNull { abs(it.frequency - frequency) }
 
 /**
  * Since peaks are at distinct frequencies, their energies sum directly.

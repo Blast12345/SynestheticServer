@@ -70,11 +70,11 @@ class SpectralAnalyzerIntegrationTests {
         val frame = toneGenerator.generate(tone1, tone2)
         val peaks = sut.analyze(frame, minimalConfig).peaks
 
-        val peak1 = peaks.nearestTo(tone1.frequency)
+        val peak1 = peaks.nearestTo(tone1.frequency)!!
         assertEquals(tone1.frequency, peak1.frequency, frequencyTolerance)
         assertEquals(tone1.amplitude, peak1.magnitude, magnitudeTolerance)
 
-        val peak2 = peaks.nearestTo(tone2.frequency)
+        val peak2 = peaks.nearestTo(tone2.frequency)!!
         assertEquals(tone2.frequency, peak2.frequency, frequencyTolerance)
         assertEquals(tone2.amplitude, peak2.magnitude, magnitudeTolerance)
     }
@@ -119,7 +119,7 @@ class SpectralAnalyzerIntegrationTests {
         val frame = toneGenerator.generate(outOfBandTone, inBandTone)
         val peaks = sut.analyze(frame, passbandConfig).peaks
 
-        val inBandPeak = peaks.nearestTo(inBandTone.frequency)
+        val inBandPeak = peaks.nearestTo(inBandTone.frequency)!!
         assertEquals(inBandTone.frequency, inBandPeak.frequency, frequencyTolerance, "In-band tone should survive filtering.")
         assertTrue(peaks.all { it.frequency in passbandConfig.audioConditioner.passband }, "No peaks should escape the passband.")
     }
