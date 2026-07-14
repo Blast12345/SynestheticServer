@@ -43,6 +43,7 @@ class AudioInputTileViewModelTests {
 
     @AfterEach
     fun tearDown() {
+        sutScope.cancel()
         clearAllMocks()
     }
 
