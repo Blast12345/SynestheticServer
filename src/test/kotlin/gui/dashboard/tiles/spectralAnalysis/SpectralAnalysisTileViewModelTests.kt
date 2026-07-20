@@ -1,56 +1,67 @@
 package gui.dashboard.tiles.spectralAnalysis
 
-import io.mockk.clearAllMocks
+import dsp.bins.FrequencyBin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import lightOrgan.spectralAnalysis.SpectralAnalyzerFixture
-import org.junit.jupiter.api.AfterEach
+import kotlinx.coroutines.flow.MutableStateFlow
+import lightOrgan.spectralAnalysis.SpectralAnalysis
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import toolkit.monkeyTest.nextSpectralAnalysis
+import org.junit.jupiter.api.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SpectralAnalysisTileViewModelTests {
 
-    private lateinit var spectralAnalyzer: SpectralAnalyzerFixture
-
-    private val spectralAnalysis = nextSpectralAnalysis()
-
-    @BeforeEach
-    fun setupHappyPath() {
-        spectralAnalyzer = SpectralAnalyzerFixture.create()
-    }
-
-    @AfterEach
-    fun tearDown() {
-        clearAllMocks()
-    }
+    private val analysis = MutableStateFlow(SpectralAnalysis.EMPTY)
 
     private fun createSUT(): SpectralAnalysisTileViewModel {
-        return SpectralAnalysisTileViewModel(
-            spectralAnalyzer = spectralAnalyzer.mock
-        )
+        return SpectralAnalysisTileViewModel(analysis)
+    }
+
+    private fun analysisWithBins(count: Int): SpectralAnalysis {
+        val spectrum = List(count) { index ->
+            FrequencyBin(frequency = 100f * (index + 1), magnitude = 1.0)
+        }
+        return SpectralAnalysis(spectrum = spectrum, peaks = emptyList())
+    }
+
+    // Highlighted bin
+    @Test
+    fun `given no highlighted index, then there is no highlighted bin`() {
+        val sut = createSUT()
+        analysis.value = analysisWithBins(3)
+
+        assertNull(sut.highlightedBin)
     }
 
     @Test
-    fun `when new frequency bins are available, then update the displayed spectrum`() {
+    fun `given a highlighted index, then the highlighted bin is the bin at that index`() {
         val sut = createSUT()
+        analysis.value = analysisWithBins(3)
 
-        spectralAnalyzer.analysis.value = spectralAnalysis
+        sut.highlightedIndex = 1
 
-        assertEquals(spectralAnalysis.spectrum, sut.analysis.value.spectrum)
+        assertEquals(analysis.value.spectrum[1], sut.highlightedBin)
     }
 
     @Test
-    fun `highlight a frequency bin`() {
+    fun `given an out of bounds highlighted index, then there is no highlighted bin`() {
         val sut = createSUT()
-        spectralAnalyzer.analysis.value = spectralAnalysis
+        analysis.value = analysisWithBins(3)
 
-        val randomBin = spectralAnalysis.spectrum.random()
-        val binIndex = spectralAnalysis.spectrum.indexOf(randomBin)
-        sut.highlightedIndex = binIndex
+        sut.highlightedIndex = 5
 
-        assertEquals(randomBin, sut.highlightedBin)
+        assertNull(sut.highlightedBin)
+    }
+
+    @Test
+    fun `when the spectrum shrinks below the highlighted index, then there is no highlighted bin`() {
+        val sut = createSUT()
+        analysis.value = analysisWithBins(3)
+        sut.highlightedIndex = 2
+
+        analysis.value = analysisWithBins(1)
+
+        assertNull(sut.highlightedBin)
     }
 
 }

@@ -10,7 +10,6 @@ import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
 import dsp.windowing.Window
 import extensions.inSeconds
-import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import math.nextPowerOfTwo
 
 // ENHANCEMENT: Spectral "reassignment method"

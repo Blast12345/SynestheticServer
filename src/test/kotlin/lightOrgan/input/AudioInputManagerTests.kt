@@ -47,8 +47,8 @@ class AudioInputManagerTests {
         clearAllMocks()
     }
 
-    private fun createSUT(): AudioInputManager {
-        return AudioInputManager(
+    private fun createSUT(): RealAudioInputManager {
+        return RealAudioInputManager(
             currentAudioInput = currentAudioInputFlow,
             audioInputFinder = audioInputFinder,
             scope = sutScope

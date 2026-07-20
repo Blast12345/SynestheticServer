@@ -1,5 +1,6 @@
 package dsp.peakExtraction
 
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -9,6 +10,8 @@ data class SpectralPeak(
 )
 
 typealias SpectralPeaks = List<SpectralPeak>
+
+fun List<SpectralPeak>.nearestTo(frequency: Float): SpectralPeak? = minByOrNull { abs(it.frequency - frequency) }
 
 /**
  * Since peaks are at distinct frequencies, their energies sum directly.

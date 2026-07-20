@@ -2,7 +2,6 @@ package lightOrgan.spectralAnalysis.spectrum
 
 import audio.samples.AudioFormat
 import dsp.windowing.WindowType
-import lightOrgan.spectralAnalysis.SpectrumCalculatorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

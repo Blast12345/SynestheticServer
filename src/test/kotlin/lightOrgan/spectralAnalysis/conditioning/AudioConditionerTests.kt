@@ -7,56 +7,51 @@ import dsp.filtering.StatefulFilter
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
+import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import toolkit.minimalAppConfig
 import toolkit.monkeyTest.*
 
 class AudioConditionerTests {
 
-    private val minimalConfig = AudioConditionerConfig(
-        gainDb = 0f,
-        highPassFilter = null,
-        lowPassFilter = null,
-        rolloffThreshold = -3f,
-        decimate = false
-    )
+    private val minimalConfig = minimalAppConfig.spectralAnalysis.audioConditioner
+    private val sampleRate = 48000f
+    private val nyquistFrequency = sampleRate / 2
+
+    private val highPassConfig = nextHighPassConfig()
+    private val lowPassConfigBelowNyquist = nextLowPassConfig(nyquistFrequency / 2f)
+    private val lowPassAboveNyquist = nextLowPassConfig(nyquistFrequency * 2f)
 
     private val monoMixer: MonoMixer = mockk()
     private val gain: Gain = mockk()
     private val filterFactory: FilterFactory = mockk()
+    private val highPassFilter: StatefulFilter = mockk()
+    private val lowPassFilter: StatefulFilter = mockk()
     private val decimator: Decimator = mockk()
 
-    private val stereoAudio = nextAudioFrame(format = nextAudioFormat(channels = 2))
-    private val monoAudio = nextAudioFrame(format = nextAudioFormat(channels = 1))
+    private val stereoAudio = nextAudioFrame(format = nextAudioFormat(sampleRate, channels = 2))
+    private val monoAudio = nextAudioFrame(format = nextAudioFormat(sampleRate, channels = 1))
     private val gainedSamples = nextFloatArray()
-    private val decimationFactor = 4
+    private val highPassedSamples = nextFloatArray()
+    private val lowPassedSamples = nextFloatArray()
+    private val decimationFactor = nextInt()
     private val decimatedAudio = nextAudioFrame()
-
-    private val highPassConfig = nextHighPassConfig()
-    private val highPassFilter: StatefulFilter = mockk()
-
-    private val lowPassConfig = nextLowPassConfig()
-    private val lowPassFilter: StatefulFilter = mockk()
-    private val lowPassStopFreq = lowPassConfig.frequencyAt(minimalConfig.rolloffThreshold!!)
-
-    private val filteredSamples = nextFloatArray()
 
     @BeforeEach
     fun setupHappyPath() {
+        every { filterFactory.create(highPassConfig) } returns highPassFilter
+        every { filterFactory.create(lowPassConfigBelowNyquist) } returns lowPassFilter
+        every { filterFactory.create(lowPassAboveNyquist) } returns lowPassFilter
+
         every { monoMixer.mix(stereoAudio) } returns monoAudio
         every { gain.apply(monoAudio.samples, 3f) } returns gainedSamples
-
-        every { filterFactory.create(highPassConfig) } returns highPassFilter
-        every { highPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
-
-        every { filterFactory.create(lowPassConfig) } returns lowPassFilter
-        every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns filteredSamples
-
-        every { decimator.decimationFactor(monoAudio.format.sampleRate, lowPassStopFreq) } returns decimationFactor
-        every { decimator.decimate(monoAudio.copy(samples = filteredSamples), decimationFactor) } returns decimatedAudio
+        every { highPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns highPassedSamples
+        every { lowPassFilter.filter(monoAudio.samples, monoAudio.format.sampleRate) } returns lowPassedSamples
+        every { decimator.decimationFactor(monoAudio.format.sampleRate, any()) } returns decimationFactor
+        every { decimator.decimate(monoAudio.copy(samples = lowPassedSamples), decimationFactor) } returns decimatedAudio
     }
 
     @AfterEach
@@ -64,7 +59,7 @@ class AudioConditionerTests {
         clearAllMocks()
     }
 
-    private fun createSUT(config: AudioConditionerConfig = minimalConfig): AudioConditioner {
+    private fun createSUT(): AudioConditioner {
         return AudioConditioner(
             monoMixer,
             gain,
@@ -73,20 +68,23 @@ class AudioConditionerTests {
         )
     }
 
+    // Mix to Mono
     @Test
-    fun `given multichannel audio, mix to mono`() {
+    fun `downmix to mono`() {
         val sut = createSUT()
 
         val result = sut.condition(stereoAudio, minimalConfig)
 
-        assertEquals(1, result.format.channels)
+        assertEquals(monoAudio, result)
     }
 
+    // Gain
     @Test
-    fun `apply gain to audio`() {
+    fun `apply gain`() {
         val sut = createSUT()
+        val config = minimalConfig.copy(gainDb = 3f)
 
-        val result = sut.condition(monoAudio, minimalConfig.copy(gainDb = 3f))
+        val result = sut.condition(monoAudio, config)
 
         val expected = monoAudio.copy(samples = gainedSamples)
         assertEquals(expected, result)
@@ -94,33 +92,48 @@ class AudioConditionerTests {
 
     // Filtering
     @Test
-    fun `apply high pass filter`() {
+    fun `apply a high pass filter`() {
         val sut = createSUT()
+        val config = minimalConfig.copy(highPassFilter = highPassConfig)
 
-        val result = sut.condition(monoAudio, minimalConfig.copy(highPassFilter = highPassConfig))
+        val result = sut.condition(monoAudio, config)
 
-        val expected = monoAudio.copy(samples = filteredSamples)
+        val expected = monoAudio.copy(samples = highPassedSamples)
         assertEquals(expected, result)
     }
 
     @Test
-    fun `apply low pass filter`() {
+    fun `apply a low pass filter`() {
         val sut = createSUT()
+        val config = minimalConfig.copy(lowPassFilter = lowPassConfigBelowNyquist)
 
-        val result = sut.condition(monoAudio, minimalConfig.copy(lowPassFilter = lowPassConfig))
+        val result = sut.condition(monoAudio, config)
 
-        val expected = monoAudio.copy(samples = filteredSamples)
+        val expected = monoAudio.copy(samples = lowPassedSamples)
         assertEquals(expected, result)
     }
 
     // Decimation
     @Test
-    fun `given a low pass filter, decimate to the the stopband`() {
+    fun `given a passband below Nyquist, apply decimation`() {
         val sut = createSUT()
+        val config = minimalConfig.copy(lowPassFilter = lowPassConfigBelowNyquist, decimate = true, rolloffThresholdDb = -48f)
+        val lowPassStopFreq = lowPassConfigBelowNyquist.frequencyAt(config.rolloffThresholdDb!!)
 
-        val result = sut.condition(monoAudio, minimalConfig.copy(lowPassFilter = lowPassConfig, decimate = true))
+        val result = sut.condition(monoAudio, config)
 
         assertEquals(decimatedAudio, result)
+        verify { decimator.decimationFactor(monoAudio.format.sampleRate, lowPassStopFreq) }
+    }
+
+    @Test
+    fun `given a passband above Nyquist, do not decimate`() {
+        val sut = createSUT()
+        val config = minimalConfig.copy(lowPassFilter = lowPassAboveNyquist, decimate = true, rolloffThresholdDb = -48f)
+
+        val result = sut.condition(monoAudio, config)
+
+        assert(result != decimatedAudio)
     }
 
 }
