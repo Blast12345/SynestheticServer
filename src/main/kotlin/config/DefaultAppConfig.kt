@@ -5,8 +5,8 @@ import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
+import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
@@ -27,7 +27,7 @@ val DefaultAppConfig = AppConfig(
                 frequency = tuning.getFrequency(tuning.A, octave = 2),
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
-            rolloffThreshold = -48f,
+            rolloffThresholdDb = -48f,
             decimate = true
         ),
         frameDuration = 63.milliseconds,

@@ -2,6 +2,7 @@ package lightOrgan
 
 import color.StandardRgbColor
 import color.StandardRgbColors
+import config.AppConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
@@ -33,12 +34,14 @@ class LightOrgan(
     private val _color = MutableStateFlow(StandardRgbColors.Black)
     val color: StateFlow<StandardRgbColor> = _color.asStateFlow()
 
-    fun start() {
+    fun start(
+        config: () -> AppConfig
+    ) {
         val timeBetweenColors = TimestampUtility("Time between colors")
 
         inputManager.audioStream
             .buffer(64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it) }
+            .mapSequenced("Spectral analysis") { spectralAnalyzer.analyze(it, config().spectralAnalysis) }
             .onEach { _spectralAnalysis.value = it.value }
             .conflate()
             .mapSequenced("Color generation") { colorCalculator.calculate(it) }

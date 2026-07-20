@@ -2,15 +2,16 @@ package utilities
 
 class CachedProvider<K, V>(private val create: (K) -> V) {
 
-    private var key: K? = null
-    private var value: V? = null
+    private var cached: Pair<K, V>? = null
 
     fun get(key: K): V {
-        if (key != this.key) {
-            this.key = key
-            value = create(key)
+        val current = cached
+        if (current != null && current.first == key) {
+            return current.second
         }
-        return value!!
+        val newValue = create(key)
+        cached = Pair(key, newValue)
+        return newValue
     }
 
 }

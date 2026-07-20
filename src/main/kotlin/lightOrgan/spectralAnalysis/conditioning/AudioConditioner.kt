@@ -1,18 +1,14 @@
 package lightOrgan.spectralAnalysis.conditioning
 
 import audio.samples.AudioFrame
-import config.AppConfigSingleton
 import dsp.Decimator
 import dsp.Gain
 import dsp.MonoMixer
 import dsp.filtering.FilterConfig
-import dsp.filtering.Passband
 import dsp.filtering.StatefulFilter
-import lightOrgan.spectralAnalysis.AudioConditionerConfig
 import utilities.CachedProvider
 
 class AudioConditioner(
-    private val config: () -> AudioConditionerConfig = { AppConfigSingleton.value.spectralAnalysis.audioConditioner },
     private val monoMixer: MonoMixer = MonoMixer(),
     private val gain: Gain = Gain(),
     private val filterFactory: FilterFactory = FilterFactory(),
@@ -22,20 +18,9 @@ class AudioConditioner(
     private val highPassFilterCache = CachedProvider<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
     private val lowPassFilterCache = CachedProvider<FilterConfig?, StatefulFilter?> { it?.let { filterFactory.create(it) } }
 
-    val passband: Passband
-        get() {
-            val config = this.config()
-
-            return Passband(
-                lowerFrequency = config.highPassFilter?.frequencyAt(config.rolloffThreshold) ?: 0f,
-                higherFrequency = config.lowPassFilter?.frequencyAt(config.rolloffThreshold) ?: Float.POSITIVE_INFINITY,
-            )
-        }
-
-    fun condition(audio: AudioFrame): AudioFrame {
-        val config = this.config() // Snapshot to prevent settings changes mid-flight
-        val highPassFilter = config.highPassFilter?.let { highPassFilterCache.get(it) }
-        val lowPassFilter = config.lowPassFilter?.let { lowPassFilterCache.get(it) }
+    fun condition(audio: AudioFrame, config: AudioConditionerConfig): AudioFrame {
+        val highPassFilter = highPassFilterCache.get(config.highPassFilter)
+        val lowPassFilter = lowPassFilterCache.get(config.lowPassFilter)
 
         var conditionedAudio = audio
 
@@ -44,7 +29,7 @@ class AudioConditioner(
         }
 
         if (config.gainDb != 0f) {
-            conditionedAudio = applyGain(conditionedAudio, config.gainDb)
+            conditionedAudio = gain.apply(conditionedAudio, config.gainDb)
         }
 
         if (highPassFilter != null) {
@@ -55,15 +40,15 @@ class AudioConditioner(
             conditionedAudio = lowPassFilter.filter(conditionedAudio)
         }
 
-        if (config.decimate && lowPassFilter != null) {
-            conditionedAudio = decimate(conditionedAudio, passband.higherFrequency)
+        if (config.decimate && config.passband.higherFrequency < conditionedAudio.format.nyquistFrequency) {
+            conditionedAudio = decimate(conditionedAudio, config.passband.higherFrequency)
         }
 
         return conditionedAudio
     }
 
-    private fun applyGain(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
-        val adjustedSamples = gain.apply(audioFrame.samples, gainDb)
+    private fun Gain.apply(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
+        val adjustedSamples = apply(audioFrame.samples, gainDb)
         return audioFrame.copy(samples = adjustedSamples)
     }
 

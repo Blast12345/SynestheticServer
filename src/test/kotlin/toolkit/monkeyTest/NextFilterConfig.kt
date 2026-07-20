@@ -6,6 +6,6 @@ fun nextHighPassConfig(): FilterConfig.HighPass {
     return FilterConfig.HighPass(nextPositiveFloat(), nextFilterFamily())
 }
 
-fun nextLowPassConfig(): FilterConfig.LowPass {
-    return FilterConfig.LowPass(nextPositiveFloat(), nextFilterFamily())
+fun nextLowPassConfig(frequency: Float = nextPositiveFloat()): FilterConfig.LowPass {
+    return FilterConfig.LowPass(frequency, nextFilterFamily())
 }

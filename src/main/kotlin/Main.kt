@@ -6,6 +6,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import color.StandardRgbColor
 import com.github.kwhat.jnativehook.GlobalScreen
+import config.AppConfigSingleton
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
@@ -46,7 +47,7 @@ fun main(args: Array<String>) {
     val gatewayManager = RealGatewayManager()
 
     val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
-    lightOrgan.start()
+    lightOrgan.start(config = { AppConfigSingleton.value })
 
     if (args.contains("--headless")) {
         launchHeadless(inputManager, gatewayManager)
