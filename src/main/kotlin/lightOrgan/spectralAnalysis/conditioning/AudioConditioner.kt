@@ -7,7 +7,6 @@ import dsp.MonoMixer
 import dsp.filtering.FilterConfig
 import dsp.filtering.StatefulFilter
 import utilities.CachedProvider
-import kotlin.math.min
 
 class AudioConditioner(
     private val monoMixer: MonoMixer = MonoMixer(),
@@ -30,7 +29,7 @@ class AudioConditioner(
         }
 
         if (config.gainDb != 0f) {
-            conditionedAudio = applyGain(conditionedAudio, config.gainDb)
+            conditionedAudio = gain.apply(conditionedAudio, config.gainDb)
         }
 
         if (highPassFilter != null) {
@@ -41,16 +40,15 @@ class AudioConditioner(
             conditionedAudio = lowPassFilter.filter(conditionedAudio)
         }
 
-        if (config.decimate && lowPassFilter != null) {
-            val targetNyquist = min(config.passband.higherFrequency, conditionedAudio.format.sampleRate / 2f) // TODO: Test me
-            conditionedAudio = decimate(conditionedAudio, targetNyquist)
+        if (config.decimate && config.passband.higherFrequency < conditionedAudio.format.nyquistFrequency) {
+            conditionedAudio = decimate(conditionedAudio, config.passband.higherFrequency)
         }
 
         return conditionedAudio
     }
 
-    private fun applyGain(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
-        val adjustedSamples = gain.apply(audioFrame.samples, gainDb)
+    private fun Gain.apply(audioFrame: AudioFrame, gainDb: Float): AudioFrame {
+        val adjustedSamples = apply(audioFrame.samples, gainDb)
         return audioFrame.copy(samples = adjustedSamples)
     }
 

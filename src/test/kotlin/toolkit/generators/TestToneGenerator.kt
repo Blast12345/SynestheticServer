@@ -9,8 +9,16 @@ class Tone(
 )
 
 class TestToneGenerator(
-    val format: AudioFormat = AudioFormat(sampleRate = 48000f, bitDepth = 16, channels = 1),
+    val format: AudioFormat
 ) {
+
+    companion object {
+        fun mono(sampleRate: Float = 48000f) =
+            TestToneGenerator(AudioFormat(sampleRate, bitDepth = 16, channels = 1))
+
+        fun stereo(sampleRate: Float = 48000f) =
+            TestToneGenerator(AudioFormat(sampleRate, bitDepth = 16, channels = 2))
+    }
 
     fun silence(): AudioFrame {
         return AudioFrame(generateSilence(format.sampleRate).samples, format)

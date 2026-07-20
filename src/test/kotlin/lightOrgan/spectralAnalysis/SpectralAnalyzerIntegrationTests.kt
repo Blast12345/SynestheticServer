@@ -18,7 +18,7 @@ class SpectralAnalyzerIntegrationTests {
     private val frequencyTolerance = minimalConfig.approximateBinSpacing
     private val magnitudeTolerance = 0.1f
 
-    private val toneGenerator = TestToneGenerator()
+    private val toneGenerator = TestToneGenerator.mono()
     private val tone1 = Tone(60f)
     private val tone2 = Tone(120f)
 
