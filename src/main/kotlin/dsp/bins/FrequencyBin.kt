@@ -27,4 +27,4 @@ data class FrequencyBin(
 typealias FrequencyBins = List<FrequencyBin>
 
 
-fun FrequencyBins.nearestTo(frequency: Float): FrequencyBin? = minByOrNull { abs(it.frequency - frequency) } // TODO: Test me?
+fun FrequencyBins.nearestTo(frequency: Float): FrequencyBin? = minByOrNull { abs(it.frequency - frequency) }
