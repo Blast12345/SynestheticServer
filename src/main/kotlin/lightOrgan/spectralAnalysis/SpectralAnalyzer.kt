@@ -20,7 +20,7 @@ class SpectralAnalyzer(
         config: SpectralAnalysisConfig
     ): SpectralAnalysis {
         val conditionedAudio = audioConditioner.condition(audio, config.audioConditioner)
-        val rawSpectrum = spectrumCalculator.calculate(conditionedAudio)
+        val rawSpectrum = spectrumCalculator.calculate(conditionedAudio, config.spectrumCalculator)
         val rawPeaks = peakExtractor.extract(rawSpectrum)
 
         return SpectralAnalysis(
