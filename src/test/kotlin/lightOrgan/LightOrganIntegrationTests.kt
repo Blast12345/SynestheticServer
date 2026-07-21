@@ -30,7 +30,7 @@ class LightOrganIntegrationTests {
     private val cFrequency = westernTuning.getFrequency(westernTuning.C, 4)
     private val fSharpFrequency = westernTuning.getFrequency(westernTuning.F_SHARP, 4)
 
-    private val frequencyTolerance = minimalAppConfig.spectralAnalysis.approximateBinSpacing
+    private val frequencyTolerance = minimalAppConfig.spectralAnalysis.spectrumCalculator.approximateBinSpacing
 
     @BeforeEach
     fun setup() {

@@ -1,14 +1,11 @@
 package lightOrgan.spectralAnalysis
 
-import dsp.windowing.WindowType
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
-import kotlin.time.Duration
+import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 
 data class SpectralAnalysisConfig(
     val audioConditioner: AudioConditionerConfig,
-    val frameDuration: Duration,
-    val approximateBinSpacing: Float,
-    val window: WindowType,
+    val spectrumCalculator: SpectrumCalculatorConfig,
     val peakExtractor: PeakExtractorConfig
 )

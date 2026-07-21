@@ -4,13 +4,4 @@ enum class WindowType {
     Hann,
     BlackmanHarris3Term,
     BlackmanHarris4Term;
-
-    // Plug in the appropriate coefficients to add new window types.
-    // Reference: https://en.wikipedia.org/wiki/Window_function
-    fun createWindow(): Window = when (this) {
-        Hann -> GeneralizedCosineWindow(floatArrayOf(0.5f, 0.5f))
-        BlackmanHarris3Term -> GeneralizedCosineWindow(floatArrayOf(0.42438f, 0.49734f, 0.07828f))
-        BlackmanHarris4Term -> GeneralizedCosineWindow(floatArrayOf(0.35875f, 0.48829f, 0.14128f, 0.01168f))
-    }
-
 }

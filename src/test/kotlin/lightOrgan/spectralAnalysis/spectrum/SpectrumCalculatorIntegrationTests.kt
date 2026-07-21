@@ -2,14 +2,12 @@ package lightOrgan.spectralAnalysis.spectrum
 
 import audio.samples.AudioFormat
 import dsp.windowing.WindowType
-import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import toolkit.generators.combineWaves
 import toolkit.generators.generateSilence
 import toolkit.generators.generateSineWave
-import toolkit.monkeyTest.nextSpectralAnalysisConfig
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -18,7 +16,7 @@ class SpectrumCalculatorIntegrationTests {
     private val resolution = 20f
     private val minimumDuration = (1000 / resolution).toLong().milliseconds
 
-    private val config = nextSpectralAnalysisConfig().copy(
+    private val config = SpectrumCalculatorConfig(
         frameDuration = minimumDuration * 2,
         approximateBinSpacing = 1f,
         window = WindowType.Hann
@@ -30,8 +28,8 @@ class SpectrumCalculatorIntegrationTests {
     private val tone2 = generateSineWave(frequency = resolution * 100, sampleRate = audioFormat.sampleRate, duration = config.frameDuration)
     private val combinedTones = combineWaves(tone1.waveForm, tone2.waveForm)
 
-    private fun createSUT(config: SpectralAnalysisConfig = this.config): SpectrumCalculator {
-        return SpectrumCalculator(config)
+    private fun createSUT(): SpectrumCalculator {
+        return SpectrumCalculator()
     }
 
     // Magnitudes
@@ -39,7 +37,7 @@ class SpectrumCalculatorIntegrationTests {
     fun `given silence, the magnitudes are zero`() {
         val sut = createSUT()
 
-        val spectrum = sut.calculate(silence.toAudioFrame())
+        val spectrum = sut.calculate(silence.toAudioFrame(), config)
 
         spectrum.forEach { assertEquals(0f, it.magnitude) }
     }
@@ -48,7 +46,7 @@ class SpectrumCalculatorIntegrationTests {
     fun `given a tone, the loudest bin corresponds to the tone`() {
         val sut = createSUT()
 
-        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame())
+        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame(), config)
 
         val peakBin = spectrum.maxBy { it.magnitude }
         assertEquals(tone1.frequency, peakBin.frequency, config.approximateBinSpacing)
@@ -59,7 +57,7 @@ class SpectrumCalculatorIntegrationTests {
     fun `given multiple tones, the loudest bins corresponds to the tones`() {
         val sut = createSUT()
 
-        val spectrum = sut.calculate(combinedTones.toAudioFrame())
+        val spectrum = sut.calculate(combinedTones.toAudioFrame(), config)
 
         val peak1 = spectrum.minBy { abs(it.frequency - tone1.frequency) }
         assertEquals(tone1.frequency, peak1.frequency, config.approximateBinSpacing)
@@ -74,11 +72,11 @@ class SpectrumCalculatorIntegrationTests {
     @Test
     fun `given audio shorter than the frame duration, the spectrum reflects both new and retained audio`() {
         val sut = createSUT()
-        sut.calculate(tone1.waveForm.toAudioFrame())
+        sut.calculate(tone1.waveForm.toAudioFrame(), config)
 
         // Half duration means 50/50 split between old and new data
         val halfDurationTone2 = generateSineWave(tone2.frequency, sampleRate = audioFormat.sampleRate, duration = config.frameDuration / 2)
-        val spectrum = sut.calculate(halfDurationTone2.waveForm.toAudioFrame())
+        val spectrum = sut.calculate(halfDurationTone2.waveForm.toAudioFrame(), config)
 
         val peak1 = spectrum.minBy { abs(it.frequency - tone1.frequency) }
         assertEquals(tone1.frequency, peak1.frequency, config.approximateBinSpacing)
@@ -95,7 +93,7 @@ class SpectrumCalculatorIntegrationTests {
         require(config.approximateBinSpacing < resolution) { "We cannot verify interpolation is occurring if the resolution not greater than the approximate spacing." }
         val sut = createSUT()
 
-        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame())
+        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame(), config)
 
         val binWidth = spectrum[1].frequency - spectrum[0].frequency
         assertTrue(binWidth <= config.approximateBinSpacing)
@@ -106,7 +104,7 @@ class SpectrumCalculatorIntegrationTests {
     fun `the DC offset bin is omitted`() {
         val sut = createSUT()
 
-        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame())
+        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame(), config)
 
         // DC offset doesn't represent a real frequency
         assertTrue(spectrum.none { it.frequency == 0f })
@@ -116,7 +114,7 @@ class SpectrumCalculatorIntegrationTests {
     fun `the Nyquist bin is omitted`() {
         val sut = createSUT()
 
-        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame())
+        val spectrum = sut.calculate(tone1.waveForm.toAudioFrame(), config)
 
         // Nyquist lacks the imaginary component, so calculating the magnitude is unreliable
         assertTrue(spectrum.none { it.frequency == audioFormat.nyquistFrequency })
