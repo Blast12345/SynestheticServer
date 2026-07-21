@@ -8,6 +8,7 @@ import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
+import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.milliseconds
@@ -30,9 +31,11 @@ val DefaultAppConfig = AppConfig(
             rolloffThresholdDb = -48f,
             decimate = true
         ),
-        frameDuration = 63.milliseconds,
-        approximateBinSpacing = 1f,
-        window = WindowType.BlackmanHarris3Term,
+        spectrumCalculator = SpectrumCalculatorConfig(
+            window = WindowType.BlackmanHarris3Term,
+            frameDuration = 63.milliseconds,
+            approximateBinSpacing = 1f,
+        ),
         peakExtractor = PeakExtractorConfig.Parabolic,
     ),
     gateway = GatewayConfig(
