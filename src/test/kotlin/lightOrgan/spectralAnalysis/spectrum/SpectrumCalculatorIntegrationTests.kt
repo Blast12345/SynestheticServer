@@ -17,7 +17,7 @@ class SpectrumCalculatorIntegrationTests {
         window = WindowType.Hann
     )
 
-    private val toneGenerator = TestToneGenerator.mono()
+    private val toneGenerator = TestToneGenerator.mono(defaultDuration = config.frameDuration)
     private val tone1 = Tone(config.frequencyResolution * 10)
     private val tone2 = Tone(config.frequencyResolution * 100)
 
