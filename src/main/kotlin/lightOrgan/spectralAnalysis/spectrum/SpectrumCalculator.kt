@@ -8,8 +8,10 @@ import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
 import dsp.windowing.Window
 import dsp.windowing.WindowFactory
+import dsp.windowing.WindowType
 import extensions.inSeconds
 import math.nextPowerOfTwo
+import kotlin.time.Duration
 
 // ENHANCEMENT: Spectral "reassignment method"
 // ENHANCEMENT: Multi-resolution bin generations
@@ -22,27 +24,42 @@ class SpectrumCalculator(
 ) {
 
     fun calculate(audio: AudioFrame, config: SpectrumCalculatorConfig): FrequencyBins {
-        val window = windowFactory.create(config.window)
+        val buffered = updateBuffer(audio, config.frameDuration)
+        val windowed = applyWindow(buffered, config.window)
+        val interpolated = interpolate(windowed, config.approximateBinSpacing)
+        val allBins = calculateAllBins(interpolated)
 
-        val sampleSize = (config.frameDuration.inSeconds * audio.format.sampleRate).toInt()
-        val samplesSizeForDesiredSpacing = (audio.format.sampleRate / config.approximateBinSpacing).toInt()
-        val fftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing)
-
-        val bufferedAudio = updateBuffer(audio, sampleSize)
-        val windowedSamples = window.appliedTo(bufferedAudio.samples, Window.CorrectionType.MAGNITUDE)
-        val interpolated = interpolator.interpolate(windowedSamples, fftLength)
-        val allBins = frequencyBinsCalculator.calculate(interpolated, audio.format.sampleRate)
-
-        val lowestFrequency = config.frequencyResolution
-        val highestFrequency = audio.format.nyquistFrequency
-        val validBins = allBins.filter { it.frequency in lowestFrequency..<highestFrequency }
-
-        return validBins
+        return allBins.findValid(
+            frequencyResolution = config.frequencyResolution,
+            nyquistFrequency = audio.format.nyquistFrequency
+        )
     }
 
-    private fun updateBuffer(frame: AudioFrame, requiredSize: Int): AudioFrame {
-        audioBuffer.size = requiredSize
+    private fun updateBuffer(frame: AudioFrame, frameDuration: Duration): AudioFrame {
+        val sampleSize = (frameDuration.inSeconds * frame.format.sampleRate).toInt()
+        audioBuffer.size = sampleSize
         return audioBuffer.append(frame)
+    }
+
+    private fun applyWindow(frame: AudioFrame, type: WindowType): AudioFrame {
+        val window = windowFactory.create(type)
+        val samples = window.appliedTo(frame.samples, Window.CorrectionType.MAGNITUDE)
+        return AudioFrame(samples, frame.format)
+    }
+
+    private fun interpolate(frame: AudioFrame, approximateBinSpacing: Float): AudioFrame {
+        val samplesSizeForDesiredSpacing = (frame.format.sampleRate / approximateBinSpacing).toInt()
+        val fftLength = nextPowerOfTwo(samplesSizeForDesiredSpacing)
+        val samples = interpolator.interpolate(frame.samples, fftLength)
+        return AudioFrame(samples, frame.format)
+    }
+
+    private fun calculateAllBins(frame: AudioFrame): FrequencyBins {
+        return frequencyBinsCalculator.calculate(frame.samples, frame.format.sampleRate)
+    }
+
+    private fun FrequencyBins.findValid(frequencyResolution: Float, nyquistFrequency: Float): FrequencyBins {
+        return filter { it.frequency in frequencyResolution..<nyquistFrequency }
     }
 
 }

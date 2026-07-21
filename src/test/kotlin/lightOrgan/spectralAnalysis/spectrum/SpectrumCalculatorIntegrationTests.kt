@@ -111,6 +111,18 @@ class SpectrumCalculatorIntegrationTests {
         assertTrue(spectrum.none { it.frequency == 0f })
     }
 
+
+    @Test
+    fun `bins below the frequency resolution are omitted`() {
+        val sut = createSUT()
+
+        val frame = toneGenerator.silence()
+        val spectrum = sut.calculate(frame, config)
+
+        // Bins below the resolution are not reliable
+        assertTrue(spectrum.none { it.frequency < config.frequencyResolution })
+    }
+
     @Test
     fun `the Nyquist bin is omitted`() {
         val sut = createSUT()
