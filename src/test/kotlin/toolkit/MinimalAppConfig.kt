@@ -16,6 +16,7 @@ val minimalAppConfig = AppConfig(
             gainDb = 0f,
             highPassFilter = null,
             lowPassFilter = null,
+            rolloffThresholdDb = null,
             decimation = null,
         ),
         spectrumCalculator = SpectrumCalculatorConfig(

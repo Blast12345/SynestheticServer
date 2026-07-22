@@ -29,6 +29,7 @@ val DefaultAppConfig = AppConfig(
                 frequency = tuning.getFrequency(tuning.A, octave = 2),
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
+            rolloffThresholdDb = -48f,
             decimation = DecimationConfig.Automatic(-48f)
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
