@@ -9,8 +9,6 @@ data class AudioConditionerConfig(
     val lowPassFilter: FilterConfig.LowPass?,
     val decimation: DecimationConfig?
 ) {
-
-
     val decimationFrequency: Float? = when (decimation) {
         is DecimationConfig.Automatic -> lowPassFilter?.frequencyAt(decimation.thresholdDb)
         is DecimationConfig.Explicit -> decimation.frequency
@@ -19,7 +17,6 @@ data class AudioConditionerConfig(
 
 }
 
-// TODO:
 sealed interface DecimationConfig {
     data class Automatic(val thresholdDb: Float) : DecimationConfig
     data class Explicit(val frequency: Float) : DecimationConfig
