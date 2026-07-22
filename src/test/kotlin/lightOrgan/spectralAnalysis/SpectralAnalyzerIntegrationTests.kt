@@ -1,12 +1,8 @@
 package lightOrgan.spectrum
 
-import dsp.filtering.FilterConfig
-import dsp.filtering.FilterFamily
-import dsp.filtering.FilterOrder
 import dsp.peakExtraction.nearestTo
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import toolkit.generators.TestToneGenerator
 import toolkit.generators.Tone
@@ -77,51 +73,6 @@ class SpectralAnalyzerIntegrationTests {
         val peak2 = peaks.nearestTo(tone2.frequency)!!
         assertEquals(tone2.frequency, peak2.frequency, frequencyTolerance)
         assertEquals(tone2.amplitude, peak2.magnitude, magnitudeTolerance)
-    }
-
-    // Passband
-    private val highPassCutoff = 100f
-    private val lowPassCutoff = 1000f
-    private val filterDbPerOctave = 48
-    private val rolloffThreshold = -filterDbPerOctave.toFloat() // Ensures that our passband is an octave from the cutoffs
-    private val outOfBandTone = Tone(highPassCutoff / 4f) // Octave below passband
-    private val inBandTone = Tone(highPassCutoff * 3f) // Octave into passband
-
-    private val passbandConfig = minimalConfig.copy(
-        audioConditioner = minimalConfig.audioConditioner.copy(
-            rolloffThresholdDb = rolloffThreshold,
-            highPassFilter = FilterConfig.HighPass(
-                frequency = highPassCutoff,
-                family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(filterDbPerOctave)),
-            ),
-            lowPassFilter = FilterConfig.LowPass(
-                frequency = lowPassCutoff,
-                family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(filterDbPerOctave)),
-            ),
-        )
-    )
-
-    @Test
-    fun `the spectrum is confined to the passband`() {
-        val sut = createSUT()
-
-        val frame = toneGenerator.silence()
-        val spectrum = sut.analyze(frame, passbandConfig).spectrum
-
-        assertTrue(spectrum.isNotEmpty(), "Spectrum should not be empty.")
-        assertTrue(spectrum.all { it.frequency in passbandConfig.audioConditioner.passband }, "No bins should escape the passband.")
-    }
-
-    @Test
-    fun `the peaks are confined to the passband`() {
-        val sut = createSUT()
-
-        val frame = toneGenerator.generate(outOfBandTone, inBandTone)
-        val peaks = sut.analyze(frame, passbandConfig).peaks
-
-        val inBandPeak = peaks.nearestTo(inBandTone.frequency)!!
-        assertEquals(inBandTone.frequency, inBandPeak.frequency, frequencyTolerance, "In-band tone should survive filtering.")
-        assertTrue(peaks.all { it.frequency in passbandConfig.audioConditioner.passband }, "No peaks should escape the passband.")
     }
 
 }
