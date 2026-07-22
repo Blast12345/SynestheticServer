@@ -7,8 +7,10 @@ import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
+import lightOrgan.spectralAnalysis.conditioning.DecimationConfig
 import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
+import lightOrgan.spectralAnalysis.postProcessing.PostProcessorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat
@@ -29,8 +31,7 @@ val DefaultAppConfig = AppConfig(
                 frequency = tuning.getFrequency(tuning.A, octave = 2),
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
-            rolloffThresholdDb = -48f,
-            decimate = true
+            decimation = DecimationConfig.Automatic(-48f)
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
             window = WindowType.BlackmanHarris3Term,
@@ -38,7 +39,9 @@ val DefaultAppConfig = AppConfig(
             approximateBinSpacing = 1f,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
-        noiseReducer = SpectralGate.Config(thresholdDb = -24.0)
+        postProcessor = PostProcessorConfig(
+            noiseReducer = SpectralGate.Config(thresholdDb = -24.0)
+        ),
     ),
     gateway = GatewayConfig(
         autoReconnect = true,

@@ -1,31 +1,29 @@
 package lightOrgan.spectralAnalysis.postProcessing
 
 import dsp.bins.FrequencyBins
-import dsp.filtering.Passband
 import dsp.peakExtraction.SpectralPeaks
-import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducer
 import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducerFactory
 
 class SpectralPostProcessor(
     private val noiseReducerFactory: NoiseReducerFactory = NoiseReducerFactory()
 ) {
 
-    fun processSpectrum(spectrum: FrequencyBins, passband: Passband, noiseReductionConfig: NoiseReducer.Config?): FrequencyBins {
-        var processed = spectrum.filter { it.frequency in passband }
+    fun processSpectrum(spectrum: FrequencyBins, config: PostProcessorConfig): FrequencyBins {
+        var processed = spectrum
 
-        if (noiseReductionConfig != null) {
-            val noiseReducer = noiseReducerFactory.create(noiseReductionConfig)
+        if (config.noiseReducer != null) {
+            val noiseReducer = noiseReducerFactory.create(config.noiseReducer)
             processed = noiseReducer.reduceSpectrum(processed)
         }
 
         return processed
     }
 
-    fun processPeaks(peaks: SpectralPeaks, passband: Passband, noiseReductionConfig: NoiseReducer.Config?): SpectralPeaks {
-        var processed = peaks.filter { it.frequency in passband }
+    fun processPeaks(peaks: SpectralPeaks, config: PostProcessorConfig): SpectralPeaks {
+        var processed = peaks
 
-        if (noiseReductionConfig != null) {
-            val noiseReducer = noiseReducerFactory.create(noiseReductionConfig)
+        if (config.noiseReducer != null) {
+            val noiseReducer = noiseReducerFactory.create(config.noiseReducer)
             processed = noiseReducer.reducePeaks(processed)
         }
 

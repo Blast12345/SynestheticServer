@@ -6,6 +6,7 @@ import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
+import lightOrgan.spectralAnalysis.postProcessing.PostProcessorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.seconds
@@ -16,8 +17,7 @@ val minimalAppConfig = AppConfig(
             gainDb = 0f,
             highPassFilter = null,
             lowPassFilter = null,
-            rolloffThresholdDb = null,
-            decimate = false
+            decimation = null,
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
             frameDuration = 1.seconds,
@@ -25,7 +25,9 @@ val minimalAppConfig = AppConfig(
             window = WindowType.BlackmanHarris3Term,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
-        noiseReducer = null
+        postProcessor = PostProcessorConfig(
+            noiseReducer = null
+        )
     ),
     gateway = GatewayConfig(
         autoReconnect = false,

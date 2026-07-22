@@ -7,6 +7,6 @@ fun nextSpectralAnalysisConfig(): SpectralAnalysisConfig {
         audioConditioner = nextAudioConditionerConfig(),
         spectrumCalculator = nextSpectrumCalculatorConfig(),
         peakExtractor = nextPeakExtractorConfig(),
-        noiseReducer = nextNoiseReducerConfig()
+        postProcessor = nextPostProcessorConfig()
     )
 }
