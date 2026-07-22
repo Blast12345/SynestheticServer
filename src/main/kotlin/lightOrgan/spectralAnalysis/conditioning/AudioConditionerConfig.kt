@@ -2,6 +2,7 @@ package lightOrgan.spectralAnalysis.conditioning
 
 import dsp.filtering.FilterConfig
 
+// ENHANCEMENT: Warn about using explicit decimation risking aliasing
 data class AudioConditionerConfig(
     val gainDb: Float,
     val highPassFilter: FilterConfig.HighPass?,
