@@ -7,7 +7,6 @@ fun nextAudioConditionerConfig(): AudioConditionerConfig {
         gainDb = nextPositiveFloat(),
         highPassFilter = nextHighPassConfig(),
         lowPassFilter = nextLowPassConfig(),
-        rolloffThresholdDb = nextNegativeFloat(),
         decimation = nextDecimationConfig(),
     )
 }

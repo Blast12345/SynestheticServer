@@ -22,8 +22,8 @@ class SpectralAnalyzer(
         val peaks = peakExtractor.extract(spectrum)
 
         return SpectralAnalysis(
-            spectrum = spectrum.filter { it.frequency in config.audioConditioner.passband },
-            peaks = peaks.filter { it.frequency in config.audioConditioner.passband },
+            spectrum = spectrum,
+            peaks = peaks,
         )
     }
 
