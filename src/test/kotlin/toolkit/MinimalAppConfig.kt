@@ -17,7 +17,7 @@ val minimalAppConfig = AppConfig(
             highPassFilter = null,
             lowPassFilter = null,
             rolloffThresholdDb = null,
-            decimate = false
+            decimation = null,
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
             frameDuration = 1.seconds,

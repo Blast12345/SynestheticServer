@@ -7,6 +7,7 @@ import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
+import lightOrgan.spectralAnalysis.conditioning.DecimationConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import music.WesternTuningSystem
@@ -29,7 +30,7 @@ val DefaultAppConfig = AppConfig(
                 family = FilterFamily.Butterworth(FilterOrder.fromDbPerOctave(48)),
             ),
             rolloffThresholdDb = -48f,
-            decimate = true
+            decimation = DecimationConfig.Automatic(-48f)
         ),
         spectrumCalculator = SpectrumCalculatorConfig(
             window = WindowType.BlackmanHarris3Term,

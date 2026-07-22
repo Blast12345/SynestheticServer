@@ -40,8 +40,10 @@ class AudioConditioner(
             conditionedAudio = lowPassFilter.filter(conditionedAudio)
         }
 
-        if (config.decimate && config.passband.higherFrequency < conditionedAudio.format.nyquistFrequency) {
-            conditionedAudio = decimate(conditionedAudio, config.passband.higherFrequency)
+        if (config.decimationFrequency != null &&
+            config.decimationFrequency < conditionedAudio.format.nyquistFrequency
+        ) {
+            conditionedAudio = decimate(conditionedAudio, config.decimationFrequency)
         }
 
         return conditionedAudio
