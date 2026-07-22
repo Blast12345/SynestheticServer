@@ -30,7 +30,6 @@ data class AudioConditionerConfig(
 
 }
 
-// TODO:
 sealed interface DecimationConfig {
     data class Automatic(val thresholdDb: Float) : DecimationConfig
     data class Explicit(val frequency: Float) : DecimationConfig
