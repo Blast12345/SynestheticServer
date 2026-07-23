@@ -3,7 +3,7 @@ package dsp.windowing
 import kotlin.math.PI
 import kotlin.math.cos
 
-open class GeneralizedCosineWindow(
+class GeneralizedCosineWindow(
     private val cosineCoefficients: FloatArray
 ) : Window() {
 
