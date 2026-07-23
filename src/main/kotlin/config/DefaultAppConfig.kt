@@ -5,12 +5,12 @@ import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.conditioning.DecimationConfig
 import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
-import lightOrgan.spectralAnalysis.postProcessing.PostProcessorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import music.WesternTuningSystem
 import serial.SerialFrameFormat

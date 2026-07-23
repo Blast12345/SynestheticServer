@@ -2,9 +2,9 @@ package lightOrgan.spectrum
 
 import dsp.bins.nearestTo
 import dsp.peakExtraction.nearestTo
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
-import lightOrgan.spectralAnalysis.postProcessing.PostProcessorConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import toolkit.generators.TestToneGenerator

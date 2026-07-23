@@ -1,9 +1,11 @@
 package lightOrgan.spectralAnalysis
 
 import audio.samples.AudioFrame
+import dsp.bins.FrequencyBins
+import dsp.peakExtraction.SpectralPeaks
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
+import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducerFactory
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
-import lightOrgan.spectralAnalysis.postProcessing.SpectralPostProcessor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
 // ENHANCEMENT: Split between short duration FFT (for brightness) and long duration FFT (for hue).
@@ -11,7 +13,7 @@ class SpectralAnalyzer(
     private val audioConditioner: AudioConditioner = AudioConditioner(),
     private val spectrumCalculator: SpectrumCalculator = SpectrumCalculator(),
     private val peakExtractor: PeakExtractor = PeakExtractor(),
-    private val postProcessor: SpectralPostProcessor = SpectralPostProcessor()
+    private val noiseReducerFactory: NoiseReducerFactory = NoiseReducerFactory()
 ) {
     // WARNING: Discontinuous data will cause spectral artifacts
     fun analyze(
@@ -23,9 +25,31 @@ class SpectralAnalyzer(
         val rawPeaks = peakExtractor.extract(rawSpectrum)
 
         return SpectralAnalysis(
-            spectrum = postProcessor.processSpectrum(rawSpectrum, config.postProcessor),
-            peaks = postProcessor.processPeaks(rawPeaks, config.postProcessor),
+            spectrum = processSpectrum(rawSpectrum, config.postProcessor),
+            peaks = processPeaks(rawPeaks, config.postProcessor),
         )
+    }
+
+    private fun processSpectrum(spectrum: FrequencyBins, config: PostProcessorConfig): FrequencyBins {
+        var processed = spectrum
+
+        if (config.noiseReducer != null) {
+            val noiseReducer = noiseReducerFactory.create(config.noiseReducer)
+            processed = noiseReducer.reduceSpectrum(processed)
+        }
+
+        return processed
+    }
+
+    private fun processPeaks(peaks: SpectralPeaks, config: PostProcessorConfig): SpectralPeaks {
+        var processed = peaks
+
+        if (config.noiseReducer != null) {
+            val noiseReducer = noiseReducerFactory.create(config.noiseReducer)
+            processed = noiseReducer.reducePeaks(processed)
+        }
+
+        return processed
     }
 
 }

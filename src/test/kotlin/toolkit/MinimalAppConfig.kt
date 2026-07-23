@@ -3,10 +3,10 @@ package toolkit
 import config.AppConfig
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
-import lightOrgan.spectralAnalysis.postProcessing.PostProcessorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import serial.SerialFrameFormat
 import kotlin.time.Duration.Companion.seconds
