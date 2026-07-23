@@ -16,7 +16,7 @@ class SpectralAnalyzerIntegrationTests {
     private val minimalConfig = minimalAppConfig.spectralAnalysis
     private val frequencyTolerance = minimalConfig.spectrumCalculator.approximateBinSpacing
     private val magnitudeTolerance = 0.1f
-    private val noiseFloor = -24f // TODO: Infer from sidelobe
+    private val noiseFloor = minimalConfig.spectrumCalculator.window.firstSidelobeDb // Opt for this to eliminate risk of sidelobes polluting data
 
     private val toneGenerator = TestToneGenerator.mono()
     private val tone1 = Tone(60f)
