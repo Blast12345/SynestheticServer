@@ -6,8 +6,8 @@ import dsp.ZeroPaddingInterpolator
 import dsp.bins.FftFrequencyBinsCalculator
 import dsp.bins.FrequencyBins
 import dsp.bins.FrequencyBinsCalculator
-import dsp.windowing.GeneralizedCosineWindow
 import dsp.windowing.Window
+import dsp.windowing.WindowFactory
 import dsp.windowing.WindowType
 import extensions.inSeconds
 import math.nextPowerOfTwo
@@ -19,13 +19,12 @@ import kotlin.time.Duration
 // ENHANCEMENT: Implement equal-loudness contours (ISO 226:2003). Manual SPL number with future plans of external meter?
 class SpectrumCalculator(
     private val audioBuffer: RollingAudioBuffer = RollingAudioBuffer(),
+    private val windowFactory: WindowFactory = WindowFactory(),
     private val interpolator: ZeroPaddingInterpolator = ZeroPaddingInterpolator(),
     private val frequencyBinsCalculator: FrequencyBinsCalculator = FftFrequencyBinsCalculator(),
 ) {
 
-    private val windowProvider = CachedProvider<WindowType, GeneralizedCosineWindow> {
-        GeneralizedCosineWindow(it.cosineCoefficients)
-    }
+    private val windowProvider = CachedProvider<WindowType, Window> { windowFactory.create(it) }
 
     fun calculate(audio: AudioFrame, config: SpectrumCalculatorConfig): FrequencyBins {
         val buffered = updateBuffer(audio, config.frameDuration)
