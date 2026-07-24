@@ -5,9 +5,11 @@ import dsp.filtering.FilterFamily
 import dsp.filtering.FilterOrder
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.conditioning.DecimationConfig
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculatorConfig
 import music.WesternTuningSystem
@@ -37,6 +39,9 @@ val DefaultAppConfig = AppConfig(
             approximateBinSpacing = 1f,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
+        postProcessor = PostProcessorConfig(
+            noiseReducer = SpectralGate.Config(thresholdDb = -24.0)
+        ),
     ),
     gateway = GatewayConfig(
         autoReconnect = true,

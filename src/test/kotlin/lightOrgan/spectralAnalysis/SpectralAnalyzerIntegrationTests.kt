@@ -1,7 +1,10 @@
 package lightOrgan.spectrum
 
+import dsp.bins.nearestTo
 import dsp.peakExtraction.nearestTo
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import toolkit.generators.TestToneGenerator
@@ -13,10 +16,12 @@ class SpectralAnalyzerIntegrationTests {
     private val minimalConfig = minimalAppConfig.spectralAnalysis
     private val frequencyTolerance = minimalConfig.spectrumCalculator.approximateBinSpacing
     private val magnitudeTolerance = 0.1f
+    private val noiseFloor = -24f // safely above the sidelobes of most windows
 
     private val toneGenerator = TestToneGenerator.mono()
     private val tone1 = Tone(60f)
     private val tone2 = Tone(120f)
+    private val backgroundTone = Tone.fromDbfs(200f, noiseFloor - 3f)
 
     private fun createSUT(): SpectralAnalyzer {
         return SpectralAnalyzer()
@@ -73,6 +78,41 @@ class SpectralAnalyzerIntegrationTests {
         val peak2 = peaks.nearestTo(tone2.frequency)!!
         assertEquals(tone2.frequency, peak2.frequency, frequencyTolerance)
         assertEquals(tone2.amplitude, peak2.magnitude, magnitudeTolerance)
+    }
+
+    // Noise Reduction
+    private val noiseReductionConfig = minimalConfig.copy(
+        postProcessor = PostProcessorConfig(
+            noiseReducer = SpectralGate.Config(noiseFloor.toDouble())
+        )
+    )
+
+    @Test
+    fun `mitigate background noise in the spectrum`() {
+        val sut = createSUT()
+        val frame = toneGenerator.generate(tone1, backgroundTone)
+
+        val spectrum = sut.analyze(frame, noiseReductionConfig).spectrum
+
+        val bin1 = spectrum.nearestTo(tone1.frequency)!!
+        assertEquals(tone1.frequency, bin1.frequency, frequencyTolerance)
+        assertEquals(tone1.amplitude, bin1.magnitude, magnitudeTolerance)
+
+        val bin2 = spectrum.nearestTo(backgroundTone.frequency)!!
+        assertEquals(backgroundTone.frequency, bin2.frequency, frequencyTolerance)
+        assertEquals(0f, bin2.magnitude, magnitudeTolerance)
+    }
+
+    @Test
+    fun `mitigate background noise in the peaks`() {
+        val sut = createSUT()
+        val frame = toneGenerator.generate(tone1, backgroundTone)
+
+        val peaks = sut.analyze(frame, noiseReductionConfig).peaks
+
+        assertEquals(1, peaks.size)
+        assertEquals(tone1.frequency, peaks.first().frequency, frequencyTolerance)
+        assertEquals(tone1.amplitude, peaks.first().magnitude, magnitudeTolerance)
     }
 
 }

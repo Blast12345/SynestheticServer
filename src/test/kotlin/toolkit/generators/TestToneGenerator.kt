@@ -2,13 +2,22 @@ package toolkit.generators
 
 import audio.samples.AudioFormat
 import audio.samples.AudioFrame
+import kotlin.math.pow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class Tone(
     val frequency: Float,
     val amplitude: Float = 1f
-)
+) {
+
+    companion object {
+        fun fromDbfs(frequency: Float, dbfs: Float): Tone {
+            return Tone(frequency, 10f.pow(dbfs / 20f))
+        }
+    }
+
+}
 
 class TestToneGenerator(
     val format: AudioFormat,

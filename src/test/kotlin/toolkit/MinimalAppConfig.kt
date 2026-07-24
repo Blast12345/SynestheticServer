@@ -3,6 +3,7 @@ package toolkit
 import config.AppConfig
 import dsp.windowing.WindowType
 import lightOrgan.gateway.GatewayConfig
+import lightOrgan.spectralAnalysis.PostProcessorConfig
 import lightOrgan.spectralAnalysis.SpectralAnalysisConfig
 import lightOrgan.spectralAnalysis.conditioning.AudioConditionerConfig
 import lightOrgan.spectralAnalysis.peaks.PeakExtractorConfig
@@ -24,6 +25,9 @@ val minimalAppConfig = AppConfig(
             window = WindowType.BlackmanHarris3Term,
         ),
         peakExtractor = PeakExtractorConfig.Parabolic,
+        postProcessor = PostProcessorConfig(
+            noiseReducer = null
+        )
     ),
     gateway = GatewayConfig(
         autoReconnect = false,
