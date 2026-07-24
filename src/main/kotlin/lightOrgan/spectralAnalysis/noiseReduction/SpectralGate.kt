@@ -6,7 +6,6 @@ import extensions.times
 import org.apache.commons.math3.complex.Complex
 import kotlin.math.pow
 
-// TODO: Test me
 class SpectralGate(
     val config: Config
 ) : NoiseReducer {
