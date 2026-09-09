@@ -5,6 +5,7 @@ import dsp.bins.FrequencyBins
 import dsp.peakExtraction.SpectralPeaks
 import lightOrgan.spectralAnalysis.conditioning.AudioConditioner
 import lightOrgan.spectralAnalysis.noiseReduction.NoiseReducerFactory
+import lightOrgan.spectralAnalysis.noiseReduction.SpectralGate
 import lightOrgan.spectralAnalysis.peaks.PeakExtractor
 import lightOrgan.spectralAnalysis.spectrum.SpectrumCalculator
 
@@ -23,6 +24,11 @@ class SpectralAnalyzer(
         val conditionedAudio = audioConditioner.condition(audio, config.audioConditioner)
         val rawSpectrum = spectrumCalculator.calculate(conditionedAudio, config.spectrumCalculator)
         val rawPeaks = peakExtractor.extract(rawSpectrum)
+
+        val spectralGate = config.postProcessor.noiseReducer as? SpectralGate.Config
+        if (spectralGate != null && spectralGate.thresholdDb >= 0f) {
+            println("ADSF")
+        }
 
         return SpectralAnalysis(
             spectrum = processSpectrum(rawSpectrum, config.postProcessor),
@@ -47,6 +53,12 @@ class SpectralAnalyzer(
         if (config.noiseReducer != null) {
             val noiseReducer = noiseReducerFactory.create(config.noiseReducer)
             processed = noiseReducer.reducePeaks(processed)
+        }
+
+        for (peak in processed) {
+            if (peak.magnitude.isNaN() || peak.magnitude.isInfinite() || peak.magnitude < 0f) {
+                println("ASDF")
+            }
         }
 
         return processed
