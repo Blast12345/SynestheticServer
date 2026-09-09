@@ -32,6 +32,9 @@ class ServerCommandListener(
 
         if (event.transition == KeyTransition.PRESSED) {
             val command = keymap.commandFor(heldKeys) ?: return
+
+            Logger.debug("Received key command: $command")
+
             runCatching { executor.execute(command) }.onFailure { Logger.error(it) }
         }
     }

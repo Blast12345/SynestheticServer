@@ -87,6 +87,7 @@ class EvdevKeyEventSource : KeyEventSource {
             if (input.readNBytes(buffer, 0, EVENT_LAYOUT.size) != EVENT_LAYOUT.size) {
                 return
             }
+
             val keyEvent = parseKeyEvent(buffer)
             if (keyEvent != null) {
                 onKeyEvent(keyEvent)
@@ -133,14 +134,21 @@ class EvdevKeyEventSource : KeyEventSource {
         Key.RIGHT -> setOf(KEY_RIGHT)
     }
 
-    private val KEY_LEFTCTRL = 29
-    private val KEY_RIGHTCTRL = 97
-    private val KEY_LEFTSHIFT = 42
-    private val KEY_RIGHTSHIFT = 54
-    private val KEY_UP = 103
-    private val KEY_LEFT = 105
-    private val KEY_RIGHT = 106
-    private val KEY_DOWN = 108
+    companion object {
+        private const val EV_KEY = 1
+        private const val EVDEV_KEY_RELEASED = 0
+        private const val EVDEV_KEY_PRESSED = 1
+        private const val EVDEV_KEY_REPEATED = 2
+
+        private const val KEY_LEFTCTRL = 29
+        private const val KEY_RIGHTCTRL = 97
+        private const val KEY_LEFTSHIFT = 42
+        private const val KEY_RIGHTSHIFT = 54
+        private const val KEY_UP = 103
+        private const val KEY_LEFT = 105
+        private const val KEY_RIGHT = 106
+        private const val KEY_DOWN = 108
+    }
 
     override fun stop() {
         scope.coroutineContext.cancelChildren()
