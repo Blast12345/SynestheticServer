@@ -13,7 +13,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class SerialGatewayConnector(
     private val connectionFactory: SerialJsonRpcConnectionFactory = SerialJsonRpcConnectionFactory(),
     private val gatewayFactory: GatewayFactory = GatewayFactory(),
-    private val timeout: Duration = 100.milliseconds
+    private val timeout: Duration = 10000.milliseconds
 ) {
 
     suspend fun connect(port: SerialPort): Gateway {

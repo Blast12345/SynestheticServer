@@ -5,6 +5,7 @@ import hotkeys.core.Key
 import hotkeys.core.KeyEvent
 import hotkeys.core.Modifier
 import kotlinx.coroutines.flow.update
+import logging.Logger
 
 class NoiseReductionHotkeyHandler(private val step: Double = 0.01) {
 
@@ -21,13 +22,17 @@ class NoiseReductionHotkeyHandler(private val step: Double = 0.01) {
             val noiseReduction = config.spectralAnalysis.noiseReduction
             val newThreshold = (noiseReduction.threshold + delta).coerceIn(0.0, 0.99)
 
-            config.copy(
+            val updatedConfig = config.copy(
                 spectralAnalysis = config.spectralAnalysis.copy(
                     noiseReduction = noiseReduction.copy(
                         threshold = newThreshold
                     )
                 )
             )
+
+            Logger.success("Set noise floor to $newThreshold")
+
+            return@update updatedConfig
         }
     }
 }

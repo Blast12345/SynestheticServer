@@ -43,6 +43,7 @@ tasks.test {
 
 // Compilation
 // ENHANCEMENT: Automate package version
+
 compose.desktop {
     application {
         mainClass = "MainKt"

@@ -59,10 +59,15 @@ private fun configureLogger(args: Array<String>) {
 private fun addHotkeyListeners() {
     val provider = HotkeyProviderFactory().create()
 
+    Logger.warning("Adding hotkey listeners...")
+
     provider.addListener(GainHotkeyHandler()::handle)
     provider.addListener(NoiseReductionHotkeyHandler()::handle)
 
+    Logger.warning("Added hotkey listeners...")
+
     provider.start()
+    Logger.warning("Started hotkey listeners...")
 }
 
 private fun launchGUI(

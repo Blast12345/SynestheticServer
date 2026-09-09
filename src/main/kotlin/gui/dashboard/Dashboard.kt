@@ -49,10 +49,10 @@ private fun MainRow(
             modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
-        SpectralAnalysisTile(
-            viewModel = viewModel.spectralAnalysisTileViewModel,
-            modifier = Modifier.weight(1f).fillMaxSize()
-        )
+//        SpectralAnalysisTile(
+//            viewModel = viewModel.spectralAnalysisTileViewModel,
+//            modifier = Modifier.weight(1f).fillMaxSize()
+//        )
 
         ColorTile(
             viewModel = viewModel.colorTileViewModel,

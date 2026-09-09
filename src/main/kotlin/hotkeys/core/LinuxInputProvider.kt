@@ -2,6 +2,7 @@ package hotkeys.core
 
 import hotkeys.HotkeyProvider
 import kotlinx.coroutines.*
+import logging.Logger
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -26,8 +27,13 @@ class LinuxInputProvider(
     }
 
     override fun start() {
+        Logger.warning("Starting input provider loop")
         job = scope.launch(Dispatchers.IO) {
             connectionLoop()
+        }
+
+        job?.invokeOnCompletion {
+            Logger.warning("Input provided loop ended")
         }
     }
 
@@ -39,10 +45,14 @@ class LinuxInputProvider(
     private suspend fun connectionLoop() {
         while (true) {
             val devicePath = findDevice()
+
             if (devicePath == null) {
+                Logger.warning("No input device found")
                 delay(reconnectDelayMs)
                 continue
             }
+
+            Logger.warning("Input device found")
 
             readEvents(devicePath)
             activeModifiers.clear()
@@ -58,8 +68,13 @@ class LinuxInputProvider(
 
                 while (true) {
                     val bytesRead = input.read(buffer)
-                    if (bytesRead == -1) return
+                    if (bytesRead == -1) {
+                        Logger.warning("Input device returned EOF")
+                        return
+                    }
+                    Logger.warning("Input event bytes read")
                     if (bytesRead != EVENT_SIZE) continue
+                    Logger.warning("Input event met size")
 
                     val parsed = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN)
                     val type = parsed.getShort(16).toInt() and 0xFFFF
@@ -69,12 +84,13 @@ class LinuxInputProvider(
                     if (type == EV_KEY) handleKey(code, value)
                 }
             }
-        } catch (_: IOException) {
-            // Device disconnected or stream closed during shutdown
+        } catch (e: Exception) {
+            Logger.error(e)
         }
     }
 
     private fun findDevice(): String? {
+        Logger.warning("Looking for input device...")
         val byId = File("/dev/input/by-id/")
         val device = byId.listFiles()
             ?.firstOrNull { it.name.contains(deviceName) && it.name.endsWith("-event-kbd") }
