@@ -47,18 +47,18 @@ fun main(args: Array<String>) {
     val colorCalculator = ColorCalculator()
     val gatewayManager = RealGatewayManager()
     val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
-    val serverCommandListener = ServerCommandListener()
+    val serverCommandListener = ServerCommandListener.default()
 
     // Teardown
     registerShutdownActions(
-        { serverCommandListener.stop() },
+        { serverCommandListener?.stop() },
         { inputManager.stopListening() },
         { gatewayManager.disconnect() }, // TODO: Make more reliable? Wait for disconnect or no-op if already disconnected.
     )
 
     // Start
     lightOrgan.start(config = { AppConfigSingleton.value })
-    serverCommandListener.start() // TODO: If no source can be found, then log error?
+    serverCommandListener?.start()
 
     // Launch
     if (args.contains("--headless")) {

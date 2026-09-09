@@ -1,5 +1,6 @@
 package keyBinding
 
+import wrappers.keyBindingSource.EvdevKeyEventSource
 import wrappers.keyBindingSource.JNativeHookKeyEventSource
 import wrappers.operatingSystem.Linux
 import wrappers.operatingSystem.MacOS
@@ -9,25 +10,17 @@ import wrappers.operatingSystem.Windows
 interface KeyEventSource {
     fun start(onKeyEvent: (KeyEvent) -> Unit)
     fun stop()
-}
 
-// TODO:
-class KeyEventSourceProvider(
-    val operatingSystem: OperatingSystem = OperatingSystem.current()
-) {
+    companion object {
+        fun default(): KeyEventSource? {
+            val currentOperatingSystem = OperatingSystem.current()
 
-    fun create(operatingSystem: OperatingSystem): KeyEventSource {
-        return when (operatingSystem) {
-            is MacOS -> JNativeHookKeyEventSource()
-
-            is Windows -> JNativeHookKeyEventSource()
-
-            is Linux -> when (operatingSystem.desktop) {
-                LinuxDesktop.X11 -> JNativeHookKeyEventSource()
-                LinuxDesktop.WAYLAND -> TODO()
-                LinuxDesktop.HEADLESS -> TODO()
+            return when (currentOperatingSystem) {
+                is MacOS -> JNativeHookKeyEventSource()
+                is Windows -> JNativeHookKeyEventSource()
+                is Linux -> EvdevKeyEventSource()
+                null -> null
             }
         }
     }
-
 }

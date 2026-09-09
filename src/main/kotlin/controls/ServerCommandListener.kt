@@ -2,14 +2,20 @@ package controls
 
 import keyBinding.*
 import logging.Logger
-import wrappers.keyBindingSource.JNativeHookKeyEventSource
 
 // ServerCommandService? ServerCommandManager? ServerCommandHandler?
 class ServerCommandListener(
-    private val keyEventSource: KeyEventSource = JNativeHookKeyEventSource(),
+    private val keyEventSource: KeyEventSource,
     private val keymap: Keymap<ServerCommand> = DefaultKeymap,
     private val executor: ServerCommandExecutor = ServerCommandExecutor(),
 ) {
+
+    companion object {
+        fun default(): ServerCommandListener? {
+            val keyEventSource = KeyEventSource.default() ?: return null
+            return ServerCommandListener(keyEventSource)
+        }
+    }
 
     private val heldKeys = mutableSetOf<Key>()
 
@@ -34,4 +40,5 @@ class ServerCommandListener(
         keyEventSource.stop()
         heldKeys.clear()
     }
+
 }
