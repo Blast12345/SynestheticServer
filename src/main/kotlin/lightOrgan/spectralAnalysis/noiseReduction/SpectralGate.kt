@@ -36,8 +36,15 @@ class SpectralGate(
         val threshold = 10.0.pow(config.thresholdDb / 20.0)
         if (magnitude <= threshold) return 0.0
 
+        // TODO: Make recovery respect gain?
         val recovery = 1.0 / (1.0 - threshold)
-        return (magnitude - threshold) * recovery / magnitude
+        val gain = (magnitude - threshold) * recovery / magnitude
+
+        if (gain.isFinite() == false || gain < 0f) {
+            println("ASGFSD")
+        }
+
+        return gain
     }
 
 }

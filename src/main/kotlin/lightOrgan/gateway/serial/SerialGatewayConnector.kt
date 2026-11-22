@@ -9,11 +9,12 @@ import logging.Logger
 import serial.SerialPort
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class SerialGatewayConnector(
     private val connectionFactory: SerialJsonRpcConnectionFactory = SerialJsonRpcConnectionFactory(),
     private val gatewayFactory: GatewayFactory = GatewayFactory(),
-    private val timeout: Duration = 100.milliseconds
+    private val timeout: Duration = 1.seconds
 ) {
 
     suspend fun connect(port: SerialPort): Gateway {

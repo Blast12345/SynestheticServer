@@ -5,8 +5,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import color.StandardRgbColor
-import com.github.kwhat.jnativehook.GlobalScreen
 import config.AppConfigSingleton
+import controls.ServerCommandListener
 import gui.Theme
 import gui.dashboard.Dashboard
 import gui.dashboard.DashboardViewModel
@@ -15,10 +15,10 @@ import gui.dashboard.tiles.spectralAnalysis.SpectralAnalysisTileViewModel
 import gui.snackbar.SimpleSnackbar
 import gui.tiles.audioInput.AudioInputTileViewModel
 import gui.tiles.gateway.GatewayTileViewModel
-import hotkeys.GainHotkeyListener
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import lightOrgan.LightOrgan
 import lightOrgan.color.ColorCalculator
 import lightOrgan.gateway.GatewayManager
@@ -29,6 +29,7 @@ import lightOrgan.spectralAnalysis.SpectralAnalysis
 import lightOrgan.spectralAnalysis.SpectralAnalyzer
 import logging.LogLevel
 import logging.Logger
+import kotlin.time.Duration.Companion.seconds
 
 // ENHANCEMENT: Persist config between app launches
 // ENHANCEMENT: Make state machines (e.g. managers) thread safe. Maybe create a state wrapper that uses a mutex.
@@ -39,16 +40,27 @@ import logging.Logger
 // ENHANCEMENT: Bump JVM SDK version to 21
 fun main(args: Array<String>) {
     configureLogger(args)
-    addHotkeyListeners()
 
+    // Initialize
     val inputManager = RealAudioInputManager()
     val spectralAnalyzer = SpectralAnalyzer()
     val colorCalculator = ColorCalculator()
     val gatewayManager = RealGatewayManager()
-
     val lightOrgan = LightOrgan(inputManager, spectralAnalyzer, colorCalculator, gatewayManager)
-    lightOrgan.start(config = { AppConfigSingleton.value })
+    val serverCommandListener = ServerCommandListener.default()
 
+    // Teardown
+    registerShutdownActions(
+        { serverCommandListener?.stop() },
+        { inputManager.stopListening() },
+        { gatewayManager.disconnect() }, // TODO: Make more reliable? Wait for disconnect or no-op if already disconnected.
+    )
+
+    // Start
+    lightOrgan.start(config = { AppConfigSingleton.value })
+    serverCommandListener?.start()
+
+    // Launch
     if (args.contains("--headless")) {
         launchHeadless(inputManager, gatewayManager)
     } else {
@@ -62,12 +74,6 @@ private fun configureLogger(args: Array<String>) {
         args.contains("--quiet") -> LogLevel.ERROR
         else -> LogLevel.SUCCESS
     }
-}
-
-private fun addHotkeyListeners() {
-    GlobalScreen.registerNativeHook()
-
-    GlobalScreen.addNativeKeyListener(GainHotkeyListener())
 }
 
 private fun launchGUI(
@@ -114,14 +120,22 @@ private fun launchHeadless(
     inputManager: AudioInputManager,
     gatewayManager: GatewayManager,
 ) {
-    Runtime.getRuntime().addShutdownHook(Thread {
-        runBlocking { gatewayManager.disconnect() }
-        inputManager.stopListening()
-    })
-
     runBlocking {
         inputManager.startListening()
         gatewayManager.connect()
         awaitCancellation()
     }
+}
+
+private fun registerShutdownActions(vararg teardowns: suspend () -> Unit) {
+    // TODO: Make these fault tolerant; one failure should cause others to fail.
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            runBlocking {
+                teardowns.forEach { teardown ->
+                    runCatching { withTimeout(1.seconds) { teardown() } }.onFailure { Logger.error(it) }
+                }
+            }
+        }
+    )
 }
